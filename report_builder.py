@@ -46,12 +46,81 @@ def _js(s):
 
 # ── Colours ───────────────────────────────────────────────────────────────────
 STOP_COLOURS = ['#e05a8a', '#d4860a', '#2a8a6a', '#7a5cc4', '#c4401a']
-SC = {
-    'hdr': '#1a1f3a', 'hdr_fg': '#fff', 'hdr_tot': '#0e1228',
-    'yds': '#c8220e', 'yds_fg': '#fff', 'yds_tot': '#9a1a0a',
-    'par': '#ffffff', 'par_fg': '#1a1a16', 'par_tot': '#f5e680',
-    'hcp': '#f5f0e8', 'hcp_fg': '#555', 'hcp_tot': '#e8e0cc'
+# Scorecard palettes — keyed by tee color (from course.tee in courses.json).
+# Each course's scorecard adopts the color scheme of the tees being played,
+# echoing the paper-scorecard aesthetic where each tee-color row is a bold
+# horizontal band. For White tees (the most common, visually neutral), the
+# Par row carries the visual weight with a saturated gold — per user pick V3
+# from the white_tee_variants mockup.
+TEE_PALETTES = {
+    # White tees — quiet yardage row + saturated gold Par row does the work.
+    'White': {
+        'yds': '#ffffff', 'yds_fg': '#1a1a16', 'yds_tot': '#e8e4d6',
+        'par': '#e8b030', 'par_fg': '#2a1a00', 'par_tot': '#c8911a',
+        'yds_border': '#c0bcae',  # subtle border on the yardage row so it reads against cream page bg
+    },
+
+    # Yellow tees — saturated yellow yardage + rich gold Par.
+    'Yellow': {
+        'yds': '#f5c842', 'yds_fg': '#1a1a16', 'yds_tot': '#d4a820',
+        'par': '#e8b030', 'par_fg': '#2a1a00', 'par_tot': '#c8911a',
+    },
+
+    # Orange tees — saturated orange + cream Par.
+    'Orange': {
+        'yds': '#f08c28', 'yds_fg': '#fff', 'yds_tot': '#c86a10',
+        'par': '#fff1c8', 'par_fg': '#5a4800', 'par_tot': '#f5d878'},
+
+    # Red tees — saturated red + cream Par.
+    'Red': {
+        'yds': '#c8220e', 'yds_fg': '#fff', 'yds_tot': '#9a1a08',
+        'par': '#fff1c8', 'par_fg': '#5a4800', 'par_tot': '#f5d878'},
+
+    # Blue tees — saturated blue + cream Par.
+    'Blue': {
+        'yds': '#2568c4', 'yds_fg': '#fff', 'yds_tot': '#1a4a94',
+        'par': '#fff1c8', 'par_fg': '#5a4800', 'par_tot': '#f5d878'},
+
+    # Black / Championship tees — near-black + gold text.
+    'Black': {
+        'yds': '#1a1a1a', 'yds_fg': '#e8d288', 'yds_tot': '#3a3530',
+        'par': '#fff1c8', 'par_fg': '#5a4800', 'par_tot': '#f5d878'},
+
+    # Green tees — deep forest + cream Par.
+    'Green': {
+        'yds': '#1e3a2e', 'yds_fg': '#e8d288', 'yds_tot': '#2e5242',
+        'par': '#fff1c8', 'par_fg': '#5a4800', 'par_tot': '#f5d878'},
+
+    # Gold / Senior tees — metallic olive + cream Par.
+    'Gold': {
+        'yds': '#a88830', 'yds_fg': '#fff', 'yds_tot': '#7a6018',
+        'par': '#fff1c8', 'par_fg': '#5a4800', 'par_tot': '#f5d878'},
 }
+
+
+def pick_palette(tee_color):
+    """Palette selection from the tee color played. Falls back to White if the
+    tee isn't in TEE_PALETTES (since the group plays White most often)."""
+    return TEE_PALETTES.get(tee_color, TEE_PALETTES['White'])
+
+
+# Header + HCP row colors are stable across all palettes — they carry the
+# report's section identity and the color-coded handicap dots.
+SC_STABLE = {
+    'hdr': '#1a1f3a', 'hdr_fg': '#fff', 'hdr_tot': '#0e1228',
+    'hcp': '#f5f0e8', 'hcp_fg': '#555', 'hcp_tot': '#e8e0cc',
+}
+
+
+def merge_sc(palette):
+    """Combine the tee-color yardage/par palette with the stable header/HCP
+    colors into the full SC dict the scorecard builder expects."""
+    return {**SC_STABLE, **{k: v for k, v in palette.items()}}
+
+
+# Default SC for module-level callers (weather cards, legends, etc.) that need
+# some default values when no round context is available.
+SC = merge_sc(TEE_PALETTES['White'])
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -258,29 +327,37 @@ def _static_cell(bg):
 
 def build_scorecard_table(holes, yards_list, total_label, yards_total, par_total,
                            players, tee_name='White', use_initials=False, rng=None,
-                           is_front=True):
+                           is_front=True, sc=None):
+    # Use per-round palette if provided, else module default
+    if sc is None:
+        sc = SC
     row_bgs = ['#f4f4f4', '#fafafa']
     # Header row
-    hdr = (f'<th style="background:{SC["hdr"]};color:{SC["hdr_fg"]};font-weight:700;font-size:10px;'
+    hdr = (f'<th style="background:{sc["hdr"]};color:{sc["hdr_fg"]};font-weight:700;font-size:10px;'
            f'text-transform:uppercase;letter-spacing:.08em;padding:8px 10px;min-width:38px;text-align:left;">Hole</th>')
-    hdr += ''.join(f'<th style="background:{SC["hdr"]};color:{SC["hdr_fg"]};font-weight:700;font-size:12px;padding:8px 4px;text-align:center;">{h["h"]}</th>' for h in holes)
-    hdr += f'<th style="background:{SC["hdr_tot"]};color:{SC["hdr_fg"]};font-weight:700;font-size:12px;padding:8px 10px 8px 4px;text-align:center;">{total_label}</th>'
-    # Yardage row
-    yds = (f'<td style="background:{SC["yds"]};color:{SC["yds_fg"]};font-weight:700;font-size:10px;'
-           f'text-transform:uppercase;letter-spacing:.07em;padding:7px 10px;text-align:left;">{tee_name}</td>')
-    yds += ''.join(f'<td style="background:{SC["yds"]};color:{SC["yds_fg"]};font-weight:700;font-size:13px;padding:7px 4px;text-align:center;">{y}</td>' for y in yards_list)
-    yds += f'<td style="background:{SC["yds_tot"]};color:#fff;font-weight:700;font-size:14px;padding:7px 10px 7px 6px;text-align:center;">{yards_total}</td>'
+    hdr += ''.join(f'<th style="background:{sc["hdr"]};color:{sc["hdr_fg"]};font-weight:700;font-size:12px;padding:8px 4px;text-align:center;">{h["h"]}</th>' for h in holes)
+    hdr += f'<th style="background:{sc["hdr_tot"]};color:{sc["hdr_fg"]};font-weight:700;font-size:12px;padding:8px 10px 8px 4px;text-align:center;">{total_label}</th>'
+    # Yardage row — optional bottom border for palettes where the background
+    # is very light (e.g. White tee yardage row needs a border so it doesn't
+    # vanish into the cream page background).
+    yds_border = sc.get('yds_border')
+    yds_border_css = f'border-bottom:1px solid {yds_border};' if yds_border else ''
+    yds = (f'<td style="background:{sc["yds"]};color:{sc["yds_fg"]};font-weight:700;font-size:10px;'
+           f'text-transform:uppercase;letter-spacing:.07em;padding:7px 10px;text-align:left;{yds_border_css}">{tee_name}</td>')
+    yds += ''.join(f'<td style="background:{sc["yds"]};color:{sc["yds_fg"]};font-weight:700;font-size:13px;padding:7px 4px;text-align:center;{yds_border_css}">{y}</td>' for y in yards_list)
+    # Yardage total — use yds_fg not hardcoded white (so light palettes don't show invisible text)
+    yds += f'<td style="background:{sc["yds_tot"]};color:{sc["yds_fg"]};font-weight:700;font-size:14px;padding:7px 10px 7px 6px;text-align:center;{yds_border_css}">{yards_total}</td>'
     # Par row (section-break class = heavier top border)
-    par = f'<td style="background:{SC["par"]};color:#333;font-weight:400;font-size:11px;padding:7px 10px;text-align:left;">Par</td>'
-    par += ''.join(f'<td style="background:{SC["par"]};color:{SC["par_fg"]};font-weight:700;font-size:12px;padding:7px 4px;text-align:center;">{h["par"]}</td>' for h in holes)
-    par += f'<td style="background:{SC["par_tot"]};color:#5a4800;font-weight:700;font-size:11px;padding:7px 10px 7px 4px;text-align:center;">{par_total}</td>'
+    par = f'<td style="background:{sc["par"]};color:#333;font-weight:400;font-size:11px;padding:7px 10px;text-align:left;">Par</td>'
+    par += ''.join(f'<td style="background:{sc["par"]};color:{sc["par_fg"]};font-weight:700;font-size:12px;padding:7px 4px;text-align:center;">{h["par"]}</td>' for h in holes)
+    par += f'<td style="background:{sc["par_tot"]};color:{sc["par_fg"]};font-weight:700;font-size:11px;padding:7px 10px 7px 4px;text-align:center;">{par_total}</td>'
     # HCP row (section-break class = heavier top border)
-    hcp = f'<td style="background:{SC["hcp"]};color:{SC["hcp_fg"]};font-weight:400;font-size:11px;padding:7px 10px;text-align:left;">HDCP</td>'
+    hcp = f'<td style="background:{sc["hcp"]};color:{sc["hcp_fg"]};font-weight:400;font-size:11px;padding:7px 10px;text-align:left;">HDCP</td>'
     for h in holes:
         bg2, fg2 = _hcp_style(h['hcp'])
         dot = f'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:{bg2};color:{fg2};font-size:10px;font-weight:700;">{h["hcp"]}</span>'
-        hcp += f'<td style="background:{SC["hcp"]};padding:4px 4px;text-align:center;">{dot}</td>'
-    hcp += f'<td style="background:{SC["hcp_tot"]};color:#999;font-weight:700;font-size:11px;padding:7px 10px 7px 4px;text-align:center;">—</td>'
+        hcp += f'<td style="background:{sc["hcp"]};padding:4px 4px;text-align:center;">{dot}</td>'
+    hcp += f'<td style="background:{sc["hcp_tot"]};color:#999;font-weight:700;font-size:11px;padding:7px 10px 7px 4px;text-align:center;">—</td>'
     # Player rows — Nick/Brett get interactive inputs; Ollie's row is display-only.
     # No more explicit divider <tr> — the first player row carries the section-break class,
     # and every player row has a 'player-row' class that gets a bottom border.
@@ -323,7 +400,7 @@ def build_scorecard_table(holes, yards_list, total_label, yards_total, par_total
 
     return (f'{scoped_css}'
             f'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:8px;border-radius:8px;overflow:hidden;">'
-            f'<table class="sc-tbl" style="width:100%;border-collapse:collapse;font-family:-apple-system,sans-serif;border:1.5px solid {SC["hdr"]};border-radius:8px;overflow:hidden;">'
+            f'<table class="sc-tbl" style="width:100%;border-collapse:collapse;font-family:-apple-system,sans-serif;border:1.5px solid {sc["hdr"]};border-radius:8px;overflow:hidden;">'
             f'<thead><tr>{hdr}</tr></thead>'
             f'<tbody><tr>{yds}</tr><tr class="section-break">{par}</tr><tr class="section-break">{hcp}</tr>{player_rows}</tbody>'
             f'</table></div>')
@@ -375,7 +452,7 @@ def build_send_scores_sections(players):
             f'</div>'
             # Status + Send button
             f'<div class="scores-status" style="font-size:12px;color:#2a7a3e;font-weight:500;margin-bottom:10px;min-height:16px;text-align:center;">&#10003; All 18 holes filled &mdash; ready to send</div>'
-            f'<button type="button" class="send-btn" onclick="sendScores({i})" '
+            f'<button type="button" id="send-btn-p{i}" class="send-btn" onclick="sendScores({i})" '
             f'style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a2e1a,#2d4a1e);color:#fff;font-size:15px;font-weight:700;cursor:pointer;touch-action:manipulation;letter-spacing:.02em;">'
             f'&#9993; Send Scores to Ollie</button>'
             f'</div>'
@@ -444,21 +521,18 @@ def build_stat_boxes(course_name, c):
     slope_ex  = f'<div class="explainer" id="slope-ex"><p><strong>Slope Rating</strong> of {c["slope"]} measures difficulty for higher handicap players. Standard is 113.</p>{st}</div>'
 
     boxes = (
-        f'<div class="stat"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
-        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">YARDAGE</span>'
-        f'<button class="info-btn" onclick="toggleEx(\'yards-ex\')">?</button></div>'
+        f'<div class="stat clickable" onclick="toggleEx(\'yards-ex\')"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
+        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">YARDAGE</span></div>'
         f'<div class="stat-val" style="margin-left:calc({yp}% - 18px);">{c["yards"]:,}</div>'
         f'{_diff_scale(yp, "Shorter", y_mid, "Longer")}{yards_ex}</div>'
 
-        f'<div class="stat"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
-        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">RATING</span>'
-        f'<button class="info-btn" onclick="toggleEx(\'rating-ex\')">?</button></div>'
+        f'<div class="stat clickable" onclick="toggleEx(\'rating-ex\')"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
+        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">RATING</span></div>'
         f'<div class="stat-val" style="margin-left:calc({rp}% - 18px);">{c["rating"]}</div>'
         f'{_diff_scale(rp, "Easier", r_mid, "Harder")}{rating_ex}</div>'
 
-        f'<div class="stat"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
-        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">SLOPE</span>'
-        f'<button class="info-btn" onclick="toggleEx(\'slope-ex\')">?</button></div>'
+        f'<div class="stat clickable" onclick="toggleEx(\'slope-ex\')"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
+        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">SLOPE</span></div>'
         f'<div class="stat-val" style="margin-left:calc({sp}% - 18px);">{c["slope"]}</div>'
         f'{_diff_scale(sp, "Forgiving", s_mid, "Demanding")}{slope_ex}</div>'
 
@@ -495,9 +569,8 @@ def _build_walk_box(course_name, c):
             f'</div>'
         )
         return (
-            f'<div class="stat"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
-            f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">AVG. WALK</span>'
-            f'<button class="info-btn" onclick="toggleEx(\'walk-ex\')">?</button></div>'
+            f'<div class="stat clickable" onclick="toggleEx(\'walk-ex\')"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
+            f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">AVG. WALK</span></div>'
             f'{body}{walk_ex}</div>'
         )
 
@@ -516,9 +589,8 @@ def _build_walk_box(course_name, c):
     )
 
     return (
-        f'<div class="stat"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
-        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">AVG. WALK</span>'
-        f'<button class="info-btn" onclick="toggleEx(\'walk-ex\')">?</button></div>'
+        f'<div class="stat clickable" onclick="toggleEx(\'walk-ex\')"><div style="display:flex;justify-content:flex-start;align-items:center;gap:5px;margin-bottom:2px;">'
+        f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">AVG. WALK</span></div>'
         f'<div class="stat-val" style="margin-left:calc({pct}% - 18px);">{avg:.1f} <span style="font-size:14px;font-weight:600;">km</span></div>'
         f'{_diff_scale(pct, "Shorter", mid, "Longer")}{walk_ex}</div>'
     )
@@ -932,10 +1004,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .diff-scale-track{position:relative;height:6px;background:#ece9e3;border-radius:3px;overflow:hidden;margin-top:18px;}
 .diff-scale-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,#52a06e,#c4621a);border-radius:3px;}
 .diff-scale-marker{position:absolute;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;background:#1a1a16;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);}
-.info-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:transparent;color:#c4621a;font-size:11px;font-weight:700;font-family:Georgia,serif;font-style:italic;line-height:1;cursor:pointer;border:1.5px solid #c4621a;touch-action:manipulation;padding:0;transition:background .15s,color .15s,transform .1s;-webkit-tap-highlight-color:transparent;vertical-align:middle;opacity:.7;}
-.info-btn:hover{background:#c4621a;color:#fff;opacity:1;}
-.info-btn:active{transform:scale(0.92);background:#c4621a;color:#fff;opacity:1;}
-.info-btn:focus{outline:none;opacity:1;}
+.info-btn{display:none;}  /* deprecated — stat boxes are clickable whole now */
+.stat.clickable{position:relative;cursor:pointer;transition:background .15s,transform .1s;-webkit-tap-highlight-color:transparent;}
+.stat.clickable::after{content:"";position:absolute;top:10px;right:10px;width:7px;height:7px;border-right:1.5px solid #c4621a;border-bottom:1.5px solid #c4621a;transform:rotate(-45deg);opacity:.5;transition:opacity .15s,transform .15s;}
+.stat.clickable:hover{background:#fffaf2;}
+.stat.clickable:hover::after{opacity:1;transform:rotate(-45deg) translate(1px,1px);}
+.stat.clickable:active{transform:scale(0.99);}
 .explainer{display:none;background:#1a1a16;color:#f5f3ee;border-radius:10px;padding:1rem 1.1rem;margin-top:10px;font-size:12px;line-height:1.6;}
 .explainer.visible{display:block;}
 .explainer strong{color:#f5c96e;}
@@ -1108,6 +1182,35 @@ var SUNRISE={sunrise_js};  // e.g. "5:59 AM" or empty string if unavailable
         }});
       }});
       setupTotals(t,isFront);
+    }});
+    // Tab from hole-18 input → focus this player's Send button (skip over
+    // other players' rows, which is where Tab would naturally go next).
+    // Only intercepts when the Send section is actually visible (i.e. all 18
+    // scores are filled). Shift+Tab still goes back to hole 17.
+    document.querySelectorAll('input[type=number][data-hole="18"]').forEach(function(inp){{
+      inp.addEventListener('keydown',function(ev){{
+        if(ev.key!=='Tab' || ev.shiftKey) return;
+        var row=inp.closest('tr[data-player-row]');
+        if(!row) return;
+        // Resolve the player index (pi) from the row's position in the ordered
+        // list of unique player rows. This avoids carrying player names into JS.
+        var rows=Array.from(document.querySelectorAll('tr[data-player-row]'));
+        var seen={{}},ordered=[];
+        rows.forEach(function(r){{
+          var n=r.getAttribute('data-player-row');
+          if(!seen[n]){{seen[n]=true; ordered.push(n);}}
+        }});
+        var pi=ordered.indexOf(row.getAttribute('data-player-row'));
+        if(pi<0) return;
+        var btn=document.getElementById('send-btn-p'+pi);
+        var sect=document.getElementById('send-scores-section-p'+pi);
+        // Only redirect if the send section is visible — otherwise let default
+        // Tab take the user wherever the natural tab order points.
+        if(btn && sect && sect.style.display!=='none' && sect.offsetParent!==null){{
+          ev.preventDefault();
+          btn.focus();
+        }}
+      }});
     }});
   }}
 
@@ -1503,9 +1606,14 @@ def build_report(course_name, date_str, time_str, players, output_path):
         for b in wx_bullets
     )
 
-    # Scorecard tables
-    front_table = build_scorecard_table(front, fy, 'OUT', ft, fp, players, tee_name=tee_nm, rng=rng, is_front=True)
-    back_table  = build_scorecard_table(back,  by, 'IN',  bt, bp, players, tee_name=tee_nm, use_initials=True, rng=rng, is_front=False)
+    # Scorecard tables — palette is chosen from the tees the group plays at
+    # this course (c['tee'] → TEE_PALETTES lookup). Same course always looks
+    # the same; different tee colors give visually distinct scorecards.
+    palette = pick_palette(tee_nm)
+    sc = merge_sc(palette)
+    print(f"  [palette] {tee_nm} tees")
+    front_table = build_scorecard_table(front, fy, 'OUT', ft, fp, players, tee_name=tee_nm, rng=rng, is_front=True, sc=sc)
+    back_table  = build_scorecard_table(back,  by, 'IN',  bt, bp, players, tee_name=tee_nm, use_initials=True, rng=rng, is_front=False, sc=sc)
 
     # Stat boxes, intel, reviews, stops
     stat_boxes = build_stat_boxes(course_name, c)
@@ -1594,18 +1702,16 @@ def build_report(course_name, date_str, time_str, players, output_path):
         # Intel + elevation/clock
         intel,
         f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;">'
-        f'<div class="stat" style="margin-top:5px;">'
+        f'<div class="stat clickable" style="margin-top:5px;" onclick="toggleEx(\'elev-ex\')">'
         f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
         f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Elevation</div>'
-        f'<button class="info-btn" onclick="toggleEx(\'elev-ex\')">?</button>'
         f'</div>'
         f'{elev_svg}'
         f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:3px;">{elev_caption}</div>'
         f'</div>'
-        f'<div class="stat" style="margin-top:5px;text-align:center;">'
+        f'<div class="stat clickable" style="margin-top:5px;text-align:center;" onclick="toggleEx(\'round-time-ex\')">'
         f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
         f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Avg. Round Time</div>'
-        f'<button class="info-btn" onclick="toggleEx(\'round-time-ex\')">?</button>'
         f'</div>'
         f'{lcd_svg}'
         f'<div style="font-size:10px;color:#aaa;font-weight:500;margin-top:6px;">avg. round time</div>'
