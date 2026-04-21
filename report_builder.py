@@ -448,9 +448,6 @@ def build_games_section(players, short_name):
     if not games:
         return ''
 
-    # Plural noun (for the evidence-tape count label — player count still matters there)
-    group_word = 'TWO' if n_players == 2 else 'THREE' if n_players == 3 else 'FOUR'
-
     # Name address: "Nick", "Nick and Ollie", "Nick, Brett, and Ollie", etc.
     # Oxford comma for 3+.
     if n_players == 1:
@@ -546,7 +543,6 @@ def build_games_section(players, short_name):
         # ── Top evidence-label banner: round file identifier for this course
         f'<div class="saw-evidence-tape">'
         f'<span>&#9899; Round file &mdash; {short_name}</span>'
-        f'<span style="float:right;letter-spacing:.2em;">{group_word}</span>'
         f'</div>'
         # ── Headline row: spiral / catchphrase / spiral
         f'<div class="saw-headline-row">'
