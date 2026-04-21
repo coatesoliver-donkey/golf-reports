@@ -78,22 +78,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   padding:4px;  /* breathing room around the spiral so the SVG-internal glow renders fully */
 }
 
-/* Red balloon — floats in the bottom-left corner of the panel as a subtle
-   horror pastiche nod (not specific to any one franchise — a red balloon is
-   just a red balloon). Gentle sway animation. */
+/* Red balloon — floats in front of the catchphrase, rising from below with
+   its string trailing down. Subtle sway animation. z-index above the text
+   so it visually sits on top of the headline. */
 .saw-balloon{
   position:absolute;
-  left:14px;bottom:10px;
-  width:22px;height:44px;
-  opacity:.88;
+  left:30px;
+  top:68px;             /* positioned to overlap the bottom of the catchphrase */
+  width:32px;height:64px;
+  opacity:.9;
   pointer-events:none;
   animation:saw-balloon-float 5.5s ease-in-out infinite;
-  filter:drop-shadow(0 0 5px rgba(196,30,30,.35));
-  z-index:1;
+  filter:drop-shadow(0 0 6px rgba(196,30,30,.5));
+  z-index:5;            /* above .saw-catchphrase text */
 }
 @keyframes saw-balloon-float{
   0%,100%{transform:translateY(0) rotate(-3deg);}
-  50%{transform:translateY(-7px) rotate(3deg);}
+  50%{transform:translateY(-10px) rotate(3deg);}
 }
 .saw-catchphrase{
   font-family:'Creepster',cursive;
