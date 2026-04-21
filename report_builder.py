@@ -140,16 +140,18 @@ def _wind_dir(deg):
 
 
 def _wmo_icon(code):
-    if code == 0:            return '&#9728;'   # clear
-    if code in (1, 2):       return '&#9925;'   # partly cloudy
-    if code == 3:            return '&#9729;'   # overcast
+    # Use variation-selector-16 (FE0F) to force emoji (color) rendering
+    # instead of the B&W text glyph on platforms that default to text style.
+    if code == 0:            return '&#9728;&#65039;'   # clear (sun, color)
+    if code in (1, 2):       return '&#9925;&#65039;'   # partly cloudy
+    if code == 3:            return '&#9729;&#65039;'   # overcast
     if code in (51,53,55,
-                61,63,65):   return '&#127783;' # rain
+                61,63,65):   return '&#127783;'         # rain (already full emoji)
     if code in (71,73,75,
-                77):         return '&#10052;'  # snow
-    if code in (80,81,82):   return '&#127783;' # showers
-    if code in (95,96,99):   return '&#9928;'   # thunderstorm
-    return '&#9925;'
+                77):         return '&#10052;&#65039;'  # snow
+    if code in (80,81,82):   return '&#127783;'         # showers
+    if code in (95,96,99):   return '&#9928;&#65039;'   # thunderstorm
+    return '&#9925;&#65039;'
 
 
 def _wmo_label(code):
@@ -171,7 +173,7 @@ def _wmo_label(code):
 def _weather_placeholder(offset, hi_lo):
     return {'temp': '--°C', 'feels': '--°C', 'humidity': '--%', 'rain': '0%',
             'wind_kmh': 0, 'wind_dir': 'N', 'hi': hi_lo[0], 'lo': hi_lo[1],
-            'icon': '&#9925;', 'condition': 'Forecast pending'}
+            'icon': '&#9925;&#65039;', 'condition': 'Forecast pending'}
 
 
 def _weather_fallback(tee_date):
@@ -669,9 +671,11 @@ def build_wx_card(time_str, sub, card_data, note, tee=False):
     wind   = card_data.get('wind_kmh', 0)
     wpct   = min(100, round(wind / 60 * 100))
     wcol   = '#e8735a' if wind >= 30 else '#f5c96e' if wind >= 20 else '#7ab648'
-    # Only render the sub-line div if there's actual content (avoids empty gap)
-    sub_html = (f'<div style="font-size:10px;color:rgba(255,255,255,.85);margin-bottom:8px;font-weight:500;">{sub}</div>'
-                if sub else '<div style="margin-bottom:8px;"></div>')
+    # Always render the sub-line div so all three cards have equal blue-header
+    # height. When sub is empty, emit a non-breaking space so the line has the
+    # same baseline as the cards with actual text.
+    sub_content = sub if sub else '&nbsp;'
+    sub_html = (f'<div style="font-size:10px;color:rgba(255,255,255,.85);margin-bottom:8px;font-weight:500;">{sub_content}</div>')
     note_html = (f'<div style="font-size:9px;color:#667;font-weight:600;text-align:center;margin-top:2px;">{note}</div>'
                  if note else '')
     return (
@@ -1301,7 +1305,7 @@ window.editScores=function(pi){{
 // WEATHER REFRESH — live fetch on open + manual button
 // ══════════════════════════════════════════════════════════════════════
 (function(){{
-  var WI={{'0':'\\u2600','1':'\\u26c5','2':'\\u26c5','3':'\\u2601','51':'\\ud83c\\udf27','53':'\\ud83c\\udf27','55':'\\ud83c\\udf27','61':'\\ud83c\\udf27','63':'\\ud83c\\udf27','65':'\\ud83c\\udf27','71':'\\u2744','73':'\\u2744','80':'\\ud83c\\udf27','81':'\\ud83c\\udf27','95':'\\u26c8'}};
+  var WI={{'0':'\\u2600\\ufe0f','1':'\\u26c5\\ufe0f','2':'\\u26c5\\ufe0f','3':'\\u2601\\ufe0f','51':'\\ud83c\\udf27','53':'\\ud83c\\udf27','55':'\\ud83c\\udf27','61':'\\ud83c\\udf27','63':'\\ud83c\\udf27','65':'\\ud83c\\udf27','71':'\\u2744\\ufe0f','73':'\\u2744\\ufe0f','80':'\\ud83c\\udf27','81':'\\ud83c\\udf27','95':'\\u26c8\\ufe0f'}};
   var WL={{'0':'Clear Sky','1':'Mainly Clear','2':'Partly Cloudy','3':'Overcast','51':'Light Drizzle','53':'Drizzle','55':'Dense Drizzle','61':'Rain','63':'Rain','65':'Heavy Rain','71':'Light Snow','73':'Snow','80':'Showers','81':'Showers','95':'Thunderstorm'}};
   function wd(d){{ return ['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8]; }}
   function teeLabel(i){{
@@ -1322,9 +1326,8 @@ window.editScores=function(pi){{
     var pip=isTee?'<div style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#7ecb6a;margin-right:4px;vertical-align:middle;"></div>':'';
     var wp=Math.min(100,Math.round(d.wind/60*100)),wc=d.wind>=30?'#e8735a':d.wind>=20?'#f5c96e':'#7ab648';
     var sub=teeSub(i);
-    var subHtml = sub
-      ? '<div style="font-size:10px;color:rgba(255,255,255,.85);margin-bottom:8px;font-weight:500;">'+sub+'</div>'
-      : '<div style="margin-bottom:8px;"></div>';
+    var subContent = sub || '\\u00a0';  // non-breaking space to preserve height
+    var subHtml = '<div style="font-size:10px;color:rgba(255,255,255,.85);margin-bottom:8px;font-weight:500;">'+subContent+'</div>';
     return '<div class="wx-card" style="border-radius:10px;overflow:hidden;border:'+bdr+';">'
       +'<div style="background:linear-gradient(170deg,#3a5878,#6a90b0);padding:12px 10px 10px;text-align:center;">'
       +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.95);margin-bottom:3px;">'+pip+teeLabel(i)+'</div>'
@@ -1740,7 +1743,7 @@ def write_index(index_path, reports):
         wx = r.get('wx') or {}
         temp_chip = ''
         if wx.get('temp') is not None:
-            icon = wx.get('icon') or '&#9925;'
+            icon = wx.get('icon') or '&#9925;&#65039;'
             cond = wx.get('condition') or ''
             rain = wx.get('rain')
             rain_chip = (f'<span style="font-size:10px;color:#3a6a9a;background:#eef2f6;'
