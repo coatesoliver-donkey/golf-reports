@@ -434,17 +434,30 @@ GOLF_GAMES = {
 }
 
 
-def build_games_section(n_players):
+def build_games_section(players):
     """Render the 'Wanna play a game?' section. Heavily themed — dark panel with
     blood-red accents, horror display + typewriter typography, abstract spiral
     decorations. Game cards reuse .stat.clickable + .explainer infrastructure
-    but override styling for the dark theme."""
+    but override styling for the dark theme.
+
+    Takes the full player names list (not just count) so the subtitle can
+    address each player by name, like a Jigsaw tape."""
+    n_players = len(players)
     games = GOLF_GAMES.get(n_players, GOLF_GAMES[3])  # fall back to 3-player
     if not games:
         return ''
 
-    # Plural noun
+    # Plural noun (for the evidence-tape count label — player count still matters there)
     group_word = 'TWO' if n_players == 2 else 'THREE' if n_players == 3 else 'FOUR'
+
+    # Name address: "Nick", "Nick and Ollie", "Nick, Brett, and Ollie", etc.
+    # Oxford comma for 3+.
+    if n_players == 1:
+        names_addressed = players[0]
+    elif n_players == 2:
+        names_addressed = f'{players[0]} and {players[1]}'
+    else:
+        names_addressed = ', '.join(players[:-1]) + f', and {players[-1]}'
 
     # Single spiral SVG — drawn once, used twice (one each side of the catchphrase).
     # Pure geometric red spiral, evoking Billy's cheek motif without reproducing
@@ -512,7 +525,7 @@ def build_games_section(n_players):
         f'</div>'
         # ── Subtitle in typewriter
         f'<div style="font-family:\'Special Elite\',monospace;font-size:11px;color:#a8a098;margin:4px 0 14px;letter-spacing:.04em;line-height:1.45;text-align:center;">'
-        f'Hello {group_word.lower()} players. I have selected {len(games)} games for your consideration.'
+        f'Hello {names_addressed}. I have selected {len(games)} games for your consideration.'
         f'</div>'
         # ── Themed collapsible toggle — rotates per round
         f'<div class="saw-toggle {theme_class}" onclick="toggleSawGames(this)" '
@@ -2516,7 +2529,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
 
         # Games menu — scales with player count; toggle theme rotates per (course, date)
         (lambda: (globals().__setitem__('GAMES_TOGGLE_SEED', f'{course_name}|{date_str}'),
-                  build_games_section(len(players)))[1])(),
+                  build_games_section(players))[1])(),
 
         # Post-round stops
         stops,
