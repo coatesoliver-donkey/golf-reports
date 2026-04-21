@@ -465,17 +465,38 @@ def build_games_section(players, short_name):
     # the puppet's likeness. Both sides use the same orientation — the spiral is
     # nearly rotationally symmetric, so mirroring isn't necessary and removing
     # the CSS transform prevents bounding-box clipping of the drop-shadow glow.
+    # Build a proper Archimedean spiral path (true full-spiral, not the nested
+    # half-arcs pattern I had before — which was rendering as a half-spiral).
+    # Generated once, cached in a module-level var the first time we need it.
+    import math
+    global _SPIRAL_PATH
+    try:
+        _SPIRAL_PATH
+    except NameError:
+        turns = 3.5
+        samples = 120
+        max_r = 22
+        pts = []
+        for i in range(samples + 1):
+            t = (i / samples) * turns * 2 * math.pi
+            r = max_r * (t / (turns * 2 * math.pi))
+            x = r * math.cos(t)
+            y = r * math.sin(t)
+            pts.append((x, y))
+        path = 'M ' + f'{pts[0][0]:.1f},{pts[0][1]:.1f}'
+        for x, y in pts[1:]:
+            path += f' L {x:.1f},{y:.1f}'
+        _SPIRAL_PATH = path
+
     def _cheek_spiral():
         return (
             f'<span class="saw-spiral">'
-            # viewBox dramatically expanded — the spiral path extends past its
-            # nominal radius due to the offset 'm -2,-2' start, so we need ~10px
-            # of headroom in every direction instead of the 4px we had.
-            f'<svg viewBox="-10 -10 80 80" width="60" height="60" xmlns="http://www.w3.org/2000/svg">'
-            f'<g transform="translate(30,30)" fill="none" stroke="#c41e1e" stroke-width="2.6" stroke-linecap="round" '
+            # viewBox -26..26 in both axes to contain a spiral of max radius 22
+            # plus stroke width + glow region
+            f'<svg viewBox="-26 -26 52 52" width="60" height="60" xmlns="http://www.w3.org/2000/svg">'
+            f'<g fill="none" stroke="#c41e1e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" '
             f'filter="url(#saw-spiral-glow)">'
-            f'<path d="M 0,0 m -2,-2 a 3,3 0 1,0 4,0 a 6,6 0 1,1 -8,0 a 9,9 0 1,0 12,0 a 12,12 0 1,1 -16,0 a 15,15 0 1,0 20,0 a 18,18 0 1,1 -24,0 a 21,21 0 1,0 28,0" />'
-            f'<circle r="2" fill="#c41e1e" stroke="none"/>'
+            f'<path d="{_SPIRAL_PATH}" />'
             f'</g>'
             f'<defs><filter id="saw-spiral-glow" x="-25%" y="-25%" width="150%" height="150%">'
             f'<feGaussianBlur stdDeviation="2.5" result="glow"/>'
@@ -2567,7 +2588,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<div id="wx-callout">'
         f'<div style="font-size:11px;font-weight:700;color:#3a6a9a;margin-bottom:6px;">{wx_icon} {wx_header}</div>'
         f'<div style="display:flex;flex-direction:column;gap:5px;">{wx_bullets_html}</div>'
-        f'</div></div><div style="margin-top:14px;"></div></div>',
+        f'</div></div></div>',
 
         # Games menu — scales with player count; toggle theme rotates per (course, date)
         (lambda: (globals().__setitem__('GAMES_TOGGLE_SEED', f'{course_name}|{date_str}'),
