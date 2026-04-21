@@ -1706,7 +1706,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* Evidence-label tape — full width across the very top of the panel */
 .saw-evidence-tape{
-  margin:0 -1.1rem 14px;       /* extend to panel edges */
+  margin:0 -1.1rem 6px;        /* extend to panel edges; tighter gap before headline */
   padding:7px 1.1rem;
   background:linear-gradient(180deg,#1f0c0c 0%,#1a0808 100%);
   border-bottom:1px solid #3a1a1a;
@@ -1720,7 +1720,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .saw-headline-row{
   display:flex;align-items:center;justify-content:center;
   gap:10px;
-  padding:14px 0 10px;
+  padding:5px 0 10px;
 }
 .saw-spiral{
   display:inline-flex;align-items:center;justify-content:center;
