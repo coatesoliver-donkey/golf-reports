@@ -634,6 +634,29 @@ def _build_round_time_ex(course_name, c):
     )
 
 
+def _build_round_time_caption(rd, tee_time_str, drive_min=None):
+    """Short caption shown under the round-time LCD. Computes estimated
+    'home by' time = tee time + avg round duration + drive back to Kanata.
+    Also shows the number of rounds the average is based on."""
+    avg_min = (rd or {}).get('avgTimeMin')
+    n_samples = (rd or {}).get('nTimeSamples', 0)
+    if not avg_min or not tee_time_str:
+        return '&#8987; typical round pace'
+    # Parse tee time "HH:MM" (24h) and add avg_min + drive_min
+    try:
+        h, m = map(int, tee_time_str.split(':'))
+    except (ValueError, AttributeError):
+        return f'&#8987; based on {n_samples} rounds' if n_samples else '&#8987; typical round pace'
+    total_min = h * 60 + m + int(round(avg_min)) + (drive_min or 0)
+    rh, rm = (total_min // 60) % 24, total_min % 60
+    # Format in 12h with AM/PM for human readability
+    am_pm = 'AM' if rh < 12 else 'PM'
+    h12 = rh if 1 <= rh <= 12 else (12 if rh == 0 else rh - 12)
+    label = 'home by' if drive_min else 'back by'
+    sample_note = f' &middot; {n_samples} round' + ('s' if n_samples != 1 else '') if n_samples else ''
+    return f'&#8987; {label} ~{h12}:{rm:02d} {am_pm}{sample_note}'
+
+
 def _build_elev_caption(rd):
     """Short caption shown under the elevation SVG."""
     span = (rd or {}).get('avgAltSpanM')
@@ -1731,9 +1754,10 @@ def build_report(course_name, date_str, time_str, players, output_path):
     else:
         lcd_time_str = '—:—'
 
-    lcd_svg       = build_lcd(lcd_time_str)
-    round_time_ex = _build_round_time_ex(course_name, c)
-    elev_caption  = _build_elev_caption(rd)
+    lcd_svg            = build_lcd(lcd_time_str)
+    round_time_ex      = _build_round_time_ex(course_name, c)
+    elev_caption       = _build_elev_caption(rd)
+    round_time_caption = _build_round_time_caption(rd, time_str, c.get('drive_min_from_kanata'))
 
     # ── Assemble HTML ──────────────────────────────────────────────────────
     parts = [
@@ -1806,7 +1830,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Avg. Round Time</div>'
         f'</div>'
         f'{lcd_svg}'
-        f'<div style="font-size:10px;color:#aaa;font-weight:500;margin-top:6px;">avg. round time</div>'
+        f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:6px;">{round_time_caption}</div>'
         f'</div></div>'
         f'{round_time_ex}'
         f'{_build_elev_ex(course_name, c)}',

@@ -2482,7 +2482,8 @@
           "swc_lng": -76.009282
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 25
   },
   "Mapleview Golf & Country Club": {
     "par": 72,
@@ -2966,7 +2967,8 @@
           "swc_lng": -76.307693
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 35
   },
   "Greensmere Golf & Country Club": {
     "par": 72,
@@ -3448,7 +3450,8 @@
           "swc_lng": -76.097979
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 30
   },
   "Stittsville Golf Course": {
     "par": 72,
@@ -3803,7 +3806,8 @@
           "swc_lng": -76.007972
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 10
   },
   "Canadian Golf & Country Club": {
     "par": 72,
@@ -4285,7 +4289,8 @@
           "swc_lng": -76.014426
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 30
   },
   "Nation Golf Club": {
     "par": 71,
@@ -4795,7 +4800,8 @@
           "swc_lng": -75.798665
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 65
   },
   "Dragonfly Golf Links": {
     "par": 72,
@@ -5277,7 +5283,8 @@
           "swc_lng": -76.726928
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 25
   },
   "Cloverdale Links Golf & Country Club": {
     "par": 71,
@@ -5634,7 +5641,8 @@
           "swc_lng": -75.41546
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 70
   },
   "Metcalfe Golf": {
     "par": 72,
@@ -5989,7 +5997,8 @@
           "swc_lng": -75.50977
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 40
   },
   "Sand Point Golf & Country Club": {
     "par": 70,
@@ -6344,7 +6353,8 @@
           "swc_lng": -76.450374
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 75
   },
   "Oaks of Cobden Golf Club": {
     "par": 71,
@@ -6828,7 +6838,8 @@
           "swc_lng": -76.847443
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 75
   },
   "Casselview Golf & Country Club": {
     "par": 72,
@@ -7184,7 +7195,8 @@
           "swc_lng": -75.095213
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 55
   },
   "Renfrew Golf Club": {
     "par": 71,
@@ -7539,7 +7551,8 @@
           "swc_lng": -76.759874
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 55
   },
   "Calabogie Highlands Golf Resort": {
     "par": 72,
@@ -7899,7 +7912,8 @@
           "swc_lng": -76.729692
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 65
   },
   "Falcon Ridge Golf Club": {
     "par": 72,
@@ -8254,7 +8268,8 @@
           "swc_lng": -75.630277
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 55
   },
   "Golf Mont Cascades": {
     "par": 70,
@@ -8611,7 +8626,8 @@
           "swc_lng": -75.894963
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 35
   },
   "Whitetail Golf Club": {
     "par": 72,
@@ -8905,7 +8921,8 @@
           "swc_lng": -77.027827
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 45
   },
   "Timber Run Golf Club & Event Lodge": {
     "par": 69,
@@ -9260,7 +9277,8 @@
           "swc_lng": -76.369928
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 80
   },
   "Château Cartier": {
     "par": 70,
@@ -9724,7 +9742,8 @@
           "swc_lng": -75.780177
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 35
   },
   "Edelweiss Golf & Country Club": {
     "par": 72,
@@ -10079,7 +10098,8 @@
           "swc_lng": -75.869837
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 45
   },
   "Madawaska Golf Club": {
     "par": 70,
@@ -10435,6 +10455,7 @@
           "swc_lng": -76.320422
         }
       ]
-    }
+    },
+    "drive_min_from_kanata": 90
   }
 }
