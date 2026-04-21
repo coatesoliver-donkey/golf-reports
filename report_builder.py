@@ -706,9 +706,25 @@ def build_course_intel(course_name, c, short_name):
     par5s       = sum(1 for h in layout if h['par'] == 5)
     all_par3s   = [sum(1 for h in v['layout'] if h['par'] == 3) for v in COURSES.values() if 'layout' in v]
 
+    # Rotation-wide ranks for walk / ascent / time — only include courses that
+    # have roundData so we don't compare against missing data.
+    courses_with_rd = [(k, v) for k, v in COURSES.items() if v.get('roundData')]
+
+    def rotation_rank(value, field):
+        """Return (rank, n_total) for this course's `field` value against all
+        courses with roundData. Rank 1 = smallest (e.g., shortest walk)."""
+        vals = sorted((v['roundData'][field], k) for k, v in courses_with_rd
+                      if v['roundData'].get(field) is not None)
+        names = [k for _, k in vals]
+        if course_name in names:
+            return names.index(course_name) + 1, len(vals)
+        return None, len(vals)
+
     bullets = []
 
-    # Slope
+    # ── EXISTING BULLETS ────────────────────────────────────────────────────
+
+    # Slope — always fires
     if slope_rank == 1:
         bullets.append(('&#127948;', '<strong>Most forgiving slope</strong> in your rotation &mdash; below the standard of 113'))
     elif slope_rank <= 3:
@@ -718,7 +734,7 @@ def build_course_intel(course_name, c, short_name):
     else:
         bullets.append(('&#127948;', f'<strong>Slope {c["slope"]}</strong> &mdash; {ordinal(slope_rank)} easiest in your rotation (standard is 113)'))
 
-    # Yardage
+    # Yardage — fires for top/bottom 3
     if yards_rank == 1:
         bullets.append(('&#128207;', f'<strong>Shortest course</strong> in your rotation at {c["yards"]:,} yds'))
     elif yards_rank <= 3:
@@ -739,6 +755,82 @@ def build_course_intel(course_name, c, short_name):
         bullets.append(('&#127942;', f'<strong>Your most-played course</strong> with {rounds} rounds &mdash; you know this one well'))
     elif rounds >= 10:
         bullets.append(('&#127942;', f'<strong>{rounds} rounds played here</strong> &mdash; one of your most familiar courses'))
+
+    # ── NEW BULLETS (course-fact only, rotation-context) ────────────────────
+
+    rd = c.get('roundData') or {}
+
+    # Walking distance — always fires when data is available, with rotation context
+    walk_km = rd.get('avgDistKm')
+    if walk_km:
+        w_rank, w_total = rotation_rank(walk_km, 'avgDistKm')
+        if w_rank and w_total >= 3:
+            if w_rank == 1:
+                bullets.append(('&#128694;', f'<strong>Shortest walk</strong> in your rotation at {walk_km:.1f} km per round'))
+            elif w_rank <= 3:
+                bullets.append(('&#128694;', f'<strong>{ordinal(w_rank)} shortest walk</strong> in your rotation at {walk_km:.1f} km'))
+            elif w_rank >= w_total - 2:
+                from_top = w_total - w_rank + 1
+                label = 'Longest walk' if from_top == 1 else f'{ordinal(from_top)} longest walk'
+                bullets.append(('&#128694;', f'<strong>{label}</strong> in your rotation at {walk_km:.1f} km &mdash; wear comfortable shoes'))
+            else:
+                # Middle ranks: flip to whichever framing (shortest/longest) has the smaller ordinal
+                from_short = w_rank
+                from_long = w_total - w_rank + 1
+                if from_long < from_short:
+                    bullets.append(('&#128694;', f'<strong>{walk_km:.1f} km walked</strong> per round &mdash; {ordinal(from_long)} longest of {w_total} in your rotation'))
+                else:
+                    bullets.append(('&#128694;', f'<strong>{walk_km:.1f} km walked</strong> per round &mdash; {ordinal(from_short)} shortest of {w_total} in your rotation'))
+
+    # Elevation / ascent — always fires when data is available, with rotation context
+    ascent_m = rd.get('avgSmoothAscentM')
+    if ascent_m:
+        a_rank, a_total = rotation_rank(ascent_m, 'avgSmoothAscentM')
+        if a_rank and a_total >= 3:
+            if a_rank >= a_total - 1:  # top 2 hilliest
+                bullets.append(('&#9968;&#65039;', f'<strong>One of the hilliest rounds</strong> you play &mdash; about {ascent_m:.0f} m of climbing'))
+            elif a_rank <= 2:  # bottom 2 flattest
+                bullets.append(('&#9968;&#65039;', f'<strong>One of the flattest courses</strong> in your rotation at {ascent_m:.0f} m of climbing'))
+            else:
+                from_flat = a_rank
+                from_hilly = a_total - a_rank + 1
+                if from_hilly < from_flat:
+                    bullets.append(('&#9968;&#65039;', f'<strong>About {ascent_m:.0f} m of climbing</strong> across the round &mdash; {ordinal(from_hilly)} hilliest of {a_total} in rotation'))
+                else:
+                    bullets.append(('&#9968;&#65039;', f'<strong>About {ascent_m:.0f} m of climbing</strong> across the round &mdash; {ordinal(from_flat)} flattest of {a_total} in rotation'))
+
+    # Round time — always fires when data is available, with rotation context
+    time_min = rd.get('avgTimeMin')
+    if time_min:
+        hrs = int(time_min // 60)
+        mins = int(round(time_min - hrs * 60))
+        time_str = f'{hrs}h {mins}m' if mins else f'{hrs}h'
+        t_rank, t_total = rotation_rank(time_min, 'avgTimeMin')
+        if t_rank and t_total >= 3:
+            if t_rank >= t_total - 1:
+                bullets.append(('&#128337;', f'<strong>One of your longer rounds</strong> &mdash; {time_str} on average'))
+            elif t_rank <= 2:
+                bullets.append(('&#128337;', f'<strong>Quick round</strong> &mdash; averages just {time_str}, one of the shorter in your rotation'))
+            else:
+                bullets.append(('&#128337;', f'<strong>Averages {time_str}</strong> per round &mdash; typical pace for your rotation'))
+
+    # Par-4 mix — count short (<350) and long (>420) par-4s
+    hole_yards = c.get('holeYards', [])
+    short_p4 = 0
+    long_p4  = 0
+    for h, y in zip(layout, hole_yards):
+        if h['par'] == 4 and y is not None:
+            if y < 350: short_p4 += 1
+            elif y > 420: long_p4 += 1
+    # Only include if one side dominates notably (>=4 of that type)
+    if short_p4 >= 4:
+        bullets.append(('&#127919;', f'<strong>{short_p4} short par-4s</strong> under 350 yds &mdash; lots of chances to attack'))
+    elif long_p4 >= 4:
+        bullets.append(('&#127919;', f'<strong>{long_p4} long par-4s</strong> over 420 yds &mdash; driver discipline matters'))
+
+    # Cap at 7 bullets (keep the first 7 — slope always fires so it's always
+    # present, and the others prioritize by declaration order).
+    bullets = bullets[:7]
 
     items = ''.join(
         f'<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);">'
