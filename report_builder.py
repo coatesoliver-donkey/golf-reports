@@ -561,7 +561,14 @@ def build_games_section(players, short_name):
         f'</svg>'
         # ── Subtitle in typewriter
         f'<div style="font-family:\'Special Elite\',monospace;font-size:11px;color:#a8a098;margin:4px 0 14px;letter-spacing:.04em;line-height:1.45;text-align:center;">'
-        f'Hello {names_addressed}. I have selected {len(games)} games for your consideration.'
+        f'Hello {names_addressed}. I have selected {len(games)} games for your consideration'
+        # Dripping ellipsis — three blood-red dots with elongating drips beneath each.
+        # Each drip has a slight animation delay so they don't move in lockstep.
+        f'<span class="saw-drip-ellipsis" aria-hidden="true">'
+        f'<span class="saw-drip-dot"><span class="saw-drip" style="animation-delay:0s;"></span></span>'
+        f'<span class="saw-drip-dot"><span class="saw-drip" style="animation-delay:.6s;"></span></span>'
+        f'<span class="saw-drip-dot"><span class="saw-drip" style="animation-delay:1.2s;"></span></span>'
+        f'</span>'
         f'</div>'
         # ── Themed collapsible toggle — rotates per round
         f'<div class="saw-toggle {theme_class}" onclick="toggleSawGames(this)" '
@@ -1740,6 +1747,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 @keyframes saw-balloon-float{
   0%,100%{transform:translateY(0) rotate(-3deg);}
   50%{transform:translateY(-8px) rotate(3deg);}
+}
+
+/* ── Dripping ellipsis (three dots with elongating blood drips) ───────────── */
+.saw-drip-ellipsis{
+  display:inline-flex;align-items:flex-start;
+  gap:3px;
+  margin-left:4px;
+  vertical-align:baseline;
+  /* Reserve a little vertical room below the baseline for the drips to live in
+     without pushing the next sibling element down. */
+  height:1em;
+}
+.saw-drip-dot{
+  position:relative;
+  display:inline-block;
+  width:5px;height:5px;
+  border-radius:50%;
+  background:#a31a1a;
+  /* subtle glow to match the rest of the SAW palette */
+  box-shadow:0 0 3px rgba(163,26,26,.5);
+}
+.saw-drip{
+  position:absolute;
+  top:100%;left:50%;
+  width:3px;
+  margin-left:-1.5px;
+  background:#a31a1a;
+  /* tear-drop bottom — round the bottom edge so the drip looks like it's about to fall */
+  border-radius:0 0 50% 50% / 0 0 100% 100%;
+  /* Animation: drip slowly elongates, then snaps back (as if a drop fell) */
+  animation:saw-drip-fall 3.6s ease-in infinite;
+  transform-origin:top center;
+}
+@keyframes saw-drip-fall{
+  0%   {height:0;   opacity:.95;}
+  60%  {height:8px; opacity:.95;}
+  85%  {height:11px;opacity:.85;}  /* almost falling */
+  90%  {height:0;   opacity:0;}    /* drop falls — snap to nothing */
+  100% {height:0;   opacity:.95;}
 }
 .saw-catchphrase{
   font-family:'Creepster',cursive;
