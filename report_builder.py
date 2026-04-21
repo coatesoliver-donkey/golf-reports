@@ -434,14 +434,15 @@ GOLF_GAMES = {
 }
 
 
-def build_games_section(players):
+def build_games_section(players, short_name):
     """Render the 'Wanna play a game?' section. Heavily themed — dark panel with
     blood-red accents, horror display + typewriter typography, abstract spiral
     decorations. Game cards reuse .stat.clickable + .explainer infrastructure
     but override styling for the dark theme.
 
     Takes the full player names list (not just count) so the subtitle can
-    address each player by name, like a Jigsaw tape."""
+    address each player by name, like a Jigsaw tape. `short_name` is the
+    course short name used in the top banner."""
     n_players = len(players)
     games = GOLF_GAMES.get(n_players, GOLF_GAMES[3])  # fall back to 3-player
     if not games:
@@ -510,9 +511,9 @@ def build_games_section(players):
     open_icon_attr = _html.escape(open_icon, quote=True)
     return (
         f'<div class="saw-panel">'
-        # ── Top evidence-label banner: full-width, doesn't crowd anything below
+        # ── Top evidence-label banner: round file identifier for this course
         f'<div class="saw-evidence-tape">'
-        f'<span>&#9836; Cassette tape &mdash; play me</span>'
+        f'<span>&#9899; Round file &mdash; {short_name}</span>'
         f'<span style="float:right;letter-spacing:.2em;">{group_word}</span>'
         f'</div>'
         # ── Headline row: spiral / catchphrase / spiral
@@ -1677,7 +1678,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .saw-headline-row{
   display:flex;align-items:center;justify-content:center;
   gap:14px;
-  padding:8px 0 6px;
+  padding:14px 0 10px;  /* extra vertical room so spiral drop-shadow glow isn't clipped */
+}
+.saw-headline-row svg{
+  overflow:visible;    /* let the drop-shadow extend past the SVG viewBox bounds */
 }
 .saw-catchphrase{
   font-family:'Creepster',cursive;
@@ -2529,7 +2533,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
 
         # Games menu — scales with player count; toggle theme rotates per (course, date)
         (lambda: (globals().__setitem__('GAMES_TOGGLE_SEED', f'{course_name}|{date_str}'),
-                  build_games_section(players))[1])(),
+                  build_games_section(players, short_name))[1])(),
 
         # Post-round stops
         stops,
