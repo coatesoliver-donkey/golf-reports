@@ -1725,23 +1725,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   padding:4px;  /* breathing room around the spiral so the SVG-internal glow renders fully */
 }
 
-/* Red balloon — floats in front of the catchphrase, rising from below with
-   its string trailing down. Subtle sway animation. z-index above the text
-   so it visually sits on top of the headline. */
+/* Red balloon — floats centered in front of the catchphrase. Gentle rise
+   and sway animation. z-index above the text. The horizontal centering
+   uses left:50% + negative half-width margin so the animation can own the
+   transform property without conflict. */
 .saw-balloon{
   position:absolute;
-  left:30px;
-  top:68px;             /* positioned to overlap the bottom of the catchphrase */
-  width:32px;height:64px;
-  opacity:.9;
+  left:50%;
+  top:78px;
+  width:28px;height:56px;
+  margin-left:-14px;    /* half of width — horizontally centers the balloon */
+  opacity:.88;
   pointer-events:none;
   animation:saw-balloon-float 5.5s ease-in-out infinite;
-  filter:drop-shadow(0 0 6px rgba(196,30,30,.5));
-  z-index:5;            /* above .saw-catchphrase text */
+  filter:drop-shadow(0 0 6px rgba(196,30,30,.45));
+  z-index:5;
 }
 @keyframes saw-balloon-float{
   0%,100%{transform:translateY(0) rotate(-3deg);}
-  50%{transform:translateY(-10px) rotate(3deg);}
+  50%{transform:translateY(-8px) rotate(3deg);}
 }
 .saw-catchphrase{
   font-family:'Creepster',cursive;
