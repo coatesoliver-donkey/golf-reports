@@ -136,17 +136,17 @@ GOLF_GAMES = {
     2: [
         {
             'name': 'Nassau',
-            'tagline': 'Three bets in one — front nine, back nine, and the whole round.',
+            'tagline': 'Three contests in one — front nine, back nine, and the whole round.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Agree on a dollar amount before the round. That amount rides on '
-                'three separate bets: the front nine, the back nine, and the overall 18.</p>'
-                '<p><strong>Scoring.</strong> Lowest score on the front wins that bet. Lowest on the back wins that bet. '
+                '<p><strong>Setup.</strong> Three separate contests run alongside each other: the front nine, '
+                'the back nine, and the overall 18.</p>'
+                '<p><strong>Scoring.</strong> Lowest score on the front wins that contest. Lowest on the back wins that contest. '
                 'Lowest total wins the overall. All match-play (hole-by-hole), or stroke-play (total strokes) — '
                 'agree before teeing off.</p>'
-                '<p><strong>Presses.</strong> Whoever is losing a bet can "press" — start a new double-or-nothing bet '
-                'that runs alongside the original from that hole on. Classic way to claw back a bad front nine.</p>'
-                '<p><strong>Best for:</strong> All skill levels. A bad stretch only loses one of three bets, so the round '
+                '<p><strong>Presses.</strong> Whoever is losing a contest can "press" — start a new double-or-nothing '
+                'contest that runs alongside the original from that hole on. Classic way to claw back a bad front nine.</p>'
+                '<p><strong>Best for:</strong> All skill levels. A bad stretch only loses one of three contests, so the round '
                 'stays interesting all the way to 18.</p>'
             ),
         },
@@ -155,7 +155,7 @@ GOLF_GAMES = {
             'tagline': 'Hole-by-hole combat — lowest score each hole wins the hole, highest total holes wins.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> No money required — just bragging rights. Handicap difference '
+                '<p><strong>Setup.</strong> Just bragging rights on the line. Handicap difference '
                 'is usually given as strokes on the hardest-HCP holes.</p>'
                 '<p><strong>Scoring.</strong> Each hole is its own tiny battle. Lowest net score wins the hole '
                 '(worth 1 hole "up"). Tied scores mean the hole is halved — neither player gains.</p>'
@@ -167,14 +167,14 @@ GOLF_GAMES = {
         },
         {
             'name': 'Skins',
-            'tagline': 'Every hole is its own pot. Win it outright or it rolls over.',
+            'tagline': 'Every hole is its own pile of points. Win it outright or it rolls over.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Agree on a dollar amount per hole (a "skin"). Common: $1 or $2.</p>'
+                '<p><strong>Setup.</strong> Each hole is worth 1 skin (1 point).</p>'
                 '<p><strong>Scoring.</strong> Lowest score on the hole wins the skin. But you must win outright — '
                 'if tied, the skin carries over and adds to the next hole\'s value.</p>'
                 '<p><strong>Example.</strong> Holes 1 and 2 tie. Hole 3 is now worth 3 skins. If you win hole 3 '
-                'outright, you collect all 3.</p>'
+                'outright, you take all 3.</p>'
                 '<p><strong>Best for:</strong> Head-to-head action without dwelling on math. Perfect when you want '
                 'individual holes to feel dramatic.</p>'
             ),
@@ -188,7 +188,7 @@ GOLF_GAMES = {
                 '<em>Bango</em> — closest to the pin once everyone is on. <em>Bongo</em> — first ball in the hole.</p>'
                 '<p><strong>Key rule.</strong> Honor goes to whoever is <em>furthest from the hole</em>, not whoever '
                 'scored lowest on the previous hole. This lets slower players still compete for Bingo.</p>'
-                '<p><strong>Scoring.</strong> Assign a dollar value per point. Tally at the end. '
+                '<p><strong>Scoring.</strong> Tally points at the end. Most points wins. '
                 'A short hitter who chips well can absolutely beat a longer hitter who doesn\'t.</p>'
                 '<p><strong>Best for:</strong> Mixed skill levels — the points aren\'t strictly tied to your score, '
                 'so the weaker player has genuine chances.</p>'
@@ -210,15 +210,15 @@ GOLF_GAMES = {
         },
         {
             'name': 'Snake',
-            'tagline': 'A putting side-game — whoever 3-putts last pays for everyone.',
+            'tagline': 'A putting side-game — whoever 3-putts last loses points to everyone.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Set a dollar amount (e.g., $1). Play it as a side-game alongside '
+                '<p><strong>Setup.</strong> Each 3-putt is worth 1 point. Play it as a side-game alongside '
                 'whatever else you\'re playing.</p>'
                 '<p><strong>Scoring.</strong> Every 3-putt passes the "snake" to that player. Whoever holds '
-                'the snake at the end of 18 pays each opponent the agreed amount per 3-putt recorded that round.</p>'
+                'the snake at the end of 18 loses 1 point per 3-putt recorded that round to the other player.</p>'
                 '<p><strong>Example.</strong> Five 3-putts total. You were the last to 3-putt. '
-                'You owe your playing partner $5.</p>'
+                'You lose 5 points to your playing partner.</p>'
                 '<p><strong>Best for:</strong> Adding drama to short putts. That 4-footer suddenly matters a lot '
                 'when missing it hands the snake back to you.</p>'
             ),
@@ -230,7 +230,7 @@ GOLF_GAMES = {
             'tagline': 'The classic threesome game — 9 points per hole, everyone gets something.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Assign a dollar value per point. Use handicaps "off the low man" — '
+                '<p><strong>Setup.</strong> Use handicaps "off the low man" — '
                 'the best player plays scratch, the other two get the difference.</p>'
                 '<p><strong>Scoring.</strong> 9 points per hole, distributed by score:</p>'
                 '<p>&nbsp;&nbsp;<strong>5-3-1</strong> · low / middle / high<br>'
@@ -266,7 +266,7 @@ GOLF_GAMES = {
                 '<em>Bango</em> — closest to the pin once everyone is on. <em>Bongo</em> — first ball in the hole.</p>'
                 '<p><strong>Key rule.</strong> Honor goes to whoever is <em>furthest from the hole</em>, not whoever '
                 'scored lowest on the previous hole. This lets slower players still compete for Bingo.</p>'
-                '<p><strong>Scoring.</strong> Assign a dollar value per point. Tally at the end.</p>'
+                '<p><strong>Scoring.</strong> Tally points at the end. Most points wins.</p>'
                 '<p><strong>Best for:</strong> Mixed skill levels. A shorter hitter who chips well can take Bingo '
                 'and Bango all day long — perfect equalizer.</p>'
             ),
@@ -289,16 +289,16 @@ GOLF_GAMES = {
         },
         {
             'name': 'Skins',
-            'tagline': 'Every hole is its own pot. Win it outright or it rolls over.',
+            'tagline': 'Every hole is its own pile of points. Win it outright or it rolls over.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Agree on a dollar amount per hole. Common: $1 or $2.</p>'
+                '<p><strong>Setup.</strong> Each hole is worth 1 skin (1 point).</p>'
                 '<p><strong>Scoring.</strong> Lowest score on the hole wins the skin. Must win outright — '
                 'any tie carries over, adding to the next hole.</p>'
                 '<p><strong>3-player quirk.</strong> Two-way ties are less common than in a foursome, so skins actually '
                 'get decided more often. Rewards dramatic holes without mountains of carryover.</p>'
                 '<p><strong>Best for:</strong> Groups that want zero bookkeeping. Just play, lowest score on the hole '
-                'grabs the money.</p>'
+                'takes the points.</p>'
             ),
         },
         {
@@ -306,26 +306,26 @@ GOLF_GAMES = {
             'tagline': 'Catch the rabbit by winning a hole outright — lose it the same way.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Ante into a pot. The rabbit is "loose" at the start of every 6-hole segment '
+                '<p><strong>Setup.</strong> The rabbit is "loose" at the start of every 6-hole segment '
                 '(front 9, back 9, or 3 × 6).</p>'
                 '<p><strong>Capturing.</strong> First player to win a hole outright captures the rabbit. '
                 'They hold it until someone else wins a hole outright — then the rabbit changes hands.</p>'
-                '<p><strong>The end.</strong> Whoever holds the rabbit at the end of the segment wins that segment\'s pot. '
-                'If the rabbit is still loose (no outright winners), the pot rolls to the next segment.</p>'
+                '<p><strong>The end.</strong> Whoever holds the rabbit at the end of the segment wins that segment. '
+                'If the rabbit is still loose (no outright winners), the segment rolls forward to the next.</p>'
                 '<p><strong>Best for:</strong> Late-round tension. The rabbit can flip on hole 18 and completely change '
-                'who pays whom.</p>'
+                'who wins.</p>'
             ),
         },
         {
             'name': 'Snake',
-            'tagline': 'A putting side-game — whoever 3-putts last pays for everyone.',
+            'tagline': 'A putting side-game — whoever 3-putts last loses points to everyone.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Set a dollar amount (e.g., $1). Play as a side-game alongside your main game.</p>'
+                '<p><strong>Setup.</strong> Each 3-putt is worth 1 point. Play as a side-game alongside your main game.</p>'
                 '<p><strong>Scoring.</strong> Every 3-putt passes the "snake" to that player. Whoever holds '
-                'it at the end of 18 pays <em>each</em> opponent the agreed amount per 3-putt recorded.</p>'
+                'it at the end of 18 loses 1 point per 3-putt recorded to <em>each</em> opponent.</p>'
                 '<p><strong>Example.</strong> Five 3-putts this round. You 3-putted last on 17. '
-                'You owe each playing partner $5.</p>'
+                'You lose 5 points to each playing partner.</p>'
                 '<p><strong>Best for:</strong> Punishing loose putting. Makes 4-footers feel a lot bigger.</p>'
             ),
         },
@@ -362,16 +362,16 @@ GOLF_GAMES = {
         },
         {
             'name': 'Nassau',
-            'tagline': 'Three bets — front, back, and overall — run as two-on-two teams.',
+            'tagline': 'Three contests — front, back, and overall — run as two-on-two teams.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Split into teams of two. Agree on a dollar amount that rides on three '
-                'separate bets: the front nine, back nine, and overall 18.</p>'
+                '<p><strong>Setup.</strong> Split into teams of two. Three separate contests run in parallel: '
+                'the front nine, back nine, and overall 18.</p>'
                 '<p><strong>Scoring.</strong> Usually played best-ball (lowest score on each team per hole). '
-                'Each of the three bets is settled independently. Presses allowed — losing side can open a new '
-                'double-or-nothing bet from any hole forward.</p>'
-                '<p><strong>Best for:</strong> The classic four-player betting format. A bad front nine only costs '
-                'one of three bets — plenty of time to claw back.</p>'
+                'Each of the three contests is settled independently. Presses allowed — losing side can open a new '
+                'double-or-nothing contest from any hole forward.</p>'
+                '<p><strong>Best for:</strong> The classic four-player format. A bad front nine only costs '
+                'one of three contests — plenty of time to claw back.</p>'
             ),
         },
         {
@@ -406,14 +406,14 @@ GOLF_GAMES = {
         },
         {
             'name': 'Skins',
-            'tagline': 'One pot per hole — outright lowest score wins, ties carry over.',
+            'tagline': 'One skin per hole — outright lowest score wins, ties carry over.',
             'complexity': 'Simple',
             'rules': (
-                '<p><strong>Setup.</strong> Agree on a dollar amount per hole. Common: $1 or $2.</p>'
+                '<p><strong>Setup.</strong> Each hole is worth 1 skin (1 point).</p>'
                 '<p><strong>Scoring.</strong> Lowest score wins the skin outright. Any tie carries the skin to the next '
                 'hole, which is now worth 2 skins. Carryovers can pile up fast in a foursome.</p>'
                 '<p><strong>4-player quirk.</strong> Ties happen way more often with four players — expect huge '
-                'carryovers, and a single great hole can pay out massively.</p>'
+                'carryovers, and a single great hole can sweep many skins at once.</p>'
                 '<p><strong>Best for:</strong> Drama. Hole 18 can be worth 10 skins in a tight group.</p>'
             ),
         },
@@ -446,15 +446,18 @@ def build_games_section(n_players):
     # Plural noun
     group_word = 'TWO' if n_players == 2 else 'THREE' if n_players == 3 else 'FOUR'
 
-    # Decorative SVG: abstract red spiral (echoes Billy-puppet cheek motif without copying it)
-    spiral_svg = (
-        '<svg viewBox="0 0 60 60" width="48" height="48" xmlns="http://www.w3.org/2000/svg" '
-        'style="position:absolute;top:14px;right:14px;opacity:.55;">'
-        '<g transform="translate(30,30)" fill="none" stroke="#a31a1a" stroke-width="2" stroke-linecap="round">'
-        '<path d="M 0,0 m -2,-2 a 3,3 0 1,0 4,0 a 6,6 0 1,1 -8,0 a 9,9 0 1,0 12,0 a 12,12 0 1,1 -16,0 a 15,15 0 1,0 20,0 a 18,18 0 1,1 -24,0 a 21,21 0 1,0 28,0" />'
-        '<circle r="1.5" fill="#a31a1a" stroke="none"/>'
-        '</g></svg>'
-    )
+    # Single spiral SVG — drawn once, used twice (one each side of the catchphrase).
+    # Pure geometric red spiral, evoking Billy's cheek motif without reproducing
+    # the puppet's likeness. Slight rotation per side so they don't look identical.
+    def _cheek_spiral(rotate_deg=0):
+        return (
+            f'<svg viewBox="0 0 60 60" width="56" height="56" xmlns="http://www.w3.org/2000/svg" '
+            f'style="flex-shrink:0;transform:rotate({rotate_deg}deg);filter:drop-shadow(0 0 6px rgba(163,26,26,.5));">'
+            f'<g transform="translate(30,30)" fill="none" stroke="#c41e1e" stroke-width="2.6" stroke-linecap="round">'
+            f'<path d="M 0,0 m -2,-2 a 3,3 0 1,0 4,0 a 6,6 0 1,1 -8,0 a 9,9 0 1,0 12,0 a 12,12 0 1,1 -16,0 a 15,15 0 1,0 20,0 a 18,18 0 1,1 -24,0 a 21,21 0 1,0 28,0" />'
+            f'<circle r="2" fill="#c41e1e" stroke="none"/>'
+            f'</g></svg>'
+        )
 
     cards = ''
     for i, g in enumerate(games):
@@ -494,19 +497,24 @@ def build_games_section(n_players):
     open_icon_attr = _html.escape(open_icon, quote=True)
     return (
         f'<div class="saw-panel">'
-        # Decorative spiral in the corner
-        f'{spiral_svg}'
-        # Tape-recorder evidence-tag pre-header
-        f'<div style="font-family:\'Special Elite\',monospace;font-size:9px;color:#888;letter-spacing:.18em;margin-bottom:6px;text-transform:uppercase;">&#9836; Cassette tape &mdash; play me</div>'
-        # The catchphrase (cultural reference, not the SAW logo itself)
-        f'<div style="font-family:\'Creepster\',cursive;font-size:30px;color:#a31a1a;line-height:1.05;margin-bottom:4px;letter-spacing:.02em;text-shadow:0 0 12px rgba(163,26,26,.4),2px 2px 0 #000;">'
+        # ── Top evidence-label banner: full-width, doesn't crowd anything below
+        f'<div class="saw-evidence-tape">'
+        f'<span>&#9836; Cassette tape &mdash; play me</span>'
+        f'<span style="float:right;letter-spacing:.2em;">{group_word}</span>'
+        f'</div>'
+        # ── Headline row: spiral / catchphrase / spiral
+        f'<div class="saw-headline-row">'
+        f'{_cheek_spiral(rotate_deg=0)}'
+        f'<div class="saw-catchphrase">'
         f'Do you want<br>to play a game?'
         f'</div>'
-        # Subtitle in typewriter
-        f'<div style="font-family:\'Special Elite\',monospace;font-size:11px;color:#a8a098;margin-bottom:14px;letter-spacing:.04em;line-height:1.45;">'
+        f'{_cheek_spiral(rotate_deg=180)}'  # mirror by rotating 180° — feels symmetric like cheeks
+        f'</div>'
+        # ── Subtitle in typewriter
+        f'<div style="font-family:\'Special Elite\',monospace;font-size:11px;color:#a8a098;margin:4px 0 14px;letter-spacing:.04em;line-height:1.45;text-align:center;">'
         f'Hello {group_word.lower()} players. I have selected {len(games)} games for your consideration.'
         f'</div>'
-        # Themed collapsible toggle — rotates per round
+        # ── Themed collapsible toggle — rotates per round
         f'<div class="saw-toggle {theme_class}" onclick="toggleSawGames(this)" '
         f'data-closed-icon="{closed_icon_attr}" data-closed-label="{closed_label}" '
         f'data-open-icon="{open_icon_attr}" data-open-label="{open_label}">'
@@ -516,7 +524,7 @@ def build_games_section(n_players):
         f'<div class="saw-games-list">'
         f'{cards}'
         f'</div>'
-        # Footer flourish — a little signature
+        # ── Footer flourish
         f'<div style="font-family:\'Special Elite\',monospace;font-size:9px;color:#5a5048;margin-top:12px;text-align:right;letter-spacing:.15em;text-transform:uppercase;">&#9899; live or die. make your choice.</div>'
         f'</div>'
     )
@@ -1633,11 +1641,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     linear-gradient(180deg, #0a0a0a 0%, #141010 100%);
   color:#e8e0d4;
   border-radius:12px;
-  padding:1.1rem 1.1rem 1rem;
+  padding:0 1.1rem 1rem;       /* no top padding — evidence tape sits flush against the top */
   margin-bottom:.75rem;
   border:1px solid #2a1818;
   overflow:hidden;
   box-shadow:0 0 0 1px rgba(163,26,26,.15) inset, 0 4px 14px rgba(0,0,0,.3);
+}
+
+/* Evidence-label tape — full width across the very top of the panel */
+.saw-evidence-tape{
+  margin:0 -1.1rem 14px;       /* extend to panel edges */
+  padding:7px 1.1rem;
+  background:linear-gradient(180deg,#1f0c0c 0%,#1a0808 100%);
+  border-bottom:1px solid #3a1a1a;
+  font-family:'Special Elite',monospace;
+  font-size:9px;color:#a8a098;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+}
+
+/* Headline row — spiral / catchphrase / spiral */
+.saw-headline-row{
+  display:flex;align-items:center;justify-content:center;
+  gap:14px;
+  padding:8px 0 6px;
+}
+.saw-catchphrase{
+  font-family:'Creepster',cursive;
+  font-size:30px;color:#a31a1a;
+  line-height:1.05;
+  letter-spacing:.02em;
+  text-align:center;
+  text-shadow:0 0 12px rgba(163,26,26,.5), 2px 2px 0 #000;
+  flex:1;min-width:0;
 }
 /* Subtle film-grain via repeating gradient */
 .saw-panel::before{
@@ -2482,12 +2518,12 @@ def build_report(course_name, date_str, time_str, players, output_path):
         (lambda: (globals().__setitem__('GAMES_TOGGLE_SEED', f'{course_name}|{date_str}'),
                   build_games_section(len(players)))[1])(),
 
+        # Post-round stops
+        stops,
+
         # Fun fact
         f'<div class="fun-fact"><div class="fun-fact-label">&#9971; Did you know?</div>'
         f'<div class="fun-fact-text">{fun_fact}</div></div>' if fun_fact else '',
-
-        # Post-round stops
-        stops,
 
         # Footer
         f'<div class="footer">{course_name} &middot; {meta.get("address","")}<br>'
