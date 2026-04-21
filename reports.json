@@ -1,0 +1,30 @@
+{
+  "reports": [
+    {
+      "file": "2026-04-26_0758_irish-hills.html",
+      "course": "Irish Hills Golf & Country Club",
+      "short": "Irish Hills G&CC",
+      "date": "2026-04-26",
+      "time_24": "07:58",
+      "time_display": "7:58 AM",
+      "date_display": "April 26, 2026",
+      "day_name": "Sunday",
+      "players": [
+        "Nick",
+        "Brett",
+        "Ollie"
+      ],
+      "address": "3860 Carp Rd, Carp, ON",
+      "tee": "White (Red/Blue)",
+      "yards": 6137,
+      "par": 70,
+      "wx": {
+        "temp": "6°C",
+        "icon": "&#9728;",
+        "condition": "Clear Sky",
+        "rain": "16%"
+      }
+    }
+  ],
+  "updated": "2026-04-20T21:02:43"
+}

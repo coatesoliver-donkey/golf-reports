@@ -1,0 +1,6 @@
+# Netlify configuration for nob-golf-reports
+# This is a static-only site — no build command, just publish the root folder as-is.
+
+[build]
+  publish = "."
+  command = ""
