@@ -1749,11 +1749,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   50%{transform:translateY(-8px) rotate(3deg);}
 }
 
-/* ── Dripping ellipsis (three dots with elongating blood drips) ───────────── */
+/* ── Dripping ellipsis (three small dots with elongating blood drips) ─────── */
 .saw-drip-ellipsis{
   display:inline-flex;align-items:flex-start;
-  gap:3px;
-  margin-left:4px;
+  gap:2px;
+  margin-left:3px;
   vertical-align:baseline;
   /* Reserve a little vertical room below the baseline for the drips to live in
      without pushing the next sibling element down. */
@@ -1762,28 +1762,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .saw-drip-dot{
   position:relative;
   display:inline-block;
-  width:5px;height:5px;
+  width:3px;height:3px;
   border-radius:50%;
-  background:#a31a1a;
-  /* subtle glow to match the rest of the SAW palette */
-  box-shadow:0 0 3px rgba(163,26,26,.5);
+  /* Match the typewriter subtitle text color — these read as ellipsis dots */
+  background:#a8a098;
 }
 .saw-drip{
   position:absolute;
   top:100%;left:50%;
-  width:3px;
-  margin-left:-1.5px;
+  width:2px;
+  margin-left:-1px;
   background:#a31a1a;
-  /* tear-drop bottom — round the bottom edge so the drip looks like it's about to fall */
+  /* Tear-drop bottom — round the bottom edge so the drip looks like it's about to fall */
   border-radius:0 0 50% 50% / 0 0 100% 100%;
   /* Animation: drip slowly elongates, then snaps back (as if a drop fell) */
   animation:saw-drip-fall 3.6s ease-in infinite;
   transform-origin:top center;
+  /* Subtle red glow on the drip itself (not the dot) */
+  box-shadow:0 0 2px rgba(163,26,26,.5);
 }
 @keyframes saw-drip-fall{
   0%   {height:0;   opacity:.95;}
-  60%  {height:8px; opacity:.95;}
-  85%  {height:11px;opacity:.85;}  /* almost falling */
+  60%  {height:6px; opacity:.95;}
+  85%  {height:8px; opacity:.85;}  /* almost falling */
   90%  {height:0;   opacity:0;}    /* drop falls — snap to nothing */
   100% {height:0;   opacity:.95;}
 }
