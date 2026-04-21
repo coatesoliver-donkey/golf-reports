@@ -224,21 +224,18 @@ def _hcp_style(hcp):
 
 
 def _kid_name_td(name, bg, initial_only=False, rng=None):
-    if rng is None:
-        rng = random.Random(hash(name))
-    fonts = ['Caveat', 'Patrick Hand', 'Indie Flower']
+    """Render player name in the scorecard name cell, styled as pencil-on-card.
+    Uses Kalam Light (Google Font) — thin strokes, slight slant, pencil feel.
+    Color is a dark graphite (#2a2a2a), not pure black, not colored ink."""
     if initial_only:
         return (f'<td style="background:{bg};padding:4px 4px;white-space:nowrap;max-width:38px;">'
                 f'<span style="display:inline-flex;align-items:center;">'
-                f'<span style="font-family:\'Caveat\',cursive;font-size:14px;color:#1a3a6a;">{name[0].upper()}</span>'
+                f'<span style="font-family:\'Kalam\',cursive;font-weight:300;font-size:15px;color:#2a2a2a;">{name[0].upper()}</span>'
                 f'</span></td>')
-    spans = ''
-    for i, ch in enumerate(name.upper()):
-        f2 = fonts[i % 3]
-        display = 'Ǝ' if ch == 'E' and rng.random() < 0.4 else ch
-        spans += f'<span style="font-family:\'{f2}\',cursive;font-size:14px;color:#1a3a6a;">{display}</span>'
     return (f'<td style="background:{bg};padding:4px 4px;white-space:nowrap;max-width:38px;">'
-            f'<span style="display:inline-flex;align-items:center;gap:0px;">{spans}</span></td>')
+            f'<span style="display:inline-flex;align-items:center;">'
+            f'<span style="font-family:\'Kalam\',cursive;font-weight:300;font-size:15px;color:#2a2a2a;">{name.upper()}</span>'
+            f'</span></td>')
 
 
 def _score_input(bg, player, hole, tabindex):
@@ -1516,7 +1513,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
     parts = [
         f'<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">',
         f'<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">',
-        f'<link href="https://fonts.googleapis.com/css2?family=Caveat&family=Patrick+Hand&family=Indie+Flower&display=swap" rel="stylesheet">',
+        f'<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&family=Caveat:wght@600&display=swap" rel="stylesheet">',
         f'<style>{CSS}</style>',
         f'</head>\n<body>',
 
