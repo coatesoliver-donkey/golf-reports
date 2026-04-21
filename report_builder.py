@@ -932,7 +932,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .diff-scale-track{position:relative;height:6px;background:#ece9e3;border-radius:3px;overflow:hidden;margin-top:18px;}
 .diff-scale-fill{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,#52a06e,#c4621a);border-radius:3px;}
 .diff-scale-marker{position:absolute;top:50%;transform:translate(-50%,-50%);width:12px;height:12px;background:#1a1a16;border:2px solid #fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.3);}
-.info-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#e5e3de;color:#888;font-size:11px;font-weight:600;cursor:pointer;border:none;touch-action:manipulation;}
+.info-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:transparent;color:#c4621a;font-size:11px;font-weight:700;font-family:Georgia,serif;font-style:italic;line-height:1;cursor:pointer;border:1.5px solid #c4621a;touch-action:manipulation;padding:0;transition:background .15s,color .15s,transform .1s;-webkit-tap-highlight-color:transparent;vertical-align:middle;opacity:.7;}
+.info-btn:hover{background:#c4621a;color:#fff;opacity:1;}
+.info-btn:active{transform:scale(0.92);background:#c4621a;color:#fff;opacity:1;}
+.info-btn:focus{outline:none;opacity:1;}
 .explainer{display:none;background:#1a1a16;color:#f5f3ee;border-radius:10px;padding:1rem 1.1rem;margin-top:10px;font-size:12px;line-height:1.6;}
 .explainer.visible{display:block;}
 .explainer strong{color:#f5c96e;}
