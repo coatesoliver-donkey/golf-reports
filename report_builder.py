@@ -468,15 +468,15 @@ def build_games_section(players, short_name):
     def _cheek_spiral():
         return (
             f'<span class="saw-spiral">'
-            f'<svg viewBox="-4 -4 68 68" width="56" height="56" xmlns="http://www.w3.org/2000/svg">'
+            # viewBox dramatically expanded — the spiral path extends past its
+            # nominal radius due to the offset 'm -2,-2' start, so we need ~10px
+            # of headroom in every direction instead of the 4px we had.
+            f'<svg viewBox="-10 -10 80 80" width="60" height="60" xmlns="http://www.w3.org/2000/svg">'
             f'<g transform="translate(30,30)" fill="none" stroke="#c41e1e" stroke-width="2.6" stroke-linecap="round" '
             f'filter="url(#saw-spiral-glow)">'
             f'<path d="M 0,0 m -2,-2 a 3,3 0 1,0 4,0 a 6,6 0 1,1 -8,0 a 9,9 0 1,0 12,0 a 12,12 0 1,1 -16,0 a 15,15 0 1,0 20,0 a 18,18 0 1,1 -24,0 a 21,21 0 1,0 28,0" />'
             f'<circle r="2" fill="#c41e1e" stroke="none"/>'
             f'</g>'
-            # SVG filter defined inside the SVG so the glow is rendered inside
-            # the viewBox (which we padded to -4..64). No CSS drop-shadow = no
-            # clipping from parent overflow rules.
             f'<defs><filter id="saw-spiral-glow" x="-25%" y="-25%" width="150%" height="150%">'
             f'<feGaussianBlur stdDeviation="2.5" result="glow"/>'
             f'<feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>'
