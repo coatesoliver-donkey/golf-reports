@@ -124,6 +124,491 @@ SC = merge_sc(TEE_PALETTES['White'])
 
 
 # ════════════════════════════════════════════════════════════════════════════
+# GOLF GAMES  (curated list per player count, rendered as tappable cards)
+# ════════════════════════════════════════════════════════════════════════════
+#
+# Each entry: {name, tagline, complexity, rules (HTML), min/max players}
+# Rules are multi-paragraph HTML — each <p> renders as a paragraph in the
+# expanded view. Keep rules focused: setup → scoring → tie-breakers → strategy tip.
+# Complexity: 'Simple' | 'Moderate' | 'Strategic'
+
+GOLF_GAMES = {
+    2: [
+        {
+            'name': 'Nassau',
+            'tagline': 'Three bets in one — front nine, back nine, and the whole round.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Agree on a dollar amount before the round. That amount rides on '
+                'three separate bets: the front nine, the back nine, and the overall 18.</p>'
+                '<p><strong>Scoring.</strong> Lowest score on the front wins that bet. Lowest on the back wins that bet. '
+                'Lowest total wins the overall. All match-play (hole-by-hole), or stroke-play (total strokes) — '
+                'agree before teeing off.</p>'
+                '<p><strong>Presses.</strong> Whoever is losing a bet can "press" — start a new double-or-nothing bet '
+                'that runs alongside the original from that hole on. Classic way to claw back a bad front nine.</p>'
+                '<p><strong>Best for:</strong> All skill levels. A bad stretch only loses one of three bets, so the round '
+                'stays interesting all the way to 18.</p>'
+            ),
+        },
+        {
+            'name': 'Match Play',
+            'tagline': 'Hole-by-hole combat — lowest score each hole wins the hole, highest total holes wins.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> No money required — just bragging rights. Handicap difference '
+                'is usually given as strokes on the hardest-HCP holes.</p>'
+                '<p><strong>Scoring.</strong> Each hole is its own tiny battle. Lowest net score wins the hole '
+                '(worth 1 hole "up"). Tied scores mean the hole is halved — neither player gains.</p>'
+                '<p><strong>The end.</strong> If someone is up more holes than remain, the match is over '
+                '("3 & 2" means 3 up with 2 holes left). Otherwise play through 18.</p>'
+                '<p><strong>Best for:</strong> Forgets a bad hole instantly — one bad score only costs you that '
+                'hole, not your whole round. Great for competitive matchups.</p>'
+            ),
+        },
+        {
+            'name': 'Skins',
+            'tagline': 'Every hole is its own pot. Win it outright or it rolls over.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Agree on a dollar amount per hole (a "skin"). Common: $1 or $2.</p>'
+                '<p><strong>Scoring.</strong> Lowest score on the hole wins the skin. But you must win outright — '
+                'if tied, the skin carries over and adds to the next hole\'s value.</p>'
+                '<p><strong>Example.</strong> Holes 1 and 2 tie. Hole 3 is now worth 3 skins. If you win hole 3 '
+                'outright, you collect all 3.</p>'
+                '<p><strong>Best for:</strong> Head-to-head action without dwelling on math. Perfect when you want '
+                'individual holes to feel dramatic.</p>'
+            ),
+        },
+        {
+            'name': 'Bingo Bango Bongo',
+            'tagline': 'Three points per hole — first on, closest on, first in.',
+            'complexity': 'Moderate',
+            'rules': (
+                '<p><strong>Three points per hole.</strong> <em>Bingo</em> — first ball on the green. '
+                '<em>Bango</em> — closest to the pin once everyone is on. <em>Bongo</em> — first ball in the hole.</p>'
+                '<p><strong>Key rule.</strong> Honor goes to whoever is <em>furthest from the hole</em>, not whoever '
+                'scored lowest on the previous hole. This lets slower players still compete for Bingo.</p>'
+                '<p><strong>Scoring.</strong> Assign a dollar value per point. Tally at the end. '
+                'A short hitter who chips well can absolutely beat a longer hitter who doesn\'t.</p>'
+                '<p><strong>Best for:</strong> Mixed skill levels — the points aren\'t strictly tied to your score, '
+                'so the weaker player has genuine chances.</p>'
+            ),
+        },
+        {
+            'name': 'Stableford',
+            'tagline': 'Earn points per hole on a scoring curve. No negative scores allowed.',
+            'complexity': 'Moderate',
+            'rules': (
+                '<p><strong>Point scale (most common).</strong> Eagle = 4 pts · Birdie = 2 pts · Par = 1 pt · '
+                'Bogey = 0 pts · Double or worse = pick it up and move on.</p>'
+                '<p><strong>The beauty.</strong> A disaster hole costs you nothing — you can\'t go negative. '
+                'Encourages aggressive play because the downside is capped.</p>'
+                '<p><strong>Handicap-friendly.</strong> Use net scores against par to level the field.</p>'
+                '<p><strong>Best for:</strong> Players who want to attack pins without fear. Also great when '
+                'skill levels are mismatched.</p>'
+            ),
+        },
+        {
+            'name': 'Snake',
+            'tagline': 'A putting side-game — whoever 3-putts last pays for everyone.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Set a dollar amount (e.g., $1). Play it as a side-game alongside '
+                'whatever else you\'re playing.</p>'
+                '<p><strong>Scoring.</strong> Every 3-putt passes the "snake" to that player. Whoever holds '
+                'the snake at the end of 18 pays each opponent the agreed amount per 3-putt recorded that round.</p>'
+                '<p><strong>Example.</strong> Five 3-putts total. You were the last to 3-putt. '
+                'You owe your playing partner $5.</p>'
+                '<p><strong>Best for:</strong> Adding drama to short putts. That 4-footer suddenly matters a lot '
+                'when missing it hands the snake back to you.</p>'
+            ),
+        },
+    ],
+    3: [
+        {
+            'name': 'Nine Point',
+            'tagline': 'The classic threesome game — 9 points per hole, everyone gets something.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Assign a dollar value per point. Use handicaps "off the low man" — '
+                'the best player plays scratch, the other two get the difference.</p>'
+                '<p><strong>Scoring.</strong> 9 points per hole, distributed by score:</p>'
+                '<p>&nbsp;&nbsp;<strong>5-3-1</strong> · low / middle / high<br>'
+                '&nbsp;&nbsp;<strong>4-4-1</strong> · tied for low<br>'
+                '&nbsp;&nbsp;<strong>5-2-2</strong> · tied for high<br>'
+                '&nbsp;&nbsp;<strong>3-3-3</strong> · three-way tie</p>'
+                '<p><strong>Best for:</strong> Everyone stays engaged because even the worst score earns a point. '
+                'The math always adds to 9 — easy to track.</p>'
+            ),
+        },
+        {
+            'name': 'Wolf',
+            'tagline': 'Rotating "wolf" picks a partner after tee shots — or goes solo for double points.',
+            'complexity': 'Strategic',
+            'rules': (
+                '<p><strong>Rotation.</strong> The wolf changes every hole. Wolf tees off <em>last</em> so they '
+                'can see the others\' shots.</p>'
+                '<p><strong>The choice.</strong> After each non-wolf tee shot, the wolf must decide: partner with that '
+                'player for the hole, or pass. <em>Once you pass, that player is off the table.</em> '
+                'If the wolf passes on everyone, they must go solo.</p>'
+                '<p><strong>Scoring.</strong> Wolf + partner vs. third player — low net score wins. Wolf alone vs. '
+                'the other two — the wolf\'s score vs. their lowest. Going alone and winning doubles the points.</p>'
+                '<p><strong>Best for:</strong> Groups that love strategy. The decision of when to go lone wolf '
+                'is the whole game.</p>'
+            ),
+        },
+        {
+            'name': 'Bingo Bango Bongo',
+            'tagline': 'Three points per hole — first on, closest on, first in.',
+            'complexity': 'Moderate',
+            'rules': (
+                '<p><strong>Three points per hole.</strong> <em>Bingo</em> — first ball on the green. '
+                '<em>Bango</em> — closest to the pin once everyone is on. <em>Bongo</em> — first ball in the hole.</p>'
+                '<p><strong>Key rule.</strong> Honor goes to whoever is <em>furthest from the hole</em>, not whoever '
+                'scored lowest on the previous hole. This lets slower players still compete for Bingo.</p>'
+                '<p><strong>Scoring.</strong> Assign a dollar value per point. Tally at the end.</p>'
+                '<p><strong>Best for:</strong> Mixed skill levels. A shorter hitter who chips well can take Bingo '
+                'and Bango all day long — perfect equalizer.</p>'
+            ),
+        },
+        {
+            'name': 'Split Sixes',
+            'tagline': 'Like Nine Point but sharper — 6 points per hole, zero for the worst score.',
+            'complexity': 'Moderate',
+            'rules': (
+                '<p><strong>Scoring.</strong> 6 points per hole:</p>'
+                '<p>&nbsp;&nbsp;<strong>4-2-0</strong> · low / middle / high<br>'
+                '&nbsp;&nbsp;<strong>3-3-0</strong> · tied for low<br>'
+                '&nbsp;&nbsp;<strong>4-1-1</strong> · tied for high<br>'
+                '&nbsp;&nbsp;<strong>2-2-2</strong> · three-way tie</p>'
+                '<p><strong>Vs. Nine Point.</strong> The worst score earns <em>nothing</em> — a bad hole hurts more. '
+                'Also called Hollywood in some areas.</p>'
+                '<p><strong>Best for:</strong> Stronger players who want more punishment on blow-up holes. Skip it '
+                'if skill gaps are big.</p>'
+            ),
+        },
+        {
+            'name': 'Skins',
+            'tagline': 'Every hole is its own pot. Win it outright or it rolls over.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Agree on a dollar amount per hole. Common: $1 or $2.</p>'
+                '<p><strong>Scoring.</strong> Lowest score on the hole wins the skin. Must win outright — '
+                'any tie carries over, adding to the next hole.</p>'
+                '<p><strong>3-player quirk.</strong> Two-way ties are less common than in a foursome, so skins actually '
+                'get decided more often. Rewards dramatic holes without mountains of carryover.</p>'
+                '<p><strong>Best for:</strong> Groups that want zero bookkeeping. Just play, lowest score on the hole '
+                'grabs the money.</p>'
+            ),
+        },
+        {
+            'name': 'Rabbit',
+            'tagline': 'Catch the rabbit by winning a hole outright — lose it the same way.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Ante into a pot. The rabbit is "loose" at the start of every 6-hole segment '
+                '(front 9, back 9, or 3 × 6).</p>'
+                '<p><strong>Capturing.</strong> First player to win a hole outright captures the rabbit. '
+                'They hold it until someone else wins a hole outright — then the rabbit changes hands.</p>'
+                '<p><strong>The end.</strong> Whoever holds the rabbit at the end of the segment wins that segment\'s pot. '
+                'If the rabbit is still loose (no outright winners), the pot rolls to the next segment.</p>'
+                '<p><strong>Best for:</strong> Late-round tension. The rabbit can flip on hole 18 and completely change '
+                'who pays whom.</p>'
+            ),
+        },
+        {
+            'name': 'Snake',
+            'tagline': 'A putting side-game — whoever 3-putts last pays for everyone.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Set a dollar amount (e.g., $1). Play as a side-game alongside your main game.</p>'
+                '<p><strong>Scoring.</strong> Every 3-putt passes the "snake" to that player. Whoever holds '
+                'it at the end of 18 pays <em>each</em> opponent the agreed amount per 3-putt recorded.</p>'
+                '<p><strong>Example.</strong> Five 3-putts this round. You 3-putted last on 17. '
+                'You owe each playing partner $5.</p>'
+                '<p><strong>Best for:</strong> Punishing loose putting. Makes 4-footers feel a lot bigger.</p>'
+            ),
+        },
+    ],
+    4: [
+        {
+            'name': 'Best Ball',
+            'tagline': 'Teams of two — best score of the pair counts on each hole.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Split into teams of two. Each player plays their own ball through the hole.</p>'
+                '<p><strong>Scoring.</strong> Only the <em>lowest</em> score on each team counts for that hole. '
+                'Totals compared at the end — lowest team total wins. Also called "Four-ball" in match-play formats.</p>'
+                '<p><strong>Tie-breaker option.</strong> If two teams tie on a hole, the next-best score from each '
+                'team breaks the tie (e.g., a 4&amp;5 beats a 4&amp;7).</p>'
+                '<p><strong>Best for:</strong> Pairing a strong player with a high-handicap player — the weaker player '
+                'can pick up the team on holes where the stronger player blows up.</p>'
+            ),
+        },
+        {
+            'name': 'Scramble',
+            'tagline': 'Everyone tees off; pick the best shot; all play from there. Repeat.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Teams of two (or all four on one team for a casual round).</p>'
+                '<p><strong>Flow.</strong> All players tee off. The team picks the best tee shot. All players then '
+                'hit their second shots from that spot. Pick the best second. Repeat until the ball is holed.</p>'
+                '<p><strong>Rules to agree on.</strong> Must each player\'s tee shot be used at least twice? '
+                '(Prevents one player dominating.) Can the ball be placed within a club-length (not nearer the hole, '
+                'not closer to a hazard)?</p>'
+                '<p><strong>Best for:</strong> Fun-first rounds, corporate events, and any mixed-skill group. '
+                'Scores are always low — ego-friendly.</p>'
+            ),
+        },
+        {
+            'name': 'Nassau',
+            'tagline': 'Three bets — front, back, and overall — run as two-on-two teams.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Split into teams of two. Agree on a dollar amount that rides on three '
+                'separate bets: the front nine, back nine, and overall 18.</p>'
+                '<p><strong>Scoring.</strong> Usually played best-ball (lowest score on each team per hole). '
+                'Each of the three bets is settled independently. Presses allowed — losing side can open a new '
+                'double-or-nothing bet from any hole forward.</p>'
+                '<p><strong>Best for:</strong> The classic four-player betting format. A bad front nine only costs '
+                'one of three bets — plenty of time to claw back.</p>'
+            ),
+        },
+        {
+            'name': 'Vegas',
+            'tagline': 'Team scores combined as a 2-digit number. Smaller digit first. Beware flips.',
+            'complexity': 'Strategic',
+            'rules': (
+                '<p><strong>Setup.</strong> Teams of two. Each team\'s score on a hole is the two player scores arranged '
+                'as a 2-digit number, <em>lower digit first</em>. Example: 4 and 6 = 46 (not 64).</p>'
+                '<p><strong>Scoring.</strong> Compare the teams\' 2-digit numbers. Difference is the points won. '
+                'If team A scores 46 and team B scores 58, team A wins 12 points on that hole.</p>'
+                '<p><strong>Flip rule.</strong> If any player on a team scores a birdie, that team\'s number "flips" '
+                '(higher digit first). A birdie can swing huge — 46 becomes 64.</p>'
+                '<p><strong>Best for:</strong> Groups that love variance. One birdie can undo a whole bad front nine.</p>'
+            ),
+        },
+        {
+            'name': 'Wolf',
+            'tagline': 'Rotating "wolf" picks a partner or goes solo — now with a 4th player to pass on.',
+            'complexity': 'Strategic',
+            'rules': (
+                '<p><strong>Rotation.</strong> The wolf changes every hole and tees off last. Four-player Wolf gives the '
+                'wolf three potential partners instead of two — more decisions, more drama.</p>'
+                '<p><strong>The choice.</strong> After each non-wolf tee shot, the wolf either partners with that '
+                'player or passes. Once passed, that player is off the table. If the wolf passes on all three, they '
+                'go solo (lone wolf).</p>'
+                '<p><strong>Scoring.</strong> Wolf + partner (2) vs. other two (2) — low net scores decide the hole. '
+                'Lone wolf vs. the other three — doubled points on win, doubled loss on defeat.</p>'
+                '<p><strong>Best for:</strong> Strategic groups. Deciding when to wait for a better tee shot vs. lock '
+                'in the first good one is the whole game.</p>'
+            ),
+        },
+        {
+            'name': 'Skins',
+            'tagline': 'One pot per hole — outright lowest score wins, ties carry over.',
+            'complexity': 'Simple',
+            'rules': (
+                '<p><strong>Setup.</strong> Agree on a dollar amount per hole. Common: $1 or $2.</p>'
+                '<p><strong>Scoring.</strong> Lowest score wins the skin outright. Any tie carries the skin to the next '
+                'hole, which is now worth 2 skins. Carryovers can pile up fast in a foursome.</p>'
+                '<p><strong>4-player quirk.</strong> Ties happen way more often with four players — expect huge '
+                'carryovers, and a single great hole can pay out massively.</p>'
+                '<p><strong>Best for:</strong> Drama. Hole 18 can be worth 10 skins in a tight group.</p>'
+            ),
+        },
+        {
+            'name': 'Stableford',
+            'tagline': 'Points per hole on a scoring curve. Attack pins, no negative scores.',
+            'complexity': 'Moderate',
+            'rules': (
+                '<p><strong>Point scale.</strong> Eagle = 4 · Birdie = 2 · Par = 1 · Bogey = 0 · Double or worse = 0. '
+                'You can\'t go negative — blow-up holes cost nothing.</p>'
+                '<p><strong>4-player flow.</strong> Individual scoring, not teams. Highest total points wins. '
+                'Use net scores against par for handicap fairness.</p>'
+                '<p><strong>Best for:</strong> Encouraging aggressive play. The downside of a bad hole is capped, '
+                'so there\'s no reason not to go for the par-5 green.</p>'
+            ),
+        },
+    ],
+}
+
+
+def build_games_section(n_players):
+    """Render the 'Wanna play a game?' section. Heavily themed — dark panel with
+    blood-red accents, horror display + typewriter typography, abstract spiral
+    decorations. Game cards reuse .stat.clickable + .explainer infrastructure
+    but override styling for the dark theme."""
+    games = GOLF_GAMES.get(n_players, GOLF_GAMES[3])  # fall back to 3-player
+    if not games:
+        return ''
+
+    # Plural noun
+    group_word = 'TWO' if n_players == 2 else 'THREE' if n_players == 3 else 'FOUR'
+
+    # Decorative SVG: abstract red spiral (echoes Billy-puppet cheek motif without copying it)
+    spiral_svg = (
+        '<svg viewBox="0 0 60 60" width="48" height="48" xmlns="http://www.w3.org/2000/svg" '
+        'style="position:absolute;top:14px;right:14px;opacity:.55;">'
+        '<g transform="translate(30,30)" fill="none" stroke="#a31a1a" stroke-width="2" stroke-linecap="round">'
+        '<path d="M 0,0 m -2,-2 a 3,3 0 1,0 4,0 a 6,6 0 1,1 -8,0 a 9,9 0 1,0 12,0 a 12,12 0 1,1 -16,0 a 15,15 0 1,0 20,0 a 18,18 0 1,1 -24,0 a 21,21 0 1,0 28,0" />'
+        '<circle r="1.5" fill="#a31a1a" stroke="none"/>'
+        '</g></svg>'
+    )
+
+    cards = ''
+    for i, g in enumerate(games):
+        gid = f'game-ex-{i}'
+        cx = g.get('complexity', 'Simple')
+        # Danger meter: 1-3 red bars based on complexity
+        n_bars = {'Simple': 1, 'Moderate': 2, 'Strategic': 3}.get(cx, 1)
+        bars = ''
+        for b in range(3):
+            filled = b < n_bars
+            color = '#a31a1a' if filled else '#3a2020'
+            bars += f'<span style="display:inline-block;width:9px;height:4px;background:{color};margin-right:2px;border-radius:1px;"></span>'
+
+        cards += (
+            f'<div class="saw-game" onclick="toggleEx(\'{gid}\')">'
+            f'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">'
+            f'<div style="font-family:\'Special Elite\',monospace;font-size:17px;font-weight:400;color:#e8e0d4;letter-spacing:.02em;text-shadow:0 0 4px rgba(163,26,26,.3);">{g["name"]}</div>'
+            f'<div style="display:flex;align-items:center;gap:6px;">'
+            f'<span style="font-family:\'Special Elite\',monospace;font-size:8px;color:#888;text-transform:uppercase;letter-spacing:.1em;">RISK</span>'
+            f'{bars}'
+            f'</div>'
+            f'</div>'
+            f'<div style="font-family:\'Special Elite\',monospace;font-size:12px;color:#a8a098;line-height:1.55;padding-right:24px;">{g["tagline"]}</div>'
+            f'<div class="explainer saw-explainer" id="{gid}">{g["rules"]}</div>'
+            f'</div>'
+        )
+
+    # Toggle theme — rotates deterministically by (course, date). Each theme
+    # supplies a closed-state icon/label and an open-state icon/label, plus a
+    # CSS class for the open animation.
+    toggle_theme = pick_saw_toggle_theme(GAMES_TOGGLE_SEED)
+    closed_icon, closed_label, open_icon, open_label, theme_class = toggle_theme
+    # SVG strings contain double quotes — escape for safe placement inside
+    # HTML attributes. JS reads them back via getAttribute() (which decodes).
+    import html as _html
+    closed_icon_attr = _html.escape(closed_icon, quote=True)
+    open_icon_attr = _html.escape(open_icon, quote=True)
+    return (
+        f'<div class="saw-panel">'
+        # Decorative spiral in the corner
+        f'{spiral_svg}'
+        # Tape-recorder evidence-tag pre-header
+        f'<div style="font-family:\'Special Elite\',monospace;font-size:9px;color:#888;letter-spacing:.18em;margin-bottom:6px;text-transform:uppercase;">&#9836; Cassette tape &mdash; play me</div>'
+        # The catchphrase (cultural reference, not the SAW logo itself)
+        f'<div style="font-family:\'Creepster\',cursive;font-size:30px;color:#a31a1a;line-height:1.05;margin-bottom:4px;letter-spacing:.02em;text-shadow:0 0 12px rgba(163,26,26,.4),2px 2px 0 #000;">'
+        f'Do you want<br>to play a game?'
+        f'</div>'
+        # Subtitle in typewriter
+        f'<div style="font-family:\'Special Elite\',monospace;font-size:11px;color:#a8a098;margin-bottom:14px;letter-spacing:.04em;line-height:1.45;">'
+        f'Hello {group_word.lower()} players. I have selected {len(games)} games for your consideration.'
+        f'</div>'
+        # Themed collapsible toggle — rotates per round
+        f'<div class="saw-toggle {theme_class}" onclick="toggleSawGames(this)" '
+        f'data-closed-icon="{closed_icon_attr}" data-closed-label="{closed_label}" '
+        f'data-open-icon="{open_icon_attr}" data-open-label="{open_label}">'
+        f'<span class="saw-toggle-icon">{closed_icon}</span>'
+        f'<span class="saw-toggle-label">{closed_label}</span>'
+        f'</div>'
+        f'<div class="saw-games-list">'
+        f'{cards}'
+        f'</div>'
+        # Footer flourish — a little signature
+        f'<div style="font-family:\'Special Elite\',monospace;font-size:9px;color:#5a5048;margin-top:12px;text-align:right;letter-spacing:.15em;text-transform:uppercase;">&#9899; live or die. make your choice.</div>'
+        f'</div>'
+    )
+
+
+# ── SAW toggle themes (rotated per round) ────────────────────────────────────
+# Each theme: (closed_icon_svg, closed_label, open_icon_svg, open_label, theme_class)
+# Icons are inline SVGs sized to ~18-22px so they sit naturally in the toggle bar.
+# theme_class drives CSS animations (e.g., lever tilts, padlock swings) on .is-open.
+
+def _saw_svg_play():
+    return ('<svg viewBox="0 0 20 20" width="16" height="16" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-2px;"><polygon points="5,3 5,17 17,10" fill="#a31a1a"/></svg>')
+
+def _saw_svg_pause():
+    return ('<svg viewBox="0 0 20 20" width="16" height="16" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-2px;"><rect x="5" y="3" width="4" height="14" fill="#a31a1a"/>'
+            '<rect x="11" y="3" width="4" height="14" fill="#a31a1a"/></svg>')
+
+def _saw_svg_padlock_closed():
+    return ('<svg viewBox="0 0 20 20" width="16" height="18" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-3px;">'
+            '<path d="M 6,9 L 6,5.5 A 4,4 0 0 1 14,5.5 L 14,9" fill="none" stroke="#a31a1a" stroke-width="1.8"/>'
+            '<rect x="4" y="9" width="12" height="9" rx="1.5" fill="#a31a1a"/>'
+            '<circle cx="10" cy="13" r="1" fill="#0a0606"/></svg>')
+
+def _saw_svg_padlock_open():
+    return ('<svg viewBox="0 0 20 20" width="16" height="18" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-3px;">'
+            '<path d="M 6,9 L 6,5.5 A 4,4 0 0 1 14,5.5" fill="none" stroke="#a31a1a" stroke-width="1.8"/>'
+            '<rect x="4" y="9" width="12" height="9" rx="1.5" fill="#a31a1a"/>'
+            '<circle cx="10" cy="13" r="1" fill="#0a0606"/></svg>')
+
+def _saw_svg_lever_up():
+    # Lever tilted up-right (off / closed)
+    return ('<svg viewBox="0 0 20 20" width="18" height="18" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-4px;">'
+            '<rect x="3" y="14" width="14" height="3" fill="#3a1a1a" rx="0.5"/>'
+            '<line x1="10" y1="15.5" x2="15" y2="4" stroke="#a31a1a" stroke-width="2.2" stroke-linecap="round"/>'
+            '<circle cx="15" cy="4" r="2.2" fill="#a31a1a"/>'
+            '<circle cx="10" cy="15.5" r="1" fill="#888"/></svg>')
+
+def _saw_svg_lever_down():
+    # Lever tilted down-left (on / open)
+    return ('<svg viewBox="0 0 20 20" width="18" height="18" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-4px;">'
+            '<rect x="3" y="14" width="14" height="3" fill="#3a1a1a" rx="0.5"/>'
+            '<line x1="10" y1="15.5" x2="5" y2="4" stroke="#a31a1a" stroke-width="2.2" stroke-linecap="round"/>'
+            '<circle cx="5" cy="4" r="2.2" fill="#a31a1a"/>'
+            '<circle cx="10" cy="15.5" r="1" fill="#888"/></svg>')
+
+def _saw_svg_folder_closed():
+    return ('<svg viewBox="0 0 20 20" width="18" height="16" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-3px;">'
+            '<path d="M 2,5 L 2,16 L 18,16 L 18,7 L 10,7 L 8,5 Z" fill="#a31a1a"/>'
+            '<rect x="4" y="9" width="12" height="1" fill="#0a0606" opacity=".4"/></svg>')
+
+def _saw_svg_folder_open():
+    return ('<svg viewBox="0 0 20 20" width="18" height="16" xmlns="http://www.w3.org/2000/svg" '
+            'style="vertical-align:-3px;">'
+            '<path d="M 2,5 L 2,16 L 18,16 L 18,7 L 10,7 L 8,5 Z" fill="#a31a1a" opacity=".5"/>'
+            '<path d="M 4,9 L 4,15 L 17,15 L 18,9 Z" fill="#a31a1a"/></svg>')
+
+# All themes — order doesn't matter, hash picks one.
+SAW_TOGGLE_THEMES = [
+    # Tape recorder — pairs with the Cassette tape pre-header
+    (lambda: _saw_svg_play(),    'Press play to begin',       lambda: _saw_svg_pause(),  'Stop the tape',          'theme-play'),
+    # Padlock — "you're trapped" theme
+    (lambda: _saw_svg_padlock_closed(), 'Unlock your fate',   lambda: _saw_svg_padlock_open(), 'Sealed for now',  'theme-lock'),
+    # Mechanical lever — "make your choice" energy
+    (lambda: _saw_svg_lever_up(),       'Throw the switch',    lambda: _saw_svg_lever_down(),    'Reset the switch','theme-lever'),
+    # Case file — investigative, evidence-tag aesthetic
+    (lambda: _saw_svg_folder_closed(),  'Open the case file',  lambda: _saw_svg_folder_open(),   'Close the file',  'theme-folder'),
+]
+
+
+def pick_saw_toggle_theme(seed):
+    """Return (closed_icon_html, closed_label, open_icon_html, open_label, theme_class)
+    deterministically from a seed string. Different seeds → different themes;
+    same seed → same theme every build."""
+    import hashlib
+    digest = hashlib.md5(seed.encode('utf-8')).hexdigest()
+    idx = int(digest, 16) % len(SAW_TOGGLE_THEMES)
+    closed_fn, closed_label, open_fn, open_label, cls = SAW_TOGGLE_THEMES[idx]
+    return closed_fn(), closed_label, open_fn(), open_label, cls
+
+
+# Default seed used at module-import time; build_report overwrites it before call
+GAMES_TOGGLE_SEED = 'default'
+
+
+# ════════════════════════════════════════════════════════════════════════════
 # WEATHER  (Open-Meteo — free, no API key, 16-day hourly)
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -535,8 +1020,6 @@ def build_stat_boxes(course_name, c):
         f'<span style="font-size:10px;font-weight:700;color:#c4621a;letter-spacing:.08em;">SLOPE</span></div>'
         f'<div class="stat-val" style="margin-left:calc({sp}% - 18px);">{c["slope"]}</div>'
         f'{_diff_scale(sp, "Forgiving", s_mid, "Demanding")}{slope_ex}</div>'
-
-        f'{_build_walk_box(course_name, c)}'
     )
     return boxes
 
@@ -1140,6 +1623,110 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .treat-hours{font-size:10px;color:#aaa;}
 .treat-badge{font-size:10px;background:#f0ede8;color:#888;padding:2px 7px;border-radius:8px;}
 .fun-fact{background:#1a1a16;color:#f5f3ee;border-radius:12px;padding:1rem 1.1rem;margin-bottom:.75rem;}
+
+/* ── SAW-themed games section ────────────────────────────────────────────── */
+.saw-panel{
+  position:relative;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(163,26,26,.08), transparent 50%),
+    radial-gradient(circle at 80% 90%, rgba(163,26,26,.06), transparent 60%),
+    linear-gradient(180deg, #0a0a0a 0%, #141010 100%);
+  color:#e8e0d4;
+  border-radius:12px;
+  padding:1.1rem 1.1rem 1rem;
+  margin-bottom:.75rem;
+  border:1px solid #2a1818;
+  overflow:hidden;
+  box-shadow:0 0 0 1px rgba(163,26,26,.15) inset, 0 4px 14px rgba(0,0,0,.3);
+}
+/* Subtle film-grain via repeating gradient */
+.saw-panel::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 3px);
+  mix-blend-mode:overlay;
+}
+.saw-game{
+  position:relative;
+  background:linear-gradient(180deg, #1a1414 0%, #120e0e 100%);
+  border:1px solid #2a1818;
+  border-radius:8px;
+  padding:.7rem .85rem;
+  margin-bottom:7px;
+  cursor:pointer;
+  transition:border-color .2s, box-shadow .2s, transform .1s;
+  -webkit-tap-highlight-color:transparent;
+}
+.saw-game::after{
+  content:"";position:absolute;top:10px;right:10px;width:7px;height:7px;
+  border-right:1.5px solid #a31a1a;border-bottom:1.5px solid #a31a1a;
+  transform:rotate(-45deg);opacity:.6;transition:opacity .15s,transform .15s;
+}
+.saw-game:hover{
+  border-color:#a31a1a;
+  box-shadow:0 0 12px rgba(163,26,26,.25), 0 0 0 1px rgba(163,26,26,.4) inset;
+}
+.saw-game:hover::after{opacity:1;transform:rotate(-45deg) translate(1px,1px);}
+.saw-game:active{transform:scale(0.99);}
+/* Themed explainer (override default .explainer for cards inside .saw-panel) */
+.saw-explainer{
+  background:#0a0606 !important;
+  border:1px solid #2a1818;
+  border-left:3px solid #a31a1a;
+  color:#c8c0b4 !important;
+  font-family:'Special Elite',monospace !important;
+  font-size:11.5px !important;
+  line-height:1.65 !important;
+  border-radius:6px;
+  padding:.85rem 1rem !important;
+  margin-top:10px !important;
+}
+.saw-explainer p{margin:0 0 .55rem 0;}
+.saw-explainer p:last-child{margin-bottom:0;}
+.saw-explainer strong{color:#e8a3a3;font-weight:400;text-shadow:0 0 4px rgba(163,26,26,.4);}
+.saw-explainer em{color:#d4c8b8;font-style:italic;}
+
+/* ── SAW collapsible toggle ─────────────────────────────────────────────── */
+.saw-toggle{
+  display:flex;align-items:center;gap:10px;
+  font-family:'Special Elite',monospace;font-size:12px;
+  color:#e8a3a3;letter-spacing:.04em;
+  background:linear-gradient(180deg,#1a1010 0%,#120808 100%);
+  border:1px solid #3a1a1a;border-left:3px solid #a31a1a;
+  border-radius:6px;
+  padding:.65rem .85rem;
+  cursor:pointer;
+  transition:border-color .2s, box-shadow .2s, background .2s;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.saw-toggle:hover{
+  border-color:#a31a1a;
+  box-shadow:0 0 10px rgba(163,26,26,.25);
+}
+.saw-toggle:active{transform:scale(0.99);}
+.saw-toggle-icon{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  transition:transform .3s ease;
+}
+.saw-toggle-label{flex:1;}
+/* Per-theme open-state animations on the icon */
+.saw-toggle.theme-play.is-open .saw-toggle-icon{transform:rotate(180deg);}
+.saw-toggle.theme-lock.is-open .saw-toggle-icon{transform:rotate(-12deg);}
+.saw-toggle.theme-lever.is-open .saw-toggle-icon{transform:scaleX(-1);}  /* mirror — lever flips sides */
+.saw-toggle.theme-folder.is-open .saw-toggle-icon{transform:translateY(-1px);}
+.saw-toggle.is-open{margin-bottom:10px;}
+/* Hidden by default; shown when .is-open class is added */
+.saw-games-list{
+  display:none;
+  animation:saw-fade-in .25s ease;
+}
+.saw-games-list.is-open{display:block;}
+@keyframes saw-fade-in{
+  from{opacity:0;transform:translateY(-4px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
 .fun-fact-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#7ecb6a;margin-bottom:6px;}
 .fun-fact-text{font-size:13px;line-height:1.6;color:#d4d0c8;}
 .footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #e5e3de;font-size:11px;color:#aaa;text-align:center;padding-bottom:2rem;}
@@ -1194,6 +1781,27 @@ function toggleEx(id){{
     if(el.id===id){{el.classList.toggle('visible');}}
     else{{el.classList.remove('visible');}}
   }});
+}}
+
+function toggleSawGames(toggleEl){{
+  // Toggle 'is-open' on the toggle and the games list that follows it.
+  // Swaps icon + label between closed/open variants using data-* attributes set
+  // at build time (themed per round).
+  var list = toggleEl.nextElementSibling;
+  var iconSpan = toggleEl.querySelector('.saw-toggle-icon');
+  var label = toggleEl.querySelector('.saw-toggle-label');
+  var isOpen = toggleEl.classList.toggle('is-open');
+  if(list){{ list.classList.toggle('is-open', isOpen); }}
+  if(iconSpan){{
+    iconSpan.innerHTML = isOpen
+      ? toggleEl.getAttribute('data-open-icon')
+      : toggleEl.getAttribute('data-closed-icon');
+  }}
+  if(label){{
+    label.textContent = isOpen
+      ? toggleEl.getAttribute('data-open-label')
+      : toggleEl.getAttribute('data-closed-label');
+  }}
 }}
 
 // ── Course / round context (templated at build time) ─────────────────────
@@ -1763,7 +2371,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
     parts = [
         f'<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">',
         f'<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">',
-        f'<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&family=Caveat:wght@600&display=swap" rel="stylesheet">',
+        f'<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&family=Caveat:wght@600&family=Special+Elite&family=Creepster&display=swap" rel="stylesheet">',
         f'<style>{CSS}</style>',
         f'</head>\n<body>',
 
@@ -1815,8 +2423,9 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<div class="stat-grid" style="gap:8px;">{stat_boxes}</div>',
         f'</div>',
 
-        # Intel + elevation/clock
+        # Intel + walk + elevation/clock
         intel,
+        f'<div style="margin-top:5px;">{_build_walk_box(course_name, c)}</div>',
         f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;">'
         f'<div class="stat clickable" style="margin-top:5px;" onclick="toggleEx(\'elev-ex\')">'
         f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
@@ -1868,6 +2477,10 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<div style="font-size:11px;font-weight:700;color:#3a6a9a;margin-bottom:6px;">{wx_icon} {wx_header}</div>'
         f'<div style="display:flex;flex-direction:column;gap:5px;">{wx_bullets_html}</div>'
         f'</div></div><div style="margin-top:14px;"></div></div>',
+
+        # Games menu — scales with player count; toggle theme rotates per (course, date)
+        (lambda: (globals().__setitem__('GAMES_TOGGLE_SEED', f'{course_name}|{date_str}'),
+                  build_games_section(len(players)))[1])(),
 
         # Fun fact
         f'<div class="fun-fact"><div class="fun-fact-label">&#9971; Did you know?</div>'
