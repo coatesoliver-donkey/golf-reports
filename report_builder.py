@@ -270,21 +270,21 @@ def build_scorecard_table(holes, yards_list, total_label, yards_total, par_total
            f'text-transform:uppercase;letter-spacing:.07em;padding:7px 10px;text-align:left;">{tee_name}</td>')
     yds += ''.join(f'<td style="background:{SC["yds"]};color:{SC["yds_fg"]};font-weight:700;font-size:13px;padding:7px 4px;text-align:center;">{y}</td>' for y in yards_list)
     yds += f'<td style="background:{SC["yds_tot"]};color:#fff;font-weight:700;font-size:14px;padding:7px 10px 7px 6px;text-align:center;">{yards_total}</td>'
-    # Par row
+    # Par row (section-break class = heavier top border)
     par = f'<td style="background:{SC["par"]};color:#333;font-weight:400;font-size:11px;padding:7px 10px;text-align:left;">Par</td>'
     par += ''.join(f'<td style="background:{SC["par"]};color:{SC["par_fg"]};font-weight:700;font-size:12px;padding:7px 4px;text-align:center;">{h["par"]}</td>' for h in holes)
     par += f'<td style="background:{SC["par_tot"]};color:#5a4800;font-weight:700;font-size:11px;padding:7px 10px 7px 4px;text-align:center;">{par_total}</td>'
-    # HCP row
+    # HCP row (section-break class = heavier top border)
     hcp = f'<td style="background:{SC["hcp"]};color:{SC["hcp_fg"]};font-weight:400;font-size:11px;padding:7px 10px;text-align:left;">HDCP</td>'
     for h in holes:
         bg2, fg2 = _hcp_style(h['hcp'])
         dot = f'<span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:{bg2};color:{fg2};font-size:10px;font-weight:700;">{h["hcp"]}</span>'
         hcp += f'<td style="background:{SC["hcp"]};padding:4px 4px;text-align:center;">{dot}</td>'
     hcp += f'<td style="background:{SC["hcp_tot"]};color:#999;font-weight:700;font-size:11px;padding:7px 10px 7px 4px;text-align:center;">—</td>'
-    # Player rows — Nick/Brett get interactive inputs (tabindex 1-18, 19-36, etc.).
-    # Ollie's row is display-only: static empty cells, no inputs, no tabindex.
-    divider = f'<tr><td colspan="11" style="background:#d0cdc6;height:1px;padding:0;font-size:0;"></td></tr>'
-    player_rows = divider
+    # Player rows — Nick/Brett get interactive inputs; Ollie's row is display-only.
+    # No more explicit divider <tr> — the first player row carries the section-break class,
+    # and every player row has a 'player-row' class that gets a bottom border.
+    player_rows = ''
     hole_offset = 0 if is_front else 9
     for i, name in enumerate(players):
         bg = row_bgs[i % 2]
@@ -298,11 +298,34 @@ def build_scorecard_table(holes, yards_list, total_label, yards_total, par_total
                 tabindex = i * 18 + hole_num      # Nick:1..18, Brett:19..36
                 cells += _score_input(bg, name, hole_num, tabindex)
         tot = f'<td style="background:#f0ede6;padding:6px 10px 6px 6px;text-align:center;"></td>'
-        player_rows += f'<tr data-player-row="{name}">{name_td}{cells}{tot}</tr>'
-    return (f'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:8px;border-radius:8px;overflow:hidden;">'
-            f'<table style="width:100%;border-collapse:collapse;font-family:-apple-system,sans-serif;border:1.5px solid {SC["hdr"]};border-radius:8px;overflow:hidden;">'
+        # First player row (i==0) gets section-break class too, to separate players from HDCP
+        cls = 'player-row' + (' section-break' if i == 0 else '')
+        player_rows += f'<tr data-player-row="{name}" class="{cls}">{name_td}{cells}{tot}</tr>'
+
+    # Scoped style for the scorecard. Only emit on the front-nine call (is_front=True)
+    # so we don't duplicate the same rules when the back nine also renders.
+    if is_front:
+        scoped_css = (
+            '<style>'
+            # Vertical column dividers on every cell except the last column
+            '.sc-tbl td, .sc-tbl th { border-right: 1px solid #d5d1c5; }'
+            '.sc-tbl td:last-child, .sc-tbl th:last-child { border-right: none; }'
+            # Heavier horizontal rule at section breaks (Par, HDCP, and first player row)
+            '.sc-tbl tr.section-break td { border-top: 1.5px solid #8a8577; }'
+            # Thin horizontal rule between player rows (runs through empty cells)
+            '.sc-tbl tr.player-row td { border-bottom: 1px solid #c8c4b8; }'
+            # No bottom border on the last player row (avoids doubling with the card border)
+            '.sc-tbl tr.player-row:last-child td { border-bottom: none; }'
+            '</style>'
+        )
+    else:
+        scoped_css = ''
+
+    return (f'{scoped_css}'
+            f'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:8px;border-radius:8px;overflow:hidden;">'
+            f'<table class="sc-tbl" style="width:100%;border-collapse:collapse;font-family:-apple-system,sans-serif;border:1.5px solid {SC["hdr"]};border-radius:8px;overflow:hidden;">'
             f'<thead><tr>{hdr}</tr></thead>'
-            f'<tbody><tr>{yds}</tr><tr>{par}</tr><tr>{hcp}</tr>{player_rows}</tbody>'
+            f'<tbody><tr>{yds}</tr><tr class="section-break">{par}</tr><tr class="section-break">{hcp}</tr>{player_rows}</tbody>'
             f'</table></div>')
 
 
