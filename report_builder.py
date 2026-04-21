@@ -24,6 +24,26 @@ _COURSES_PATH = os.path.join(_SCRIPT_DIR, 'courses.json')
 with open(_COURSES_PATH, encoding='utf-8') as f:
     COURSES = json.load(f)
 
+
+# ── String escaping helpers (player names with apostrophes etc.) ─────────────
+def _attr(s):
+    """Escape a value for safe inclusion inside an HTML attribute (double-quoted)."""
+    return (str(s).replace('&', '&amp;')
+                  .replace('"', '&quot;')
+                  .replace('<', '&lt;')
+                  .replace('>', '&gt;'))
+
+def _js(s):
+    """Escape a string for safe inclusion inside a single-quoted JS string literal,
+    where that literal is itself inside an HTML attribute (e.g. onclick="foo('NAME')").
+    Apostrophes need to look like &#39; in HTML so they don't close the JS string,
+    backslashes need doubling, and < / > need escaping for the HTML layer."""
+    return (str(s).replace('\\', '\\\\')
+                  .replace("'", '&#39;')
+                  .replace('"', '&quot;')
+                  .replace('<', '\\u003c')
+                  .replace('>', '\\u003e'))
+
 # ── Colours ───────────────────────────────────────────────────────────────────
 STOP_COLOURS = ['#e05a8a', '#d4860a', '#2a8a6a', '#7a5cc4', '#c4401a']
 SC = {
@@ -41,8 +61,9 @@ SC = {
 def fetch_weather(lat, lng, tee_date, tee_time_str):
     """
     Fetch hourly forecast from Open-Meteo for the tee time and +2h/+4h.
-    Returns list of 3 dicts: [{temp, feels, humidity, precip_pct, wind_kmh,
-                                wind_dir, condition, icon}, ...]
+    Returns (cards, sunrise_str) — cards is a list of 3 dicts; sunrise_str
+    is a human-readable sunrise time like "6:07 AM" for the tee_date, or
+    None if unavailable.
     Falls back to placeholder data if API is unreachable.
     """
     url = (
@@ -50,7 +71,7 @@ def fetch_weather(lat, lng, tee_date, tee_time_str):
         f"?latitude={lat}&longitude={lng}"
         f"&hourly=temperature_2m,apparent_temperature,relative_humidity_2m,"
         f"precipitation_probability,wind_speed_10m,wind_direction_10m,weathercode"
-        f"&daily=temperature_2m_max,temperature_2m_min"
+        f"&daily=temperature_2m_max,temperature_2m_min,sunrise"
         f"&timezone=America%2FToronto"
         f"&forecast_days=16"
     )
@@ -59,19 +80,31 @@ def fetch_weather(lat, lng, tee_date, tee_time_str):
             data = json.loads(resp.read())
     except Exception as e:
         print(f"  [weather] Open-Meteo unavailable: {e} — using estimates")
-        return _weather_fallback(tee_date)
+        return _weather_fallback(tee_date), None
 
     hourly = data['hourly']
     times  = hourly['time']
     daily  = data['daily']
 
-    # Find the date's daily hi/lo
+    # Find the date's daily hi/lo + sunrise
     date_str = tee_date.strftime('%Y-%m-%d')
     hi_lo = ('?', '?')
+    sunrise_str = None
     if date_str in daily['time']:
         di = daily['time'].index(date_str)
         hi_lo = (f"{round(daily['temperature_2m_max'][di])}°C",
                  f"{round(daily['temperature_2m_min'][di])}°C")
+        # sunrise comes back like "2026-04-26T06:07" — parse + format 12h
+        sr_iso = daily.get('sunrise', [None]*len(daily['time']))[di]
+        if sr_iso:
+            try:
+                sr_dt = datetime.strptime(sr_iso, '%Y-%m-%dT%H:%M')
+                hr = sr_dt.hour
+                ampm = 'AM' if hr < 12 else 'PM'
+                hr12 = hr if 1 <= hr <= 12 else (12 if hr == 0 else hr - 12)
+                sunrise_str = f"{hr12}:{sr_dt.minute:02d} {ampm}"
+            except (ValueError, TypeError):
+                pass
 
     # Parse tee_time_str "HH:MM" → find matching hours
     h, m = map(int, tee_time_str.split(':'))
@@ -98,7 +131,7 @@ def fetch_weather(lat, lng, tee_date, tee_time_str):
             'icon':     _wmo_icon(wc),
             'condition': _wmo_label(wc),
         })
-    return cards
+    return cards, sunrise_str
 
 
 def _wind_dir(deg):
@@ -207,7 +240,7 @@ def _kid_name_td(name, bg, initial_only=False, rng=None):
 
 
 def _score_input(bg, player, hole, tabindex):
-    safe_player = player.replace('"', '&quot;')
+    safe_player = _attr(player)
     return (f'<td style="background:{bg};padding:2px;text-align:center;min-width:22px;position:relative;">'
             f'<input type="number" min="1" max="15" inputmode="numeric" pattern="[0-9]*" '
             f'data-player="{safe_player}" data-hole="{hole}" tabindex="{tabindex}" '
@@ -287,17 +320,19 @@ def build_send_scores_sections(players):
     """One send-scores block per player. Each shows when that player's 18 holes are filled.
     Ollie is the recipient, not a submitter — skip generating one for that name."""
     blocks = []
-    for name in players:
+    for i, name in enumerate(players):
         if name == 'Ollie':
             continue
-        safe = name.replace('"', '&quot;')
+        attr_name = _attr(name)
+        # Use player index in IDs and JS args — avoids any escaping issue with names
+        # containing apostrophes or other special chars.
         blocks.append(
-            f'<div id="send-scores-section-{safe}" class="send-scores-section" data-player="{safe}" '
+            f'<div id="send-scores-section-p{i}" class="send-scores-section" data-player="{attr_name}" '
             f'style="display:none;background:#fff;border-radius:12px;padding:1rem 1.1rem;margin-top:0.75rem;margin-bottom:.75rem;border:2px solid #1a1f3a;box-shadow:0 2px 12px rgba(26,31,58,.12);">'
             f'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
             f'<div>'
             f'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#1a1f3a;margin-bottom:2px;">&#9993; Send Your Scores</div>'
-            f'<div style="font-size:13px;font-weight:700;color:#c4621a;">{name}</div>'
+            f'<div style="font-size:13px;font-weight:700;color:#c4621a;">{attr_name}</div>'
             f'</div>'
             f'<div style="font-size:24px;">&#9971;</div>'
             f'</div>'
@@ -305,20 +340,20 @@ def build_send_scores_sections(players):
             f'<div style="margin-bottom:14px;">'
             f'<div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;">How did you play?</div>'
             f'<div style="display:flex;gap:8px;">'
-            f'<button type="button" onclick="selectFeeling(\'{safe}\',\'good\')" data-feel="good" '
+            f'<button type="button" onclick="selectFeeling({i},\'good\')" data-feel="good" '
             f'style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">'
             f'&#128994; Played well</button>'
-            f'<button type="button" onclick="selectFeeling(\'{safe}\',\'average\')" data-feel="average" '
+            f'<button type="button" onclick="selectFeeling({i},\'average\')" data-feel="average" '
             f'style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">'
             f'&#128993; Average</button>'
-            f'<button type="button" onclick="selectFeeling(\'{safe}\',\'struggled\')" data-feel="struggled" '
+            f'<button type="button" onclick="selectFeeling({i},\'struggled\')" data-feel="struggled" '
             f'style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">'
             f'&#128308; Struggled</button>'
             f'</div>'
             f'</div>'
             # Status + Send button
             f'<div class="scores-status" style="font-size:12px;color:#2a7a3e;font-weight:500;margin-bottom:10px;min-height:16px;text-align:center;">&#10003; All 18 holes filled &mdash; ready to send</div>'
-            f'<button type="button" class="send-btn" onclick="sendScores(\'{safe}\')" '
+            f'<button type="button" class="send-btn" onclick="sendScores({i})" '
             f'style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a2e1a,#2d4a1e);color:#fff;font-size:15px;font-weight:700;cursor:pointer;touch-action:manipulation;letter-spacing:.02em;">'
             f'&#9993; Send Scores to Ollie</button>'
             f'</div>'
@@ -1046,12 +1081,15 @@ var TEE_HOURS={tee_hours_json};
 }})();
 
 // ══════════════════════════════════════════════════════════════════════
-// SEND SCORES — per-player completion watcher + mailto builder
+// SEND SCORES — per-player completion watcher + mailto builder.
+// All send-flow functions take a player INDEX (pi), not a name, so names
+// with apostrophes/quotes don't break the JS.
 // ══════════════════════════════════════════════════════════════════════
-var _feelings={{}};  // player → feeling
-window.selectFeeling=function(player,val){{
-  _feelings[player]=val;
-  var sect=document.getElementById('send-scores-section-'+player);
+var _feelings={{}};  // pi → feeling
+
+window.selectFeeling=function(pi,val){{
+  _feelings[pi]=val;
+  var sect=document.getElementById('send-scores-section-p'+pi);
   if(!sect) return;
   var cols={{good:{{bg:'#e8f5e9',border:'#2a7a3e',color:'#2a7a3e'}},
              average:{{bg:'#fff8e1',border:'#c8a030',color:'#c8a030'}},
@@ -1070,17 +1108,18 @@ window.selectFeeling=function(player,val){{
   }});
 }};
 
-function getScoresFor(player){{
+function getScoresForRow(row){{
+  // Find scores for a row element (already scoped to one player)
   var front=[],back=[];
   for(var h=1;h<=9;h++){{
-    var inp=document.querySelector('input[data-player="'+player+'"][data-hole="'+h+'"]');
+    var inp=row.querySelector('input[data-hole="'+h+'"]');
     if(!inp) return null;
     var v=parseInt(inp.getAttribute('data-score')||inp.value);
     if(isNaN(v)||v<=0) return null;
     front.push(v);
   }}
   for(var h=10;h<=18;h++){{
-    var inp=document.querySelector('input[data-player="'+player+'"][data-hole="'+h+'"]');
+    var inp=document.querySelector('tr[data-player-row="'+row.getAttribute('data-player-row')+'"] input[data-hole="'+h+'"]');
     if(!inp) return null;
     var v=parseInt(inp.getAttribute('data-score')||inp.value);
     if(isNaN(v)||v<=0) return null;
@@ -1089,15 +1128,32 @@ function getScoresFor(player){{
   return {{front:front,back:back}};
 }}
 
-var _sent={{}};  // player → {{ft, bt, tot, feel, sentAt}}
+function getScoresFor(pi){{
+  // Look up scores for player at index pi using their row element (avoids
+  // having to put the raw name into a CSS selector).
+  var name=PLAYERS[pi];
+  if(!name) return null;
+  // Find the front-nine row for this player — there are two rows per player
+  // (front + back), but scores are split by hole number so either row lets
+  // us find the player's inputs.
+  var rows=document.querySelectorAll('tr[data-player-row]');
+  var match=null;
+  for(var i=0;i<rows.length;i++){{
+    if(rows[i].getAttribute('data-player-row')===name){{ match=rows[i]; break; }}
+  }}
+  if(!match) return null;
+  return getScoresForRow(match);
+}}
+
+var _sent={{}};  // pi → {{ft, bt, tot, feel, sentAt}}
 
 function checkReadyToSend(){{
-  PLAYERS.forEach(function(p){{
-    var sect=document.getElementById('send-scores-section-'+p);
+  PLAYERS.forEach(function(name,pi){{
+    var sect=document.getElementById('send-scores-section-p'+pi);
     if(!sect) return;
     // If this player has already sent, leave the confirmation card alone
-    if(_sent[p]) return;
-    var data=getScoresFor(p);
+    if(_sent[pi]) return;
+    var data=getScoresFor(pi);
     if(data){{
       if(sect.style.display==='none'){{
         sect.style.display='block';
@@ -1109,8 +1165,10 @@ function checkReadyToSend(){{
 }}
 window.checkReadyToSend=checkReadyToSend;
 
-window.sendScores=function(player){{
-  var data=getScoresFor(player);
+window.sendScores=function(pi){{
+  var name=PLAYERS[pi];
+  if(!name) return;
+  var data=getScoresFor(pi);
   if(!data) return;
   var ft=data.front.reduce(function(a,b){{return a+b;}},0);
   var bt=data.back.reduce(function(a,b){{return a+b;}},0);
@@ -1125,27 +1183,31 @@ window.sendScores=function(player){{
   body+='BACK NINE\\nH10 H11 H12 H13 H14 H15 H16 H17 H18   IN\\n';
   body+=data.back.map(function(s){{return String(s).padStart(3);}}).join(' ')+'  '+String(bt).padStart(3)+' '+df(bt,bpar)+'\\n\\n';
   body+='TOTAL: '+tot+' '+df(tot,tpar)+'\\n';
-  var feel=_feelings[player];
+  var feel=_feelings[pi];
   if(feel){{
     var fl={{good:'Played well',average:'Average',struggled:'Struggled'}}[feel];
     body+='Feeling: '+fl+'\\n';
   }}
-  body+='\\n---\\nSCORES|'+COURSE+'|'+DATE+'|'+player;
+  body+='\\n---\\nSCORES|'+COURSE+'|'+DATE+'|'+name;
   if(feel) body+='|feeling:'+feel;
   body+='\\nFRONT|'+data.front.join('|')+'\\nBACK|'+data.back.join('|');
-  var subject='Scores - '+COURSE_SHORT+' - '+SUBJECT_DATE+' - '+player;
+  var subject='Scores - '+COURSE_SHORT+' - '+SUBJECT_DATE+' - '+name;
   window.location.href='mailto:'+SWEEPER+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
 
   // Mark sent and replace the section with a confirmation card
-  _sent[player]={{ft:ft,bt:bt,tot:tot,tpar:tpar,feel:feel,sentAt:new Date()}};
-  showSentConfirmation(player);
+  _sent[pi]={{ft:ft,bt:bt,tot:tot,tpar:tpar,feel:feel,sentAt:new Date()}};
+  showSentConfirmation(pi);
 }};
 
-function showSentConfirmation(player){{
-  var sect=document.getElementById('send-scores-section-'+player);
-  if(!sect) return;
-  var s=_sent[player];
+function showSentConfirmation(pi){{
+  var name=PLAYERS[pi];
+  var sect=document.getElementById('send-scores-section-p'+pi);
+  if(!sect || !name) return;
+  var s=_sent[pi];
   if(!s) return;
+  // Safely escape name for innerHTML (name may contain <, >, &, etc.)
+  var esc=function(x){{return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}};
+  var safeName=esc(name);
   var d=s.tot-s.tpar;
   var diffStr=d>0?'+'+d:d===0?'E':''+d;
   var diffCol=d>0?'#c8220e':d<0?'#1a6e2e':'#888';
@@ -1163,7 +1225,7 @@ function showSentConfirmation(player){{
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">'
     +'<div>'
     +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#1a6e2e;margin-bottom:2px;">\\u2713 Scores sent to Ollie</div>'
-    +'<div style="font-size:13px;font-weight:700;color:#1a6e2e;">'+player+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:#1a6e2e;">'+safeName+'</div>'
     +'</div>'
     +'<div style="font-size:24px;">\\u2709</div>'
     +'</div>'
@@ -1182,51 +1244,49 @@ function showSentConfirmation(player){{
     +feelHtml
     +'</div>'
     +'<div style="display:flex;gap:8px;">'
-    +'<button type="button" onclick="resendScores(\\''+player+'\\')" '
+    +'<button type="button" onclick="resendScores('+pi+')" '
     +'style="flex:1;padding:9px;border-radius:8px;border:1px solid #b0c8af;background:#fff;color:#1a6e2e;font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation;">'
     +'\\u21bb Re-send</button>'
-    +'<button type="button" onclick="editScores(\\''+player+'\\')" '
+    +'<button type="button" onclick="editScores('+pi+')" '
     +'style="flex:1;padding:9px;border-radius:8px;border:1px solid #d4d0c8;background:#fff;color:#666;font-size:12px;font-weight:600;cursor:pointer;touch-action:manipulation;">'
     +'\\u270e Edit & re-send</button>'
     +'</div>';
 }}
 
-window.resendScores=function(player){{
-  // Just re-fire the mailto with the same data; keep the confirmation visible
-  if(!_sent[player]) return;
-  delete _sent[player];   // allow sendScores to re-run cleanly
-  window.sendScores(player);
+window.resendScores=function(pi){{
+  if(!_sent[pi]) return;
+  delete _sent[pi];
+  window.sendScores(pi);
 }};
 
-window.editScores=function(player){{
-  // Discard sent state, restore the original send-scores form
-  delete _sent[player];
-  var sect=document.getElementById('send-scores-section-'+player);
-  if(!sect) return;
-  // Rebuild original markup (matches build_send_scores_sections)
+window.editScores=function(pi){{
+  delete _sent[pi];
+  var name=PLAYERS[pi];
+  var sect=document.getElementById('send-scores-section-p'+pi);
+  if(!sect || !name) return;
   sect.style.background='#fff';
   sect.style.borderColor='#1a1f3a';
-  var safe=player.replace(/"/g,'&quot;');
+  var esc=function(x){{return String(x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}};
+  var safeName=esc(name);
   sect.innerHTML=
     '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
     +'<div>'
     +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#1a1f3a;margin-bottom:2px;">\\u2709 Send Your Scores</div>'
-    +'<div style="font-size:13px;font-weight:700;color:#c4621a;">'+player+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:#c4621a;">'+safeName+'</div>'
     +'</div>'
     +'<div style="font-size:24px;">\\u26f3</div>'
     +'</div>'
     +'<div style="margin-bottom:14px;">'
     +'<div style="font-size:11px;font-weight:600;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:.08em;">How did you play?</div>'
     +'<div style="display:flex;gap:8px;">'
-    +'<button type="button" onclick="selectFeeling(\\''+safe+'\\',\\'good\\')" data-feel="good" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">\\ud83d\\udfe2 Played well</button>'
-    +'<button type="button" onclick="selectFeeling(\\''+safe+'\\',\\'average\\')" data-feel="average" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">\\ud83d\\udfe1 Average</button>'
-    +'<button type="button" onclick="selectFeeling(\\''+safe+'\\',\\'struggled\\')" data-feel="struggled" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">\\ud83d\\udd34 Struggled</button>'
+    +'<button type="button" onclick="selectFeeling('+pi+',\\'good\\')" data-feel="good" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">\\ud83d\\udfe2 Played well</button>'
+    +'<button type="button" onclick="selectFeeling('+pi+',\\'average\\')" data-feel="average" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">\\ud83d\\udfe1 Average</button>'
+    +'<button type="button" onclick="selectFeeling('+pi+',\\'struggled\\')" data-feel="struggled" style="flex:1;padding:10px 6px;border-radius:8px;border:1.5px solid #e5e3de;background:#f9f7f3;font-size:13px;font-weight:600;cursor:pointer;touch-action:manipulation;transition:all .15s;">\\ud83d\\udd34 Struggled</button>'
     +'</div>'
     +'</div>'
     +'<div class="scores-status" style="font-size:12px;color:#2a7a3e;font-weight:500;margin-bottom:10px;min-height:16px;text-align:center;">\\u2713 All 18 holes filled \\u2014 ready to send</div>'
-    +'<button type="button" class="send-btn" onclick="sendScores(\\''+safe+'\\')" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a2e1a,#2d4a1e);color:#fff;font-size:15px;font-weight:700;cursor:pointer;touch-action:manipulation;letter-spacing:.02em;">\\u2709 Send Scores to Ollie</button>';
-  // Re-apply previously selected feeling (if any) — feeling is preserved in _feelings
-  if(_feelings[player]) selectFeeling(player,_feelings[player]);
+    +'<button type="button" class="send-btn" onclick="sendScores('+pi+')" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#1a2e1a,#2d4a1e);color:#fff;font-size:15px;font-weight:700;cursor:pointer;touch-action:manipulation;letter-spacing:.02em;">\\u2709 Send Scores to Ollie</button>';
+  if(_feelings[pi]) selectFeeling(pi,_feelings[pi]);
 }};
 
 // ══════════════════════════════════════════════════════════════════════
@@ -1369,13 +1429,20 @@ def build_report(course_name, date_str, time_str, players, output_path):
     rounds_text = f'{rounds} round{"s" if rounds != 1 else ""} played'
 
     print(f"  [weather] Fetching Open-Meteo for {meta.get('lat')}, {meta.get('lng')} on {date_str}...")
-    wx_cards = fetch_weather(meta.get('lat', 45.353), meta.get('lng', -76.030), tee_date, time_str)
+    wx_cards, sunrise_str = fetch_weather(meta.get('lat', 45.353), meta.get('lng', -76.030), tee_date, time_str)
     wx_icon, wx_header, wx_bullets = _weather_note(wx_cards)
-    print(f"  [weather] Done — tee time: {wx_cards[0]['temp']}, rain: {wx_cards[0]['rain']}")
+    print(f"  [weather] Done — tee time: {wx_cards[0]['temp']}, rain: {wx_cards[0]['rain']}"
+          + (f", sunrise {sunrise_str}" if sunrise_str else ""))
 
     # Tee time offsets
     offsets = [f"{time_display} {ampm}", f"+2 Hours", f"+4 Hours"]
-    notes   = [f"&#127749; Sunrise ~6:10 AM", "Warming up", "Near daily high"]
+    # First-card note: show actual sunrise if we got it, else fall back to a
+    # relative hint ("Early tee" / "Sun up") without a hardcoded time.
+    if sunrise_str:
+        first_note = f"&#127749; Sunrise {sunrise_str}"
+    else:
+        first_note = "&#127749; Early tee"
+    notes   = [first_note, "Warming up", "Near daily high"]
     wx_html = ''.join(build_wx_card(offsets[i], offsets[i], wx_cards[i], notes[i], tee=(i==0))
                       for i in range(3))
 
