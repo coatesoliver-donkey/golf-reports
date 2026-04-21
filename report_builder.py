@@ -669,11 +669,16 @@ def build_wx_card(time_str, sub, card_data, note, tee=False):
     wind   = card_data.get('wind_kmh', 0)
     wpct   = min(100, round(wind / 60 * 100))
     wcol   = '#e8735a' if wind >= 30 else '#f5c96e' if wind >= 20 else '#7ab648'
+    # Only render the sub-line div if there's actual content (avoids empty gap)
+    sub_html = (f'<div style="font-size:10px;color:rgba(255,255,255,.85);margin-bottom:8px;font-weight:500;">{sub}</div>'
+                if sub else '<div style="margin-bottom:8px;"></div>')
+    note_html = (f'<div style="font-size:9px;color:#667;font-weight:600;text-align:center;margin-top:2px;">{note}</div>'
+                 if note else '')
     return (
         f'<div class="wx-card" style="border-radius:10px;overflow:hidden;border:{border};">'
         f'<div style="background:linear-gradient(170deg,#3a5878,#6a90b0);padding:12px 10px 10px;text-align:center;">'
         f'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.95);margin-bottom:3px;">{pip}{time_str}</div>'
-        f'<div style="font-size:10px;color:rgba(255,255,255,.8);margin-bottom:8px;font-weight:500;">{sub}</div>'
+        f'{sub_html}'
         f'<div style="font-size:30px;line-height:1;margin-bottom:6px;">{card_data["icon"]}</div>'
         f'<div style="font-size:24px;font-weight:700;color:#fff;">{card_data["temp"]}</div></div>'
         f'<div style="background:#fff;padding:8px 10px;">'
@@ -683,7 +688,7 @@ def build_wx_card(time_str, sub, card_data, note, tee=False):
         f'<div style="flex:1;height:3px;background:#e8ecf0;border-radius:2px;overflow:hidden;">'
         f'<div style="width:{wpct}%;height:100%;background:{wcol};border-radius:2px;"></div></div>'
         f'<span style="font-size:9px;color:#667;white-space:nowrap;">{card_data["wind_dir"]} {wind} km/h</span></div>'
-        f'<div style="font-size:9px;color:#667;font-weight:600;text-align:center;margin-top:2px;">{note}</div>'
+        f'{note_html}'
         f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:8px;border-top:1px solid #e8ecf0;padding-top:6px;">'
         f'<div style="text-align:center;"><div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:.06em;">Feels like</div><div style="font-size:13px;font-weight:700;color:#334;">{card_data["feels"]}</div></div>'
         f'<div style="text-align:center;"><div style="font-size:9px;color:#999;text-transform:uppercase;letter-spacing:.06em;">Humidity</div><div style="font-size:13px;font-weight:700;color:#334;">{card_data["humidity"]}</div></div>'
@@ -927,7 +932,7 @@ input[type=number]{-moz-appearance:textfield;}
 @media(max-width:480px){.wx-grid{grid-template-columns:1fr !important;}}'''
 
 def build_js(course_name, date_str, time_str, players, front_par, back_par,
-             lat, lng, sunrise_str='6:07 AM'):
+             lat, lng, sunrise_str=None):
     """Build the <script> block, templating in course/date/player specifics."""
     import json as _json
     fp = _json.dumps(front_par)
@@ -961,6 +966,8 @@ def build_js(course_name, date_str, time_str, players, front_par, back_par,
                         .replace('Country Club', 'CC')
                         .replace('& Event Lodge', '').strip())
     short_js = _json.dumps(short)
+    # Sunrise: either real time (e.g., "5:59 AM") or empty string if unavailable
+    sunrise_js = _json.dumps(sunrise_str if sunrise_str else "")
 
     return f'''
 <script>
@@ -981,6 +988,7 @@ var FRONT_PAR={fp}, BACK_PAR={bp};
 var PLAYERS={players_json};
 var LAT={lat}, LNG={lng};
 var TEE_HOURS={tee_hours_json};
+var SUNRISE={sunrise_js};  // e.g. "5:59 AM" or empty string if unavailable
 
 // ══════════════════════════════════════════════════════════════════════
 // SCORECARD — setup + live totals + per-player completion watcher
@@ -1301,15 +1309,26 @@ window.editScores=function(pi){{
     if(i===1) return '+2 Hours';
     return '+4 Hours';
   }}
+  function teeSub(i){{
+    // Tee-time card: show real sunrise if we have it, else 'Early tee'.
+    // Other cards: no sub-line (kept empty for visual balance with a placeholder div).
+    if(i===0){{
+      return SUNRISE ? '\\ud83c\\udf05 Sunrise ' + SUNRISE : '\\ud83c\\udf05 Early tee';
+    }}
+    return '';
+  }}
   function card(d,i,isTee){{
     var bdr=isTee?'2px solid #3a6a9a':'1px solid #c0ccd8';
     var pip=isTee?'<div style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#7ecb6a;margin-right:4px;vertical-align:middle;"></div>':'';
     var wp=Math.min(100,Math.round(d.wind/60*100)),wc=d.wind>=30?'#e8735a':d.wind>=20?'#f5c96e':'#7ab648';
-    var ttl=isTee?'Tee Time':teeLabel(i);
+    var sub=teeSub(i);
+    var subHtml = sub
+      ? '<div style="font-size:10px;color:rgba(255,255,255,.85);margin-bottom:8px;font-weight:500;">'+sub+'</div>'
+      : '<div style="margin-bottom:8px;"></div>';
     return '<div class="wx-card" style="border-radius:10px;overflow:hidden;border:'+bdr+';">'
       +'<div style="background:linear-gradient(170deg,#3a5878,#6a90b0);padding:12px 10px 10px;text-align:center;">'
       +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:rgba(255,255,255,.95);margin-bottom:3px;">'+pip+teeLabel(i)+'</div>'
-      +'<div style="font-size:10px;color:rgba(255,255,255,.8);margin-bottom:8px;font-weight:500;">'+ttl+'</div>'
+      +subHtml
       +'<div style="font-size:30px;line-height:1;margin-bottom:6px;">'+(WI[String(d.wc)]||'\\u26c5')+'</div>'
       +'<div style="font-size:24px;font-weight:700;color:#fff;">'+d.temp+'\\u00b0C</div></div>'
       +'<div style="background:#fff;padding:8px 10px;">'
@@ -1434,16 +1453,21 @@ def build_report(course_name, date_str, time_str, players, output_path):
     print(f"  [weather] Done — tee time: {wx_cards[0]['temp']}, rain: {wx_cards[0]['rain']}"
           + (f", sunrise {sunrise_str}" if sunrise_str else ""))
 
-    # Tee time offsets
-    offsets = [f"{time_display} {ampm}", f"+2 Hours", f"+4 Hours"]
-    # First-card note: show actual sunrise if we got it, else fall back to a
-    # relative hint ("Early tee" / "Sun up") without a hardcoded time.
+    # Tee time offsets — for each card:
+    #   time_str = the primary label shown in the blue header (big)
+    #   sub      = small sub-line under the label (we put the sunrise here for
+    #              the tee-time card; leave blank for the others)
+    offsets = [f"{time_display} {ampm}", "+2 Hours", "+4 Hours"]
+    # Sub-line for each card. Tee-time card gets the real sunrise. Others blank.
     if sunrise_str:
-        first_note = f"&#127749; Sunrise {sunrise_str}"
+        first_sub = f"&#127749; Sunrise {sunrise_str}"
     else:
-        first_note = "&#127749; Early tee"
-    notes   = [first_note, "Warming up", "Near daily high"]
-    wx_html = ''.join(build_wx_card(offsets[i], offsets[i], wx_cards[i], notes[i], tee=(i==0))
+        first_sub = "&#127749; Early tee"
+    subs = [first_sub, "", ""]
+    # `notes` was a second small caption in the middle of the card — set to blank
+    # now that the sub-line carries the useful info.
+    notes = ["", "", ""]
+    wx_html = ''.join(build_wx_card(offsets[i], subs[i], wx_cards[i], notes[i], tee=(i==0))
                       for i in range(3))
 
     wx_bullets_html = ''.join(
@@ -1610,7 +1634,8 @@ def build_report(course_name, date_str, time_str, players, output_path):
 
         build_js(course_name, date_str, time_str, players,
                  [h['par'] for h in front], [h['par'] for h in back],
-                 meta.get('lat', 45.353), meta.get('lng', -76.030)),
+                 meta.get('lat', 45.353), meta.get('lng', -76.030),
+                 sunrise_str=sunrise_str),
         f'</body>\n</html>',
     ]
 
