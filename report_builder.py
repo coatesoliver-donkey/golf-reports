@@ -462,15 +462,26 @@ def build_games_section(players, short_name):
 
     # Single spiral SVG — drawn once, used twice (one each side of the catchphrase).
     # Pure geometric red spiral, evoking Billy's cheek motif without reproducing
-    # the puppet's likeness. Slight rotation per side so they don't look identical.
-    def _cheek_spiral(rotate_deg=0):
+    # the puppet's likeness. Both sides use the same orientation — the spiral is
+    # nearly rotationally symmetric, so mirroring isn't necessary and removing
+    # the CSS transform prevents bounding-box clipping of the drop-shadow glow.
+    def _cheek_spiral():
         return (
-            f'<svg viewBox="0 0 60 60" width="56" height="56" xmlns="http://www.w3.org/2000/svg" '
-            f'style="flex-shrink:0;transform:rotate({rotate_deg}deg);filter:drop-shadow(0 0 6px rgba(163,26,26,.5));">'
-            f'<g transform="translate(30,30)" fill="none" stroke="#c41e1e" stroke-width="2.6" stroke-linecap="round">'
+            f'<span class="saw-spiral">'
+            f'<svg viewBox="-4 -4 68 68" width="56" height="56" xmlns="http://www.w3.org/2000/svg">'
+            f'<g transform="translate(30,30)" fill="none" stroke="#c41e1e" stroke-width="2.6" stroke-linecap="round" '
+            f'filter="url(#saw-spiral-glow)">'
             f'<path d="M 0,0 m -2,-2 a 3,3 0 1,0 4,0 a 6,6 0 1,1 -8,0 a 9,9 0 1,0 12,0 a 12,12 0 1,1 -16,0 a 15,15 0 1,0 20,0 a 18,18 0 1,1 -24,0 a 21,21 0 1,0 28,0" />'
             f'<circle r="2" fill="#c41e1e" stroke="none"/>'
-            f'</g></svg>'
+            f'</g>'
+            # SVG filter defined inside the SVG so the glow is rendered inside
+            # the viewBox (which we padded to -4..64). No CSS drop-shadow = no
+            # clipping from parent overflow rules.
+            f'<defs><filter id="saw-spiral-glow" x="-25%" y="-25%" width="150%" height="150%">'
+            f'<feGaussianBlur stdDeviation="2.5" result="glow"/>'
+            f'<feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>'
+            f'</filter></defs>'
+            f'</svg></span>'
         )
 
     cards = ''
@@ -518,12 +529,19 @@ def build_games_section(players, short_name):
         f'</div>'
         # ── Headline row: spiral / catchphrase / spiral
         f'<div class="saw-headline-row">'
-        f'{_cheek_spiral(rotate_deg=0)}'
+        f'{_cheek_spiral()}'
         f'<div class="saw-catchphrase">'
         f'Do you want<br>to play a game?'
         f'</div>'
-        f'{_cheek_spiral(rotate_deg=180)}'  # mirror by rotating 180° — feels symmetric like cheeks
+        f'{_cheek_spiral()}'
         f'</div>'
+        # ── Red balloon floating in the bottom-left corner (horror pastiche nod)
+        f'<svg class="saw-balloon" viewBox="0 0 40 80" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+        f'<ellipse cx="20" cy="18" rx="13" ry="17" fill="#c41e1e"/>'
+        f'<path d="M 20,35 L 18,40 L 22,40 Z" fill="#a01010"/>'  # balloon knot
+        f'<path d="M 20,40 Q 23,55 18,68 T 22,80" stroke="#8a6a3a" stroke-width="0.8" fill="none" stroke-linecap="round"/>'  # wispy string
+        f'<ellipse cx="16" cy="14" rx="3" ry="5" fill="#e84040" opacity=".7"/>'  # highlight shine
+        f'</svg>'
         # ── Subtitle in typewriter
         f'<div style="font-family:\'Special Elite\',monospace;font-size:11px;color:#a8a098;margin:4px 0 14px;letter-spacing:.04em;line-height:1.45;text-align:center;">'
         f'Hello {names_addressed}. I have selected {len(games)} games for your consideration.'
@@ -1677,11 +1695,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* Headline row — spiral / catchphrase / spiral */
 .saw-headline-row{
   display:flex;align-items:center;justify-content:center;
-  gap:14px;
-  padding:14px 0 10px;  /* extra vertical room so spiral drop-shadow glow isn't clipped */
+  gap:10px;
+  padding:14px 0 10px;
 }
-.saw-headline-row svg{
-  overflow:visible;    /* let the drop-shadow extend past the SVG viewBox bounds */
+.saw-spiral{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  padding:4px;  /* breathing room around the spiral so the SVG-internal glow renders fully */
+}
+
+/* Red balloon — floats in the bottom-left corner of the panel as a subtle
+   horror pastiche nod (not specific to any one franchise — a red balloon is
+   just a red balloon). Gentle sway animation. */
+.saw-balloon{
+  position:absolute;
+  left:14px;bottom:10px;
+  width:22px;height:44px;
+  opacity:.88;
+  pointer-events:none;
+  animation:saw-balloon-float 5.5s ease-in-out infinite;
+  filter:drop-shadow(0 0 5px rgba(196,30,30,.35));
+  z-index:1;
+}
+@keyframes saw-balloon-float{
+  0%,100%{transform:translateY(0) rotate(-3deg);}
+  50%{transform:translateY(-7px) rotate(3deg);}
 }
 .saw-catchphrase{
   font-family:'Creepster',cursive;
