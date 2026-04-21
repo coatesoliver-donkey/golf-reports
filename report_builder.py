@@ -2407,8 +2407,10 @@ def build_report(course_name, date_str, time_str, players, output_path):
     g_reviews  = meta.get('google_reviews', '?')
     g_stars    = ''.join(['&#9733;'] * round(g_rating) + ['&#9734;'] * (5 - round(g_rating))) if isinstance(g_rating, (int, float)) else ''
 
-    # Booking system
-    booking = meta.get('booking', 'Chronogolf').title()
+    # Booking system — only shown when meta.booking is explicitly set; otherwise
+    # we don't claim which platform the course uses.
+    booking = meta.get('booking')
+    booking_display = booking.title() if booking else None
 
     # Rounds played text
     rounds = c.get('rounds', 0)
@@ -2604,9 +2606,10 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<div class="fun-fact"><div class="fun-fact-label">&#9971; Did you know?</div>'
         f'<div class="fun-fact-text">{fun_fact}</div></div>' if fun_fact else '',
 
-        # Footer
-        f'<div class="footer">{course_name} &middot; {meta.get("address","")}<br>'
-        f'<span style="color:#c8a85a;">{booking}</span> booking system</div>',
+        # Footer — booking system line only shown when meta.booking is set
+        f'<div class="footer">{course_name} &middot; {meta.get("address","")}'
+        + (f'<br><span style="color:#c8a85a;">{booking_display}</span> booking system' if booking_display else '')
+        + '</div>',
 
         build_js(course_name, date_str, time_str, players,
                  [h['par'] for h in front], [h['par'] for h in back],
