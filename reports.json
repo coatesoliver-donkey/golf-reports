@@ -24,7 +24,32 @@
         "condition": "Light Drizzle",
         "rain": "10%"
       }
+    },
+    {
+      "file": "2026-06-15_0900_anderson-se.html",
+      "course": "Anderson Links (S/E)",
+      "short": "Anderson Links (S/E)",
+      "date": "2026-06-15",
+      "time_24": "09:00",
+      "time_display": "9:00 AM",
+      "date_display": "June 15, 2026",
+      "day_name": "Monday",
+      "players": [
+        "Nick",
+        "Brett",
+        "Ollie"
+      ],
+      "address": "4175 Anderson Road, Ottawa, ON, K0A 1K0",
+      "tee": "White (Blue/Red)",
+      "yards": 6073,
+      "par": 72,
+      "wx": {
+        "temp": "--°C",
+        "icon": "&#9925;&#65039;",
+        "condition": "Forecast pending",
+        "rain": "0%"
+      }
     }
   ],
-  "updated": "2026-04-21T20:43:59"
+  "updated": "2026-04-21T20:47:25"
 }
