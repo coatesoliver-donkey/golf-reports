@@ -10457,5 +10457,416 @@
       ]
     },
     "drive_min_from_kanata": 90
+  },
+  "Anderson Links (S/E)": {
+    "par": 72,
+    "rounds": 0,
+    "avg": null,
+    "best": null,
+    "worst": null,
+    "layout": [
+      {
+        "h": 1,
+        "par": 5,
+        "hcp": 2
+      },
+      {
+        "h": 2,
+        "par": 4,
+        "hcp": 6
+      },
+      {
+        "h": 3,
+        "par": 3,
+        "hcp": 8
+      },
+      {
+        "h": 4,
+        "par": 4,
+        "hcp": 4
+      },
+      {
+        "h": 5,
+        "par": 5,
+        "hcp": 5
+      },
+      {
+        "h": 6,
+        "par": 4,
+        "hcp": 7
+      },
+      {
+        "h": 7,
+        "par": 3,
+        "hcp": 9
+      },
+      {
+        "h": 8,
+        "par": 4,
+        "hcp": 3
+      },
+      {
+        "h": 9,
+        "par": 4,
+        "hcp": 1
+      },
+      {
+        "h": 10,
+        "par": 5,
+        "hcp": 15
+      },
+      {
+        "h": 11,
+        "par": 4,
+        "hcp": 10
+      },
+      {
+        "h": 12,
+        "par": 3,
+        "hcp": 16
+      },
+      {
+        "h": 13,
+        "par": 5,
+        "hcp": 11
+      },
+      {
+        "h": 14,
+        "par": 4,
+        "hcp": 17
+      },
+      {
+        "h": 15,
+        "par": 3,
+        "hcp": 14
+      },
+      {
+        "h": 16,
+        "par": 4,
+        "hcp": 12
+      },
+      {
+        "h": 17,
+        "par": 3,
+        "hcp": 18
+      },
+      {
+        "h": 18,
+        "par": 5,
+        "hcp": 13
+      }
+    ],
+    "holeAvgs": [],
+    "scorecards": [],
+    "rating": 69,
+    "slope": 120,
+    "yards": 6073,
+    "tee": "White (Blue/Red)",
+    "holeYards": [
+      538,
+      358,
+      123,
+      370,
+      436,
+      383,
+      150,
+      394,
+      371,
+      462,
+      412,
+      135,
+      462,
+      323,
+      140,
+      384,
+      150,
+      482
+    ],
+    "meta": {
+      "address": "4175 Anderson Road, Ottawa, ON, K0A 1K0",
+      "lat": 45.352,
+      "lng": -75.524,
+      "google_rating": 4,
+      "google_reviews": 351,
+      "booking": "chronogolf",
+      "fun_fact": "Designed by Canadian architect Graham Cooke. The original 18 (East/West) opened July 2007; the South nine was added in 2012, creating today’s 27-hole layout with three rotating combinations.",
+      "reviews": []
+    },
+    "roundData": null,
+    "drive_min_from_kanata": 35
+  },
+  "Anderson Links (E/W)": {
+    "par": 72,
+    "rounds": 0,
+    "avg": null,
+    "best": null,
+    "worst": null,
+    "layout": [
+      {
+        "h": 1,
+        "par": 5,
+        "hcp": 6
+      },
+      {
+        "h": 2,
+        "par": 4,
+        "hcp": 1
+      },
+      {
+        "h": 3,
+        "par": 3,
+        "hcp": 7
+      },
+      {
+        "h": 4,
+        "par": 5,
+        "hcp": 2
+      },
+      {
+        "h": 5,
+        "par": 4,
+        "hcp": 8
+      },
+      {
+        "h": 6,
+        "par": 3,
+        "hcp": 5
+      },
+      {
+        "h": 7,
+        "par": 4,
+        "hcp": 3
+      },
+      {
+        "h": 8,
+        "par": 3,
+        "hcp": 9
+      },
+      {
+        "h": 9,
+        "par": 5,
+        "hcp": 4
+      },
+      {
+        "h": 10,
+        "par": 4,
+        "hcp": 14
+      },
+      {
+        "h": 11,
+        "par": 4,
+        "hcp": 11
+      },
+      {
+        "h": 12,
+        "par": 3,
+        "hcp": 13
+      },
+      {
+        "h": 13,
+        "par": 5,
+        "hcp": 12
+      },
+      {
+        "h": 14,
+        "par": 3,
+        "hcp": 15
+      },
+      {
+        "h": 15,
+        "par": 5,
+        "hcp": 10
+      },
+      {
+        "h": 16,
+        "par": 4,
+        "hcp": 17
+      },
+      {
+        "h": 17,
+        "par": 3,
+        "hcp": 18
+      },
+      {
+        "h": 18,
+        "par": 5,
+        "hcp": 16
+      }
+    ],
+    "holeAvgs": [],
+    "scorecards": [],
+    "rating": 67.5,
+    "slope": 114,
+    "yards": 5727,
+    "tee": "White (Blue/Red)",
+    "holeYards": [
+      462,
+      412,
+      135,
+      462,
+      323,
+      140,
+      384,
+      150,
+      482,
+      353,
+      372,
+      130,
+      455,
+      134,
+      505,
+      272,
+      121,
+      435
+    ],
+    "meta": {
+      "address": "4175 Anderson Road, Ottawa, ON, K0A 1K0",
+      "lat": 45.352,
+      "lng": -75.524,
+      "google_rating": 4,
+      "google_reviews": 351,
+      "booking": "chronogolf",
+      "fun_fact": "Designed by Canadian architect Graham Cooke. The original 18 (East/West) opened July 2007; the South nine was added in 2012, creating today’s 27-hole layout with three rotating combinations.",
+      "reviews": []
+    },
+    "roundData": null,
+    "drive_min_from_kanata": 35
+  },
+  "Anderson Links (W/S)": {
+    "par": 72,
+    "rounds": 0,
+    "avg": null,
+    "best": null,
+    "worst": null,
+    "layout": [
+      {
+        "h": 1,
+        "par": 4,
+        "hcp": 5
+      },
+      {
+        "h": 2,
+        "par": 4,
+        "hcp": 2
+      },
+      {
+        "h": 3,
+        "par": 3,
+        "hcp": 4
+      },
+      {
+        "h": 4,
+        "par": 5,
+        "hcp": 3
+      },
+      {
+        "h": 5,
+        "par": 3,
+        "hcp": 6
+      },
+      {
+        "h": 6,
+        "par": 5,
+        "hcp": 1
+      },
+      {
+        "h": 7,
+        "par": 4,
+        "hcp": 8
+      },
+      {
+        "h": 8,
+        "par": 3,
+        "hcp": 9
+      },
+      {
+        "h": 9,
+        "par": 5,
+        "hcp": 7
+      },
+      {
+        "h": 10,
+        "par": 5,
+        "hcp": 11
+      },
+      {
+        "h": 11,
+        "par": 4,
+        "hcp": 15
+      },
+      {
+        "h": 12,
+        "par": 3,
+        "hcp": 17
+      },
+      {
+        "h": 13,
+        "par": 4,
+        "hcp": 13
+      },
+      {
+        "h": 14,
+        "par": 5,
+        "hcp": 14
+      },
+      {
+        "h": 15,
+        "par": 4,
+        "hcp": 16
+      },
+      {
+        "h": 16,
+        "par": 3,
+        "hcp": 18
+      },
+      {
+        "h": 17,
+        "par": 4,
+        "hcp": 12
+      },
+      {
+        "h": 18,
+        "par": 4,
+        "hcp": 10
+      }
+    ],
+    "holeAvgs": [],
+    "scorecards": [],
+    "rating": 67.7,
+    "slope": 116,
+    "yards": 5900,
+    "tee": "White (Blue/Red)",
+    "holeYards": [
+      353,
+      372,
+      130,
+      455,
+      134,
+      505,
+      272,
+      121,
+      435,
+      538,
+      358,
+      123,
+      370,
+      436,
+      383,
+      150,
+      394,
+      371
+    ],
+    "meta": {
+      "address": "4175 Anderson Road, Ottawa, ON, K0A 1K0",
+      "lat": 45.352,
+      "lng": -75.524,
+      "google_rating": 4,
+      "google_reviews": 351,
+      "booking": "chronogolf",
+      "fun_fact": "Designed by Canadian architect Graham Cooke. The original 18 (East/West) opened July 2007; the South nine was added in 2012, creating today’s 27-hole layout with three rotating combinations.",
+      "reviews": []
+    },
+    "roundData": null,
+    "drive_min_from_kanata": 35
   }
 }
