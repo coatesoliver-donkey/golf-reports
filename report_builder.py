@@ -1319,12 +1319,43 @@ def build_course_intel(course_name, c, short_name):
 
     bullets = []
 
+    # ── PER-COURSE-FACT BULLETS (work for both played and unplayed) ────────
+    # These are derived from layout/holeYards alone — no rotation comparison
+    # needed, so they're safe to include for any course.
+
+    # Toughest hole — lowest HCP (1 = hardest stroke index)
+    hole_yards = c.get('holeYards', [])
+    if layout and hole_yards and len(hole_yards) == len(layout):
+        toughest = min(layout, key=lambda h: h.get('hcp', 99))
+        idx = layout.index(toughest)
+        ty = hole_yards[idx]
+        ty_txt = f', {ty} yds' if ty else ''
+        bullets.append(('&#129528;', f'<strong>Hole {toughest["h"]} is your toughest test</strong> &mdash; par {toughest["par"]}{ty_txt}, stroke index {toughest["hcp"]}'))
+
+        # Longest hole on the course
+        longest_idx = max(range(len(hole_yards)), key=lambda i: hole_yards[i] or 0)
+        longest_y = hole_yards[longest_idx]
+        if longest_y:
+            longest_h = layout[longest_idx]
+            bullets.append(('&#128207;', f'<strong>Hole {longest_h["h"]} is the longest</strong> at {longest_y} yds &mdash; par {longest_h["par"]}'))
+
+        # Front nine vs back nine — only flag if there's a notable difference
+        front_yards = sum(y for y in hole_yards[:9] if y) or 0
+        back_yards  = sum(y for y in hole_yards[9:] if y) or 0
+        if front_yards and back_yards:
+            diff = back_yards - front_yards
+            if abs(diff) >= 200:  # meaningful gap, ~200+ yards
+                if diff > 0:
+                    bullets.append(('&#11014;&#65039;', f'<strong>Back nine plays {diff} yds longer</strong> than the front &mdash; pace yourself'))
+                else:
+                    bullets.append(('&#11015;&#65039;', f'<strong>Front nine plays {abs(diff)} yds longer</strong> than the back &mdash; back nine is the easier finish'))
+
     if is_unplayed:
         # ── First-time-here mode ───────────────────────────────────────────────
         # Course exists in courses.json but the group hasn't played here yet, so
         # rotation rankings would be meaningless. Show a small caveat plus the
         # absolute-stat bullets that don't depend on comparison data.
-        bullets.append(('&#128313;', '<strong>First time here</strong> &mdash; no rounds played yet, so no rotation comparison data'))
+        bullets.insert(0, ('&#128313;', '<strong>First time here</strong> &mdash; no rounds played yet, so no rotation comparison data'))
         # Slope absolute
         slope_v = c.get('slope')
         if slope_v is not None:
@@ -1340,13 +1371,21 @@ def build_course_intel(course_name, c, short_name):
             if par5s: mix_parts.append(f'{par5s} par-5s')
             bullets.append(('&#9971;', f'<strong>{" &middot; ".join(mix_parts)}</strong> on the card'))
         # Par-4 mix (short/long count)
-        hole_yards = c.get('holeYards', [])
         short_p4 = sum(1 for h, y in zip(layout, hole_yards) if h['par'] == 4 and y and y < 350)
         long_p4  = sum(1 for h, y in zip(layout, hole_yards) if h['par'] == 4 and y and y > 420)
         if short_p4 >= 4:
             bullets.append(('&#127919;', f'<strong>{short_p4} short par-4s</strong> under 350 yds &mdash; chances to attack'))
         elif long_p4 >= 4:
             bullets.append(('&#127919;', f'<strong>{long_p4} long par-4s</strong> over 420 yds &mdash; driver discipline matters'))
+        # Course rating vs par — how much harder than scratch the course plays
+        rating_v = c.get('rating')
+        par_v = c.get('par', 72)
+        if rating_v is not None:
+            rating_diff = rating_v - par_v
+            if rating_diff >= 1.5:
+                bullets.append(('&#9888;&#65039;', f'<strong>Plays {rating_diff:+.1f} over par</strong> from your tees &mdash; rating {rating_v}'))
+            elif rating_diff <= -0.5:
+                bullets.append(('&#127919;', f'<strong>Plays {rating_diff:+.1f} vs par</strong> &mdash; gentler than scratch from your tees'))
     else:
         # ── EXISTING BULLETS (rotation rank-based) ─────────────────────────────
 
@@ -2644,26 +2683,30 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<div class="stat-grid" style="gap:8px;">{stat_boxes}</div>',
         f'</div>',
 
-        # Intel + walk + elevation/clock
+        # Intel + (walk + elevation/clock — only if we have any FIT-tracked roundData)
         intel,
-        f'<div style="margin-top:5px;">{_build_walk_box(course_name, c)}</div>',
-        f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;">'
-        f'<div class="stat clickable" style="margin-top:5px;" onclick="toggleEx(\'elev-ex\')">'
-        f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
-        f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Elevation</div>'
-        f'</div>'
-        f'{elev_svg}'
-        f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:3px;">{elev_caption}</div>'
-        f'</div>'
-        f'<div class="stat clickable" style="margin-top:5px;text-align:center;" onclick="toggleEx(\'round-time-ex\')">'
-        f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
-        f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Avg. Round Time</div>'
-        f'</div>'
-        f'{lcd_svg}'
-        f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:6px;">{round_time_caption}</div>'
-        f'</div></div>'
-        f'{round_time_ex}'
-        f'{_build_elev_ex(course_name, c)}',
+        # The walk/elevation/round-time block all reads from roundData. If the
+        # course hasn't been played and tracked yet, hide the entire block
+        # rather than show three empty placeholder boxes.
+        ((f'<div style="margin-top:5px;">{_build_walk_box(course_name, c)}</div>'
+          f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;">'
+          f'<div class="stat clickable" style="margin-top:5px;" onclick="toggleEx(\'elev-ex\')">'
+          f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
+          f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Elevation</div>'
+          f'</div>'
+          f'{elev_svg}'
+          f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:3px;">{elev_caption}</div>'
+          f'</div>'
+          f'<div class="stat clickable" style="margin-top:5px;text-align:center;" onclick="toggleEx(\'round-time-ex\')">'
+          f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
+          f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Avg. Round Time</div>'
+          f'</div>'
+          f'{lcd_svg}'
+          f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:6px;">{round_time_caption}</div>'
+          f'</div></div>'
+          f'{round_time_ex}'
+          f'{_build_elev_ex(course_name, c)}')
+         if c.get('roundData') else ''),
 
         # Scorecard
         f'<div id="sec-scorecard"></div>',
