@@ -1,31 +1,6 @@
 {
   "reports": [
     {
-      "file": "2026-04-26_0758_irish-hills.html",
-      "course": "Irish Hills Golf & Country Club",
-      "short": "Irish Hills G&CC",
-      "date": "2026-04-26",
-      "time_24": "07:58",
-      "time_display": "7:58 AM",
-      "date_display": "April 26, 2026",
-      "day_name": "Sunday",
-      "players": [
-        "Nick",
-        "Brett",
-        "Ollie"
-      ],
-      "address": "3860 Carp Rd, Carp, ON",
-      "tee": "White (Red/Blue)",
-      "yards": 6137,
-      "par": 70,
-      "wx": {
-        "temp": "6°C",
-        "icon": "&#127783;",
-        "condition": "Light Drizzle",
-        "rain": "10%"
-      }
-    },
-    {
       "file": "2026-06-15_0900_anderson-se.html",
       "course": "Anderson Links (S/E)",
       "short": "Anderson Links (S/E)",
@@ -49,7 +24,82 @@
         "condition": "Forecast pending",
         "rain": "0%"
       }
+    },
+    {
+      "file": "2026-04-26_0758_irish-hills.html",
+      "course": "Irish Hills Golf & Country Club",
+      "short": "Irish Hills G&CC",
+      "date": "2026-04-26",
+      "time_24": "07:58",
+      "time_display": "7:58 AM",
+      "date_display": "April 26, 2026",
+      "day_name": "Sunday",
+      "players": [
+        "Nick",
+        "Brett",
+        "Ollie"
+      ],
+      "address": "3860 Carp Rd, Carp, ON",
+      "tee": "White (Red/Blue)",
+      "yards": 6137,
+      "par": 70,
+      "wx": {
+        "temp": "2°C",
+        "icon": "&#9728;&#65039;",
+        "condition": "Clear Sky",
+        "rain": "0%"
+      }
+    },
+    {
+      "file": "2026-05-02_0805_oaks-of-cobden.html",
+      "course": "Oaks of Cobden Golf Club",
+      "short": "Oaks of Cobden GC",
+      "date": "2026-05-02",
+      "time_24": "08:05",
+      "time_display": "8:05 AM",
+      "date_display": "May 2, 2026",
+      "day_name": "Saturday",
+      "players": [
+        "Nick",
+        "Brett",
+        "Ollie"
+      ],
+      "address": "",
+      "tee": "White",
+      "yards": 6085,
+      "par": 71,
+      "wx": {
+        "temp": "2°C",
+        "icon": "&#9728;&#65039;",
+        "condition": "Clear Sky",
+        "rain": "25%"
+      }
+    },
+    {
+      "file": "2026-05-02_0805_edelweiss.html",
+      "course": "Edelweiss Golf & Country Club",
+      "short": "Edelweiss G&CC",
+      "date": "2026-05-02",
+      "time_24": "08:05",
+      "time_display": "8:05 AM",
+      "date_display": "May 2, 2026",
+      "day_name": "Saturday",
+      "players": [
+        "Nick",
+        "Brett",
+        "Ollie"
+      ],
+      "address": "",
+      "tee": "Bleu",
+      "yards": 6383,
+      "par": 72,
+      "wx": {
+        "temp": "2°C",
+        "icon": "&#9728;&#65039;",
+        "condition": "Clear Sky",
+        "rain": "25%"
+      }
     }
   ],
-  "updated": "2026-04-21T21:05:27"
+  "updated": "2026-04-26T13:44:53"
 }

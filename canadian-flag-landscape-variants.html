@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canadian Flag — Landscape Cover Variants</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: #1a2540;
+    color: #fff;
+    padding: 24px 12px 60px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 6px;
+    color: #ffc928;
+  }
+  .intro {
+    text-align: center;
+    font-size: 13px;
+    color: #aabbd0;
+    max-width: 640px;
+    margin: 0 auto 28px;
+    line-height: 1.5;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .variant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .cover {
+    width: 220px;
+    aspect-ratio: 5 / 7;
+    background: linear-gradient(135deg, #3a241a 0%, #1f1410 100%);
+    border-radius: 12px 12px 18px 18px;
+    padding: 16px 12px;
+    box-shadow:
+      inset 0 8px 16px -8px rgba(0,0,0,0.55),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+      0 10px 30px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .flag-panel {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px 4px 10px 10px;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+      inset 0 0 0 2px rgba(0, 0, 0, 0.5);
+    background: #fff;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .flag-panel img { display: block; }
+  .label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #ffc928;
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+  .label small {
+    display: block;
+    font-weight: 500;
+    color: #aabbd0;
+    font-size: 11px;
+    margin-top: 4px;
+    letter-spacing: 0;
+    max-width: 200px;
+    line-height: 1.4;
+  }
+  h2.section {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #ffc928;
+    font-size: 15px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed rgba(170, 187, 208, 0.3);
+  }
+  h2.section:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+</style>
+</head>
+<body>
+
+<h1>Canadian Flag — Landscape Orientation Variants</h1>
+<p class="intro">Using the official Wikipedia flag (proper 11-point leaf, accurate geometry). Shown at actual cover size with leather frame. Seven different ways a landscape flag can live on a portrait cover — with and without rotation, centered or as a band, with surrounding leather.</p>
+
+<div class="grid">
+
+  <h2 class="section">Band across the cover</h2>
+
+  <!-- 1: Centered horizontal band, leather above and below -->
+  <div class="variant">
+    <div class="cover">
+      <div class="flag-panel" style="background: linear-gradient(135deg, #3a241a 0%, #1f1410 100%); box-shadow: none;">
+        <img src="images/flags/ca.svg" style="width:100%; height:auto; max-height:100%;">
+      </div>
+    </div>
+    <div class="label">1. Full width band <small>flag spans full cover width at natural 2:1, leather visible top and bottom</small></div>
+  </div>
+
+  <!-- 2: Same as #1 but bigger band (more flag less leather) -->
+  <div class="variant">
+    <div class="cover">
+      <div class="flag-panel" style="background: linear-gradient(135deg, #3a241a 0%, #1f1410 100%); box-shadow: none;">
+        <img src="images/flags/ca.svg" style="width:130%; height:auto;">
+      </div>
+    </div>
+    <div class="label">2. Oversized band <small>flag extends beyond panel edges, most visible area is flag</small></div>
+  </div>
+
+  <!-- 3: Small banner high on the cover, dedicated plaque area below -->
+  <div class="variant">
+    <div class="cover">
+      <div class="flag-panel" style="background: linear-gradient(135deg, #3a241a 0%, #1f1410 100%); box-shadow: none; display:block; padding-top:14%;">
+        <img src="images/flags/ca.svg" style="width:100%; height:auto; display:block;">
+      </div>
+    </div>
+    <div class="label">3. Flag banner, space below <small>like a stamp near the top, leather plaque space below for logo/name</small></div>
+  </div>
+
+  <h2 class="section">Rotated 90° (vertical flag)</h2>
+
+  <!-- 4: Rotated 90°, fills cover -->
+  <div class="variant">
+    <div class="cover">
+      <div class="flag-panel" style="overflow:hidden;">
+        <img src="images/flags/ca.svg" style="width: 180%; height: auto; transform: rotate(90deg);">
+      </div>
+    </div>
+    <div class="label">4. Rotated 90° full <small>flag on its side, red bars now top/bottom, leaf on its side</small></div>
+  </div>
+
+  <!-- 5: Rotated 90°, with leather frame visible -->
+  <div class="variant">
+    <div class="cover">
+      <div class="flag-panel" style="background: linear-gradient(135deg, #3a241a 0%, #1f1410 100%); box-shadow: none; overflow:hidden;">
+        <img src="images/flags/ca.svg" style="width: 140%; height: auto; transform: rotate(90deg);">
+      </div>
+    </div>
+    <div class="label">5. Rotated 90° with margin <small>same rotation but sized down, leather border visible</small></div>
+  </div>
+
+  <h2 class="section">Full cover — stretched to fit</h2>
+
+  <!-- 6: Stretched to fill cover (2:1 flag stretched into 5:7 portrait — distortion) -->
+  <div class="variant">
+    <div class="cover">
+      <div class="flag-panel">
+        <img src="images/flags/ca.svg" style="width: 100%; height: 100%; object-fit: fill;">
+      </div>
+    </div>
+    <div class="label">6. Stretched to cover <small>flag squashed into portrait — distorts proportions, leaf narrower</small></div>
+  </div>
+
+  <!-- 7: Cover is a native 2:1 band across the MIDDLE with leather framing more artfully -->
+  <div class="variant">
+    <div class="cover" style="display:flex; flex-direction:column; padding:16px 12px;">
+      <!-- top leather with subtle stitch -->
+      <div style="flex:1; display:flex; align-items:flex-end; justify-content:center; padding-bottom:8px;">
+        <div style="width:60%; height:1px; background:repeating-linear-gradient(90deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 3px, transparent 3px, transparent 6px);"></div>
+      </div>
+      <!-- centered flag band with its own framed look -->
+      <div class="flag-panel" style="flex-shrink:0; height:auto; border-radius: 3px; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), inset 0 0 0 2px rgba(0,0,0,0.6), 0 3px 6px rgba(0,0,0,0.4);">
+        <img src="images/flags/ca.svg" style="width:100%; height:auto; display:block;">
+      </div>
+      <!-- bottom leather with subtle stitch -->
+      <div style="flex:1; display:flex; align-items:flex-start; justify-content:center; padding-top:8px;">
+        <div style="width:60%; height:1px; background:repeating-linear-gradient(90deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 3px, transparent 3px, transparent 6px);"></div>
+      </div>
+    </div>
+    <div class="label">7. Framed band <small>flag sits in its own sub-frame mid-cover, leather panels above and below with stitching</small></div>
+  </div>
+
+</div>
+
+<p style="text-align:center; margin-top:40px; color:#aabbd0; font-size:12px; max-width:600px; margin-left:auto; margin-right:auto; line-height:1.6;">
+  All variants use the official Wikipedia Canada flag SVG. Where the flag doesn't fill the whole cover, the remaining space would hold the course emblem badge, date plate, and StrokeMaster tag. Variant 1 and 3 leave the clearest room for those elements.
+</p>
+
+</body>
+</html>

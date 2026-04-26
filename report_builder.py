@@ -17,6 +17,20 @@ can be relative — e.g. just a filename — or absolute.)
 import json, argparse, random, urllib.request, urllib.error, os
 from datetime import datetime, timedelta
 
+# ════════════════════════════════════════════════════════════════════════════
+# SUPABASE CONFIG — Beast Mode writes hole scores to Supabase.
+# ════════════════════════════════════════════════════════════════════════════
+# The URL is public. The publishable/anon key is ALSO safe to embed in the
+# frontend — that's what it's designed for. Real access control happens via
+# RLS policies in Supabase, not key secrecy. If you ever rotate the key, just
+# update the string below and rebuild reports.
+#
+# Replace the REPLACE_ME placeholder with your actual publishable key from
+# Supabase dashboard → Project Settings → API Keys. It starts with
+# 'sb_publishable_...'.
+SUPABASE_URL = 'https://ecsfnslgtfopjzgfcwvz.supabase.co'
+SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_2XsUlTB3EFco-NCykJqjDQ_PCno3NoY'
+
 # ── Load course data ──────────────────────────────────────────────────────────
 # Look for courses.json next to this script (works on any machine, any OS)
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -926,13 +940,13 @@ def build_scorecard_table(holes, yards_list, total_label, yards_total, par_total
         bg = row_bgs[i % 2]
         name_td = _kid_name_td(name, bg, initial_only=use_initials, rng=rng)
         cells = ''
-        if name == 'Ollie':
-            cells = ''.join(_static_cell(bg) for _ in range(9))
-        else:
-            for k in range(9):
-                hole_num = hole_offset + k + 1    # 1..9 on front, 10..18 on back
-                tabindex = i * 18 + hole_num      # Nick:1..18, Brett:19..36
-                cells += _score_input(bg, name, hole_num, tabindex)
+        # Every player enters their OWN scores (Workflow B), so all three rows
+        # are interactive. Ollie used to be display-only because he was the
+        # email recipient under the old flow — no longer.
+        for k in range(9):
+            hole_num = hole_offset + k + 1    # 1..9 on front, 10..18 on back
+            tabindex = i * 18 + hole_num      # Nick:1..18, Brett:19..36, Ollie:37..54
+            cells += _score_input(bg, name, hole_num, tabindex)
         tot = f'<td style="background:#f0ede6;padding:6px 10px 6px 6px;text-align:center;"></td>'
         # First player row (i==0) gets section-break class too, to separate players from HDCP
         cls = 'player-row' + (' section-break' if i == 0 else '')
@@ -971,6 +985,26 @@ def build_hcp_legend():
             '<span style="display:flex;align-items:center;gap:4px;"><span style="width:18px;height:18px;border-radius:50%;background:#e8735a;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700;">1</span><span style="color:#888;">Hard (1&ndash;6)</span></span>'
             '<span style="display:flex;align-items:center;gap:4px;"><span style="width:18px;height:18px;border-radius:50%;background:#c8a030;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700;">9</span><span style="color:#888;">Mid (7&ndash;12)</span></span>'
             '<span style="display:flex;align-items:center;gap:4px;"><span style="width:18px;height:18px;border-radius:50%;background:#5a9a5a;display:inline-flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700;">15</span><span style="color:#888;">Easier (13&ndash;18)</span></span>'
+            '</div>'
+            # Beast Mode toggle — sits below the legend, centered, with flaming
+            # golf balls flanking it when Beast Mode is on
+            '<div style="display:flex;justify-content:center;align-items:center;gap:10px;padding:4px 4px 10px;">'
+            '<span class="beast-flame-ball beast-flame-ball-left" aria-hidden="true">'
+            '<span class="beast-flame">&#128293;</span>'
+            '<span class="beast-ball"></span>'
+            '</span>'
+            '<button type="button" id="beast-mode-toggle" class="beast-toggle beast-off" onclick="toggleBeastMode()" aria-pressed="false">'
+            '<span class="beast-toggle-inner">'
+            '<span class="beast-toggle-icon-off">&#128737;&#65039;</span>'
+            '<span class="beast-toggle-icon-on">&#128293;</span>'
+            '<span class="beast-toggle-text-off">UNLEASH</span>'
+            '<span class="beast-toggle-text-on">BEAST MODE ON</span>'
+            '</span>'
+            '</button>'
+            '<span class="beast-flame-ball beast-flame-ball-right" aria-hidden="true">'
+            '<span class="beast-flame">&#128293;</span>'
+            '<span class="beast-ball"></span>'
+            '</span>'
             '</div>')
 
 
@@ -1993,12 +2027,17 @@ input[type=number]{-moz-appearance:textfield;}
 @media(max-width:480px){.wx-grid{grid-template-columns:1fr !important;}}'''
 
 def build_js(course_name, date_str, time_str, players, front_par, back_par,
-             lat, lng, sunrise_str=None):
+             lat, lng, sunrise_str=None, layout=None, hole_yards=None,
+             supabase_url='', supabase_key=''):
     """Build the <script> block, templating in course/date/player specifics."""
     import json as _json
     fp = _json.dumps(front_par)
     bp = _json.dumps(back_par)
     players_json = _json.dumps(players)
+    layout_json = _json.dumps(layout or [])
+    hole_yards_json = _json.dumps(hole_yards or [])
+    supabase_url_js = _json.dumps(supabase_url)
+    supabase_key_js = _json.dumps(supabase_key)
     # For mailto: date display + subject date (Mon DD)
     dt = datetime.strptime(date_str, '%Y-%m-%d')
     mon = dt.strftime('%b')
@@ -2029,6 +2068,18 @@ def build_js(course_name, date_str, time_str, players, front_par, back_par,
     short_js = _json.dumps(short)
     # Sunrise: either real time (e.g., "5:59 AM") or empty string if unavailable
     sunrise_js = _json.dumps(sunrise_str if sunrise_str else "")
+
+    # ── v11 yardage-book cover additions ──
+    # Cover date: "April 26, 2026" (no weekday, no article)
+    cover_date_js = _json.dumps(dt.strftime(f'%B {dt.day}, %Y'))
+    # Per-player flag mapping. First pass: hardcoded — migrate to players.json later.
+    # Filenames are lowercase and sit in images/flags/ relative to the report.
+    player_flags = {
+        'Nick': 'images/flags/gr.svg',
+        'Ollie': 'images/flags/uk.svg',
+        'Brett': 'images/flags/ca.svg',
+    }
+    player_flags_js = _json.dumps(player_flags)
 
     return f'''
 <script>
@@ -2069,7 +2120,13 @@ var SWEEPER={sweeper_js};
 var FRONT_PAR={fp}, BACK_PAR={bp};
 var PLAYERS={players_json};
 var LAT={lat}, LNG={lng};
+var LAYOUT={layout_json};           // [{{h:1,par:4,hcp:10}}, ...]
+var HOLE_YARDS={hole_yards_json};   // [385, 430, ...]
+var SUPABASE_URL={supabase_url_js};
+var SUPABASE_KEY={supabase_key_js};
 var TEE_HOURS={tee_hours_json};
+var COVER_DATE={cover_date_js};
+var PLAYER_FLAGS={player_flags_js};
 var SUNRISE={sunrise_js};  // e.g. "5:59 AM" or empty string if unavailable
 
 // ══════════════════════════════════════════════════════════════════════
@@ -2496,6 +2553,2402 @@ window.editScores=function(pi){{
   document.addEventListener('DOMContentLoaded',function(){{setTimeout(window.refreshWeather,800);}});
 }})();
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     BEAST MODE - Entrance animation, toggle, persistent tremble
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+  /* ───── Toggle button ─────────────────────────────────────────── */
+  .beast-toggle {{
+    position: relative;
+    padding: 8px 18px;
+    border-radius: 22px;
+    border: 2px solid #1a1f3a;
+    background: #fff;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: #1a1f3a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+  }}
+  .beast-toggle:hover {{ transform: translateY(-1px); box-shadow: 0 4px 12px rgba(184, 0, 10, 0.2); }}
+  .beast-toggle:active {{ transform: translateY(0); }}
+  .beast-toggle-inner {{ display: inline-flex; align-items: center; gap: 8px; }}
+  .beast-toggle .beast-toggle-icon-on,
+  .beast-toggle .beast-toggle-text-on {{ display: none; }}
+  .beast-toggle .beast-toggle-icon-off,
+  .beast-toggle .beast-toggle-text-off {{ display: inline; }}
+
+  .beast-toggle.beast-on {{
+    background: linear-gradient(135deg, #b8000a 0%, #8b0008 100%);
+    border-color: #6b0006;
+    color: #fff;
+    box-shadow: 0 0 16px rgba(255, 60, 0, 0.5), inset 0 0 12px rgba(255, 180, 0, 0.3);
+    animation: beast-toggle-pulse 2.5s ease-in-out infinite;
+  }}
+  .beast-toggle.beast-on .beast-toggle-icon-off,
+  .beast-toggle.beast-on .beast-toggle-text-off {{ display: none; }}
+  .beast-toggle.beast-on .beast-toggle-icon-on,
+  .beast-toggle.beast-on .beast-toggle-text-on {{ display: inline; }}
+  @keyframes beast-toggle-pulse {{
+    0%, 100% {{ box-shadow: 0 0 16px rgba(255, 60, 0, 0.5), inset 0 0 12px rgba(255, 180, 0, 0.3); }}
+    50% {{ box-shadow: 0 0 26px rgba(255, 100, 0, 0.75), inset 0 0 18px rgba(255, 200, 0, 0.45); }}
+  }}
+
+  /* ───── Flaming golf balls flanking the toggle ───────────────── */
+  /* Hidden when Beast Mode is off; appear + flicker when on. */
+  .beast-flame-ball {{
+    position: relative;
+    display: inline-block;
+    width: 28px;
+    height: 36px;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.3, 1.8, 0.4, 1);
+    pointer-events: none;
+  }}
+  body.beast-active .beast-flame-ball {{
+    opacity: 1;
+    transform: scale(1);
+  }}
+  /* Slight stagger so the two balls don't appear in perfect sync */
+  body.beast-active .beast-flame-ball-right {{ transition-delay: 0.08s; }}
+
+  .beast-flame-ball .beast-flame {{
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    line-height: 1;
+    filter: drop-shadow(0 0 4px rgba(255, 140, 0, 0.8));
+    animation: beast-flame-flicker 0.35s ease-in-out infinite alternate;
+    animation-play-state: paused;
+  }}
+  body.beast-active .beast-flame-ball .beast-flame {{
+    animation-play-state: running;
+  }}
+  /* Desync the two flames so they flicker independently */
+  .beast-flame-ball-right .beast-flame {{ animation-duration: 0.42s; animation-delay: 0.11s; }}
+
+  @keyframes beast-flame-flicker {{
+    0%   {{ transform: translateX(-50%) scale(1)    rotate(-3deg); opacity: 0.95; }}
+    50%  {{ transform: translateX(-52%) scale(1.08) rotate(2deg);  opacity: 1; }}
+    100% {{ transform: translateX(-48%) scale(0.95) rotate(-2deg); opacity: 0.9; }}
+  }}
+
+  .beast-flame-ball .beast-ball {{
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffffff 0%, #f0eee5 55%, #c9c4b0 100%);
+    box-shadow:
+      inset -2px -3px 4px rgba(0, 0, 0, 0.18),
+      inset 1px 2px 3px rgba(255, 255, 255, 0.8),
+      0 2px 4px rgba(0, 0, 0, 0.25),
+      0 0 8px rgba(255, 140, 0, 0.45);
+    background-image:
+      radial-gradient(circle at 35% 30%, #ffffff 0%, #f0eee5 55%, #c9c4b0 100%),
+      /* dimple pattern */
+      radial-gradient(circle at 30% 30%, transparent 40%, rgba(0,0,0,0.08) 42%, transparent 44%);
+  }}
+  /* Add dimples with pseudo elements to keep the ball looking like a golf ball */
+  .beast-flame-ball .beast-ball::before,
+  .beast-flame-ball .beast-ball::after {{
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+  }}
+  .beast-flame-ball .beast-ball::before {{
+    top: 3px; left: 4px;
+    width: 2.5px; height: 2.5px;
+    background: rgba(0,0,0,0.1);
+    box-shadow:
+      5px 1px 0 rgba(0,0,0,0.1),
+      3px 5px 0 rgba(0,0,0,0.1),
+      8px 6px 0 rgba(0,0,0,0.1),
+      1px 9px 0 rgba(0,0,0,0.1);
+  }}
+  .beast-flame-ball .beast-ball::after {{
+    top: 9px; right: 3px;
+    width: 2px; height: 2px;
+    background: rgba(0,0,0,0.1);
+    box-shadow:
+      -2px 3px 0 rgba(0,0,0,0.1),
+      2px -3px 0 rgba(0,0,0,0.1);
+  }}
+
+  /* Gentle bob for the ball itself while flames flicker above */
+  body.beast-active .beast-flame-ball .beast-ball {{
+    animation: beast-ball-bob 1.8s ease-in-out infinite;
+  }}
+  .beast-flame-ball-right .beast-ball {{ animation-delay: 0.3s !important; }}
+  @keyframes beast-ball-bob {{
+    0%, 100% {{ transform: translateX(-50%) translateY(0); }}
+    50%      {{ transform: translateX(-50%) translateY(-1.5px); }}
+  }}
+
+  /* ───── Entrance overlay ─────────────────────────────────────── */
+  /* Positioned over the scorecard (sized by JS at play-time) rather than over
+     the viewport, so the stamp always lands on the card it's branding. */
+  #beast-entrance {{
+    position: absolute;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 10px;
+  }}
+  #beast-entrance.playing {{ display: flex; animation: beast-entrance-backdrop 2200ms forwards; }}
+  @keyframes beast-entrance-backdrop {{
+    0% {{ background: rgba(0,0,0,0); }}
+    10% {{ background: rgba(0,0,0,0); }}
+    22% {{ background: rgba(255, 220, 50, 0.48); }}
+    30% {{ background: rgba(0,0,0,0); }}
+    100% {{ background: rgba(0,0,0,0); }}
+  }}
+
+  .beast-stamp {{
+    font-family: 'Russo One', 'Bebas Neue', 'Impact', sans-serif;
+    font-size: 58px;
+    letter-spacing: 0.02em;
+    color: #b8000a;
+    text-align: center;
+    line-height: 0.85;
+    padding: 22px 32px;
+    border: 6px double #b8000a;
+    background: rgba(255, 250, 220, 0.94);
+    transform: rotate(-6deg) scale(0);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 40px rgba(184, 0, 10, 0.08);
+    opacity: 0;
+    position: relative;
+    max-width: 80vw;
+    text-shadow: 1px 1px 0 rgba(184, 0, 10, 0.15);
+  }}
+  .beast-stamp::before {{
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border: 2px solid #b8000a;
+    pointer-events: none;
+    border-radius: 2px;
+  }}
+  .beast-stamp .beast-sub {{
+    display: block;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    margin-top: 10px;
+    color: #6b0006;
+    font-family: 'Special Elite', 'Courier New', monospace;
+  }}
+  #beast-entrance.playing .beast-stamp {{
+    animation: beast-stamp-in 2200ms cubic-bezier(0.3, 2, 0.4, 1) forwards;
+  }}
+  @keyframes beast-stamp-in {{
+    0% {{ opacity: 0; transform: rotate(-20deg) scale(3); }}
+    15% {{ opacity: 1; transform: rotate(-6deg) scale(1); }}
+    20% {{ transform: rotate(-6deg) scale(1.05); }}
+    25% {{ transform: rotate(-6deg) scale(0.97); }}
+    30% {{ transform: rotate(-6deg) scale(1); }}
+    85% {{ opacity: 1; transform: rotate(-6deg) scale(1); }}
+    100% {{ opacity: 0; transform: rotate(-6deg) scale(1.08); }}
+  }}
+
+  .beast-electricity {{
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #ffeb3b;
+    box-shadow: 0 0 20px #ffeb3b, 0 0 40px #ff6b00, 0 0 60px #ff3300;
+    transform: scaleX(0);
+    transform-origin: center;
+  }}
+  #beast-entrance.playing .beast-electricity {{
+    animation: beast-elec 2200ms forwards;
+  }}
+  @keyframes beast-elec {{
+    0%, 18% {{ transform: scaleX(0); opacity: 0; }}
+    22% {{ transform: scaleX(1); opacity: 1; }}
+    30% {{ transform: scaleX(1); opacity: 0.8; }}
+    35% {{ opacity: 0; }}
+    100% {{ opacity: 0; }}
+  }}
+
+  /* Shake on the body when entrance plays */
+  body.beast-entering {{
+    animation: beast-body-shake 2200ms;
+  }}
+  @keyframes beast-body-shake {{
+    0%, 20% {{ transform: translate(0, 0); }}
+    22%, 26%, 30% {{ transform: translate(2px, -1px); }}
+    23%, 27% {{ transform: translate(-2px, 2px); }}
+    24%, 28% {{ transform: translate(1px, 2px); }}
+    25%, 29% {{ transform: translate(-1px, -1px); }}
+    31%, 100% {{ transform: translate(0, 0); }}
+  }}
+</style>
+
+<div id="beast-entrance" aria-hidden="true">
+  <div class="beast-electricity"></div>
+  <div class="beast-stamp">
+    BEAST<br>MODE
+    <span class="beast-sub">&#9670; ENGAGED &#9670;</span>
+  </div>
+</div>
+
+<script>
+(function(){{
+  var body = document.body;
+  var entrance = null;
+  var toggle = null;
+  var scorecard = null;
+
+  function playEntrance() {{
+    if (!entrance) entrance = document.getElementById('beast-entrance');
+    if (!scorecard) scorecard = document.getElementById('scorecard-container');
+    if (!entrance || !scorecard) return;
+
+    // Move the overlay into the scorecard container so it anchors to the card,
+    // not the viewport. Position it to fill exactly the scorecard's box.
+    if (entrance.parentElement !== scorecard) {{
+      scorecard.appendChild(entrance);
+    }}
+    entrance.style.top = '0';
+    entrance.style.left = '0';
+    entrance.style.right = '0';
+    entrance.style.bottom = '0';
+
+    // Also scroll the scorecard into view so the user doesn't miss the animation
+    // if they were tapping the button from an edge position.
+    scorecard.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+
+    entrance.classList.remove('playing');
+    body.classList.remove('beast-entering');
+    void entrance.offsetWidth;   // force reflow
+    entrance.classList.add('playing');
+    body.classList.add('beast-entering');
+    setTimeout(function(){{
+      entrance.classList.remove('playing');
+      body.classList.remove('beast-entering');
+    }}, 2250);
+  }}
+
+  window.toggleBeastMode = function() {{
+    if (!toggle) toggle = document.getElementById('beast-mode-toggle');
+    var isOn = toggle.classList.contains('beast-on');
+    if (isOn) {{
+      // Turn OFF — calm exit
+      toggle.classList.remove('beast-on');
+      toggle.classList.add('beast-off');
+      toggle.setAttribute('aria-pressed', 'false');
+      body.classList.remove('beast-active');
+    }} else {{
+      // Turn ON — play entrance
+      toggle.classList.remove('beast-off');
+      toggle.classList.add('beast-on');
+      toggle.setAttribute('aria-pressed', 'true');
+      body.classList.add('beast-active');
+      playEntrance();
+    }}
+  }};
+}})();
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     BEAST MODE OVERLAY — yardage-book per-hole scoring entry form
+     Top-hinge book flip reveals form. Writes to Supabase on Next hole.
+     Font: Rubik (body/labels), Playfair (cover title), Luckiest Guy (strokes),
+           Caveat (date), EB Garamond (notes), Bitter (StrokeMaster).
+     ═══════════════════════════════════════════════════════════════════ -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;600;700;800;900&family=Luckiest+Guy&family=EB+Garamond:ital,wght@0,500;0,700;1,500;1,700&family=Cinzel:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600;1,700&family=Bitter:wght@600;700;800&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Overlay backdrop + container ──────────────────────────── */
+  #bm-overlay {{
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 10, 20, 0.85);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+    padding: 16px 12px 24px;
+    overflow-y: auto;
+  }}
+  #bm-overlay.open {{ display: flex; opacity: 1; }}
+
+  /* The book stage — applies 3D perspective for the cover flip */
+  #bm-overlay .bm-book-stage {{
+    width: 100%;
+    max-width: 420px;
+    margin: auto;
+    perspective: 2000px;
+    perspective-origin: 50% 30%;
+  }}
+  #bm-overlay .bm-book {{
+    position: relative;
+    width: 100%;
+    transform-style: preserve-3d;
+  }}
+
+  /* ── Form (underneath the cover) ─────────────────────────────── */
+  #bm-overlay .bm-card {{
+    background: #fbf4e1;
+    border: 3px solid #17211a;
+    border-radius: 12px 12px 18px 18px;
+    box-shadow:
+      inset 0 8px 16px -8px rgba(30, 33, 26, 0.3),
+      0 8px 0 rgba(30, 43, 26, 0.25),
+      0 16px 32px rgba(30, 43, 26, 0.22);
+    padding: 20px 14px 18px;
+    position: relative;
+    z-index: 1;
+    background-image:
+      radial-gradient(ellipse at 30% 20%, rgba(232, 217, 168, 0.25) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(232, 217, 168, 0.2) 0%, transparent 50%);
+  }}
+  #bm-overlay .bm-book:not(.open) .bm-card > * {{ visibility: hidden; }}
+
+  /* ── Cover (the leather face that flips open) ────────────────── */
+  #bm-overlay .bm-cover {{
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 40% 25%, rgba(62, 82, 122, 0.4) 0%, transparent 40%),
+      radial-gradient(ellipse at 70% 65%, rgba(14, 21, 40, 0.45) 0%, transparent 50%),
+      linear-gradient(180deg, #2a3a5e 0%, #1a2744 45%, #0e1528 100%);
+    border-radius: 12px 12px 18px 18px;
+    box-shadow:
+      inset 0 8px 16px -8px rgba(0,0,0,0.55),
+      inset 0 0 0 1px rgba(0, 0, 0, 0.35),
+      0 10px 30px rgba(14, 21, 40, 0.5);
+    transform-origin: center top;
+    transform: rotateX(0deg);
+    transition: transform 900ms cubic-bezier(0.65, 0.05, 0.3, 0.98);
+    backface-visibility: hidden;
+    z-index: 10;
+    padding: 30px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+  }}
+  #bm-overlay .bm-cover::before {{
+    content: '';
+    position: absolute;
+    inset: 10px;
+    border: 1.5px solid rgba(212, 168, 66, 0.35);
+    border-radius: 8px;
+    box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+  }}
+  #bm-overlay .bm-cover::after {{
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(45deg, transparent 0, transparent 3px,
+        rgba(255, 255, 255, 0.02) 3px, rgba(255, 255, 255, 0.02) 4px),
+      repeating-linear-gradient(-45deg, transparent 0, transparent 4px,
+        rgba(0, 0, 0, 0.05) 4px, rgba(0, 0, 0, 0.05) 5px);
+    pointer-events: none;
+    border-radius: inherit;
+  }}
+  #bm-overlay .bm-book.open .bm-cover {{
+    transform: rotateX(172deg);
+    box-shadow:
+      inset 0 8px 16px -8px rgba(0,0,0,0.5),
+      0 -2px 6px rgba(0,0,0,0.2);
+    z-index: 1;
+  }}
+
+  /* Cover content — course identity up top */
+  #bm-overlay .bm-cover-top {{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-top: 14px;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }}
+  #bm-overlay .bm-cover-eyebrow {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.55em;
+    text-indent: 0.55em;
+    color: rgba(212, 168, 66, 0.85);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+  }}
+  #bm-overlay .bm-cover-title {{
+    font-family: 'Playfair Display', serif;
+    font-weight: 800;
+    font-style: italic;
+    font-size: 36px;
+    line-height: 0.95;
+    letter-spacing: -0.01em;
+    background: linear-gradient(180deg, #f4d57a 0%, #d4a842 45%, #a97d26 80%, #d4a842 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.5)) drop-shadow(0 0 6px rgba(212, 168, 66, 0.25));
+    padding: 0 8px;
+  }}
+  #bm-overlay .bm-cover-title-rule {{
+    display: block;
+    width: 90px;
+    height: 1px;
+    margin: 4px auto 6px;
+    background: linear-gradient(90deg, transparent 0%, rgba(212, 168, 66, 0.8) 50%, transparent 100%);
+  }}
+  #bm-overlay .bm-cover-sub {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-indent: 0.4em;
+    color: rgba(255, 255, 255, 0.5);
+  }}
+  #bm-overlay .bm-cover-sub-amp {{
+    color: rgba(212,168,66,0.55);
+    font-style: italic;
+    margin: 0 2px;
+  }}
+  #bm-overlay .bm-cover-emblem {{
+    width: 90px;
+    height: 90px;
+    margin-top: 16px;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.5));
+  }}
+
+  /* Cover content — owner mark (near bottom) */
+  #bm-overlay .bm-cover-owner {{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 10px;
+  }}
+  #bm-overlay .bm-cover-player-line {{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 5px 14px 6px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.05) 100%);
+    border-radius: 3px;
+    box-shadow:
+      inset 0 1px 2px rgba(0, 0, 0, 0.45),
+      0 1px 0 rgba(255, 255, 255, 0.1);
+  }}
+  #bm-overlay .bm-cover-player-flag {{
+    width: 24px;
+    height: auto;
+    display: block;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 1.5px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }}
+  #bm-overlay .bm-cover-player-name {{
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.85);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+    letter-spacing: 0.02em;
+    line-height: 1;
+  }}
+  #bm-overlay .bm-cover-date {{
+    font-family: 'Caveat', cursive;
+    font-weight: 600;
+    font-size: 20px;
+    color: #e8c870;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 0 4px rgba(212, 168, 66, 0.25);
+    margin-top: 4px;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }}
+  #bm-overlay .bm-cover-brand {{
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }}
+  #bm-overlay .bm-cover-brand svg {{ width: 28px; height: 28px; filter: drop-shadow(0 1px 0 rgba(0,0,0,0.4)); }}
+  #bm-overlay .bm-cover-brand-word {{
+    font-family: 'Bitter', 'Rubik', serif;
+    font-weight: 800;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    letter-spacing: 0.01em;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 2px 3px rgba(0,0,0,0.3);
+    font-style: italic;
+  }}
+  #bm-overlay .bm-cover-brand-word .tm {{
+    font-size: 7px;
+    vertical-align: super;
+    font-style: normal;
+    font-weight: 600;
+    margin-left: 1px;
+    opacity: 0.7;
+  }}
+
+  /* ── Form contents (visible once cover flips open) ───────────── */
+  #bm-overlay .bm-close {{
+    position: absolute;
+    top: 6px; right: 8px;
+    background: none; border: 0;
+    width: 28px; height: 28px;
+    font-size: 22px; line-height: 1;
+    color: #17211a;
+    cursor: pointer;
+    z-index: 3;
+    opacity: 0.55;
+  }}
+  #bm-overlay .bm-close:hover {{ opacity: 0.9; }}
+
+  /* Chapter-heading banner: dark navy bar with cream + lime + gold accents */
+  #bm-overlay .bm-head {{
+    background: linear-gradient(180deg, #2a3a5e 0%, #1a2744 50%, #0e1528 100%);
+    border-radius: 8px;
+    padding: 11px 14px;
+    margin: -6px -4px 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    box-shadow:
+      inset 0 1px 0 rgba(212, 168, 66, 0.35),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+      0 2px 4px rgba(30, 43, 26, 0.35);
+    position: relative;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    border-bottom: none;
+  }}
+  #bm-overlay .bm-head::before {{
+    content: '';
+    position: absolute;
+    top: -2px; left: 8px; right: 8px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(212, 168, 66, 0.7) 50%, transparent 100%);
+  }}
+  #bm-overlay .bm-head::after {{
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 8px; right: 8px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, rgba(212, 168, 66, 0.7) 50%, transparent 100%);
+  }}
+  #bm-overlay .bm-head-left {{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+  }}
+  #bm-overlay .bm-head-flag {{
+    width: 22px;
+    height: 14px;
+    display: block;
+    border: 1px solid rgba(0, 0, 0, 0.4);
+    border-radius: 1.5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+  }}
+  #bm-overlay .bm-player {{
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 26px;
+    color: #f4ecd0;
+    letter-spacing: 0.005em;
+    line-height: 1;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }}
+  #bm-overlay .bm-head-sep {{
+    color: rgba(212, 168, 66, 0.7);
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    line-height: 1;
+    flex-shrink: 0;
+    padding: 0 2px;
+  }}
+  #bm-overlay .bm-holeof {{
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    font-family: 'Cinzel', 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 11px;
+    color: #d4a842;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    line-height: 1;
+    flex-shrink: 0;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }}
+  #bm-overlay .bm-holeof .bm-holeof-label {{
+    opacity: 1;
+    color: #d4a842;
+  }}
+  #bm-overlay .bm-holeof #bm-holeof {{
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 800;
+    color: #a8ff5e;
+    letter-spacing: 0;
+    text-transform: none;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5), 0 0 8px rgba(168, 255, 94, 0.35);
+  }}
+  #bm-overlay .bm-holeof-of {{
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    font-weight: 600;
+    color: #d4a842;
+    opacity: 0.85;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }}
+
+  /* Context chips (par / hcp / yds) */
+  #bm-overlay .bm-ctx {{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+  }}
+  #bm-overlay .bm-ctx-cell {{
+    background: #17211a;
+    color: #fbf4e1;
+    border-radius: 7px;
+    padding: 5px 7px;
+    text-align: center;
+  }}
+  #bm-overlay .bm-ctx-label {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    opacity: 0.7;
+  }}
+  #bm-overlay .bm-ctx-val {{
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 18px;
+    line-height: 1;
+    color: #ffc928;
+    margin-top: 1px;
+  }}
+
+  /* Strokes panel — hero of the form */
+  #bm-overlay .bm-strokes {{
+    background: linear-gradient(180deg, #7cd3ff 0%, #b1e6ff 40%, #5ab96a 40%, #3a8a47 100%);
+    border: 3px solid #17211a;
+    border-radius: 12px;
+    padding: 6px 10px 10px;
+    position: relative;
+    overflow: hidden;
+    min-height: 88px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 0 rgba(30, 43, 26, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }}
+  #bm-overlay .bm-strokes-label-wrap {{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    flex-shrink: 0;
+  }}
+  #bm-overlay .bm-strokes-label {{
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 12px;
+    color: #fff;
+    letter-spacing: 0.12em;
+    text-shadow: 2px 2px 0 #17211a;
+    margin-bottom: 0;
+  }}
+  /* Strokes display: number wrapped in a scorecard-style symbol decoration
+     (circle for birdie/eagle, square for bogey/double, etc.) — visual mirrors
+     what the scorecard cell will show after the round saves. */
+  #bm-overlay .bm-strokes-display {{
+    position: relative;
+    flex: 1;
+    height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }}
+  #bm-overlay .bm-strokes-num {{
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 54px;
+    color: #ffc928;
+    text-shadow: 3px 3px 0 #17211a, 5px 5px 0 rgba(0,0,0,0.35);
+    line-height: 0.9;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    transition: color 0.15s;
+  }}
+  #bm-overlay .bm-strokes-num.empty {{
+    color: #c8b892;
+    font-style: italic;
+    font-size: 32px;
+  }}
+  /* Decoration SVG behind the number — circles/squares matching scorecard style */
+  #bm-overlay .bm-strokes-deco {{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 1;
+  }}
+  #bm-overlay .bm-strokes-deco svg {{
+    overflow: visible;
+  }}
+  /* Score-relative-to-par tinting on the number itself: matches scorecard color logic.
+     d <= -2 → eagle+ (deep green), d=-1 → birdie (green), d=0 → par (yellow/default),
+     d=1 → bogey (orange), d=2 → double (red), d>=3 → triple+ (deep red). */
+  #bm-overlay .bm-strokes-display[data-score="eagle"]   .bm-strokes-num {{ color: #6fe890; text-shadow: 3px 3px 0 #17211a, 5px 5px 0 rgba(0,0,0,0.35); }}
+  #bm-overlay .bm-strokes-display[data-score="birdie"]  .bm-strokes-num {{ color: #8aef90; text-shadow: 3px 3px 0 #17211a, 5px 5px 0 rgba(0,0,0,0.35); }}
+  #bm-overlay .bm-strokes-display[data-score="par"]     .bm-strokes-num {{ color: #ffc928; }}
+  #bm-overlay .bm-strokes-display[data-score="bogey"]   .bm-strokes-num {{ color: #ffae5c; text-shadow: 3px 3px 0 #17211a, 5px 5px 0 rgba(0,0,0,0.35); }}
+  #bm-overlay .bm-strokes-display[data-score="double"]  .bm-strokes-num {{ color: #ff7060; text-shadow: 3px 3px 0 #17211a, 5px 5px 0 rgba(0,0,0,0.35); }}
+  #bm-overlay .bm-strokes-display[data-score="triple"]  .bm-strokes-num {{ color: #ff5040; text-shadow: 3px 3px 0 #17211a, 5px 5px 0 rgba(0,0,0,0.35); }}
+  #bm-overlay .bm-strokes-ctrl {{
+    display: flex;
+    gap: 8px;
+    position: static;
+    flex-shrink: 0;
+  }}
+  #bm-overlay .bm-strokes-ctrl button {{
+    width: 40px; height: 40px;
+    border: 3px solid #17211a;
+    border-radius: 50%;
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 22px;
+    color: #fff;
+    cursor: pointer;
+    padding: 0; line-height: 1;
+    touch-action: manipulation;
+  }}
+  #bm-overlay .bm-strokes-ctrl button.minus {{ background: linear-gradient(180deg, #ff8475 0%, #dc3e28 100%); box-shadow: 0 4px 0 #9e2a18; }}
+  #bm-overlay .bm-strokes-ctrl button.plus  {{ background: linear-gradient(180deg, #5dc46f 0%, #2f9e44 100%); box-shadow: 0 4px 0 #1a6a2a; }}
+  #bm-overlay .bm-strokes-ctrl button:active {{ transform: translateY(2px); box-shadow: 0 2px 0 rgba(0,0,0,0.3); }}
+
+  /* Field rows (fairway / green / putts / penalties) */
+  #bm-overlay .bm-fields {{
+    background: #fff;
+    border: 3px solid #17211a;
+    border-radius: 10px;
+    padding: 0;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 0 rgba(30, 43, 26, 0.18);
+    overflow: hidden;
+  }}
+  #bm-overlay .bm-row {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 12px;
+    border-bottom: 1px dashed rgba(30, 43, 26, 0.25);
+  }}
+  #bm-overlay .bm-row:last-child {{ border-bottom: none; }}
+  #bm-overlay .bm-lbl {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    color: #17211a;
+  }}
+
+  /* Hit / Miss buttons (bm-ynt keeps old data-val API) */
+  #bm-overlay .bm-ynt {{
+    display: flex;
+    gap: 6px;
+  }}
+  #bm-overlay .bm-ynt button {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    padding: 6px 12px;
+    border: 2px solid #17211a;
+    border-radius: 7px;
+    background: #fff;
+    color: #17211a;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(30, 43, 26, 0.2);
+    touch-action: manipulation;
+  }}
+  #bm-overlay .bm-ynt button.sel[data-val="y"] {{
+    background: linear-gradient(180deg, #5dc46f 0%, #2f9e44 100%);
+    color: #fff;
+    box-shadow: 0 2px 0 #1a6a2a;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+  }}
+  #bm-overlay .bm-ynt button.sel[data-val="n"] {{
+    background: linear-gradient(180deg, #ff8475 0%, #dc3e28 100%);
+    color: #fff;
+    box-shadow: 0 2px 0 #9e2a18;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+  }}
+  #bm-overlay .bm-ynt button:active {{ transform: translateY(1px); box-shadow: 0 1px 0 rgba(0,0,0,0.2); }}
+
+  /* Counter (putts / penalties) */
+  #bm-overlay .bm-counter {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }}
+  #bm-overlay .bm-counter button {{
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid #17211a;
+    background: linear-gradient(180deg, #fff4c8 0%, #ffc928 100%);
+    color: #17211a;
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0; line-height: 1;
+    box-shadow: 0 2px 0 #c48b0a;
+    touch-action: manipulation;
+  }}
+  #bm-overlay .bm-counter button:active {{ transform: translateY(1px); box-shadow: 0 1px 0 #c48b0a; }}
+  #bm-overlay .bm-counter-val {{
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 20px;
+    color: #17211a;
+    min-width: 22px;
+    text-align: center;
+    line-height: 1;
+  }}
+  #bm-overlay .bm-counter-val.empty {{
+    color: #c8b892;
+    font-style: italic;
+    font-size: 14px;
+  }}
+
+  /* Clubs carousel */
+  /* Clubs carousel — collapsible, Jetsons futuristic floating */
+  #bm-overlay .bm-clubs {{
+    background: #fff;
+    border: 3px solid #17211a;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 0 rgba(30, 43, 26, 0.18);
+    overflow: hidden;
+  }}
+  #bm-overlay .bm-clubs-head {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }}
+  #bm-overlay .bm-clubs-head .bm-lbl {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    color: #17211a;
+  }}
+  #bm-overlay .bm-clubs-current {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a3d55;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }}
+  #bm-overlay .bm-clubs-current.empty {{ color: #9a8a68; font-style: italic; font-weight: 500; }}
+  #bm-overlay .bm-clubs-chev {{
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 11px;
+    color: #6a5a3a;
+  }}
+  #bm-overlay .bm-clubs.open .bm-clubs-chev {{ transform: rotate(90deg); }}
+
+  /* Expanded body = pro-shop showroom */
+  #bm-overlay .bm-clubs-body {{
+    display: none;
+    position: relative;
+    padding: 0;
+    background:
+      /* Spotlights from top (3 radial cones) */
+      radial-gradient(ellipse 25% 55% at 20% -5%, rgba(255, 230, 150, 0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 28% 60% at 50% -5%, rgba(255, 230, 150, 0.45) 0%, transparent 65%),
+      radial-gradient(ellipse 25% 55% at 80% -5%, rgba(255, 230, 150, 0.35) 0%, transparent 60%),
+      /* Green felt floor glow at bottom */
+      radial-gradient(ellipse 70% 20% at 50% 100%, rgba(46, 92, 64, 0.45) 0%, transparent 70%),
+      /* Warm wood base gradient */
+      linear-gradient(180deg, #3a261a 0%, #4a2e1e 30%, #5a3a24 60%, #3e2818 100%);
+    overflow: hidden;
+    border-top: 2px solid #17211a;
+    min-height: 180px;
+  }}
+  #bm-overlay .bm-clubs.open .bm-clubs-body {{ display: block; }}
+
+  /* Vertical wood-grain stripes on the back wall */
+  #bm-overlay .bm-clubs-grid {{
+    position: absolute;
+    inset: 0;
+    background:
+      /* Wood grain lines */
+      repeating-linear-gradient(90deg,
+        transparent 0, transparent 28px,
+        rgba(0, 0, 0, 0.18) 28px, rgba(0, 0, 0, 0.18) 29px,
+        transparent 29px, transparent 30px,
+        rgba(255, 200, 140, 0.08) 30px, rgba(255, 200, 140, 0.08) 31px),
+      /* Subtle horizontal wood texture */
+      repeating-linear-gradient(180deg,
+        transparent 0, transparent 4px,
+        rgba(0, 0, 0, 0.04) 4px, rgba(0, 0, 0, 0.04) 5px);
+    pointer-events: none;
+    opacity: 0.6;
+  }}
+
+  /* Brass rail across the middle (behind the clubs, above the floor) */
+  #bm-overlay .bm-clubs-horizon {{
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 38%;
+    height: 4px;
+    background: linear-gradient(180deg,
+      #f4d57a 0%,
+      #d4a842 40%,
+      #8c6a1e 80%,
+      #5c4820 100%);
+    box-shadow:
+      0 1px 0 rgba(0, 0, 0, 0.5),
+      0 3px 6px rgba(0, 0, 0, 0.4),
+      0 0 10px rgba(212, 168, 66, 0.35);
+    pointer-events: none;
+  }}
+
+  /* The scroller */
+  #bm-overlay .bm-clubs-scroll {{
+    position: relative;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    padding: 18px 50% 22px;
+    scrollbar-width: none;
+    scroll-snap-type: x mandatory;
+    z-index: 2;
+  }}
+  #bm-overlay .bm-clubs-scroll::-webkit-scrollbar {{ display: none; }}
+
+  /* Each club = display piece on a brass pedestal */
+  #bm-overlay .bm-club-chip {{
+    flex-shrink: 0;
+    width: 76px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    scroll-snap-align: center;
+    touch-action: manipulation;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    transform: scale(0.78);
+    opacity: 0.55;
+    transition: transform 0.25s, opacity 0.25s;
+  }}
+  #bm-overlay .bm-club-chip.focused {{
+    transform: scale(1);
+    opacity: 1;
+  }}
+
+  /* Club silhouette container */
+  #bm-overlay .bm-club-viz {{
+    position: relative;
+    width: 64px;
+    height: 72px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 4px;
+  }}
+  /* Subtle sway (much gentler than hover-bob; pieces are mounted) */
+  #bm-overlay .bm-club-obj {{
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    display: block;
+    filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.55));
+    animation: bm-club-sway 4.5s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }}
+  #bm-overlay .bm-club-chip:nth-child(3n)   .bm-club-obj {{ animation-delay: -0.6s; }}
+  #bm-overlay .bm-club-chip:nth-child(3n+1) .bm-club-obj {{ animation-delay: -1.8s; }}
+  #bm-overlay .bm-club-chip:nth-child(3n+2) .bm-club-obj {{ animation-delay: -3.0s; }}
+  @keyframes bm-club-sway {{
+    0%, 100% {{ transform: rotate(-1.5deg); }}
+    50%      {{ transform: rotate(1.5deg); }}
+  }}
+
+  /* Spotlight cone behind focused club — theatrical beam from above */
+  #bm-overlay .bm-club-pad {{
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 78px;
+    height: 110px;
+    background:
+      /* Hot-center core */
+      radial-gradient(ellipse 35% 90% at 50% 10%,
+        rgba(255, 245, 200, 0.55) 0%,
+        rgba(255, 235, 160, 0.28) 40%,
+        transparent 75%),
+      /* Wider outer cone */
+      radial-gradient(ellipse 60% 100% at 50% 0%,
+        rgba(255, 225, 140, 0.28) 0%,
+        rgba(255, 215, 120, 0.12) 45%,
+        transparent 80%);
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 0;
+  }}
+  #bm-overlay .bm-club-chip.focused .bm-club-pad {{
+    opacity: 1;
+  }}
+  /* Bright pool of light on the pedestal surface */
+  #bm-overlay .bm-club-chip .bm-club-pool {{
+    position: absolute;
+    left: 50%;
+    bottom: -3px;
+    width: 66px;
+    height: 12px;
+    background: radial-gradient(ellipse at center,
+      rgba(255, 245, 180, 0.7) 0%,
+      rgba(255, 230, 140, 0.35) 45%,
+      transparent 85%);
+    transform: translateX(-50%);
+    filter: blur(1px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1;
+  }}
+  #bm-overlay .bm-club-chip.focused .bm-club-pool {{ opacity: 1; }}
+  /* Dim non-focused clubs further when SOMETHING is focused */
+  #bm-overlay .bm-clubs-scroll .bm-club-chip {{
+    transition: transform 0.25s, opacity 0.25s, filter 0.25s;
+  }}
+
+  /* Brass pedestal with engraved label plate */
+  #bm-overlay .bm-club-base {{
+    position: relative;
+    width: 66px;
+    height: 28px;
+    margin-top: 2px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Pedestal body: brass gradient */
+    background: linear-gradient(180deg,
+      #f4d57a 0%,
+      #d4a842 30%,
+      #a97d26 70%,
+      #5c4820 100%);
+    border: 1.5px solid #2a1a05;
+    border-radius: 3px 3px 2px 2px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 235, 170, 0.6),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+      0 2px 4px rgba(0, 0, 0, 0.5);
+  }}
+  #bm-overlay .bm-club-base::before {{
+    /* Cap molding detail at top of pedestal */
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -2px;
+    right: -2px;
+    height: 3px;
+    background: linear-gradient(180deg, #f4d57a 0%, #8c6a1e 100%);
+    border: 1px solid #2a1a05;
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+  }}
+  #bm-overlay .bm-club-base::after {{
+    /* Base plate under pedestal */
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: -3px;
+    right: -3px;
+    height: 4px;
+    background: linear-gradient(180deg, #d4a842 0%, #5c4820 100%);
+    border: 1px solid #2a1a05;
+    border-top: none;
+    border-radius: 0 0 2px 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }}
+
+  /* Club label = engraved plate */
+  #bm-overlay .bm-club-label {{
+    font-family: 'Cinzel', serif;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #2a1a05;
+    text-shadow:
+      0 1px 0 rgba(255, 235, 170, 0.55),
+      0 -0.5px 0 rgba(0, 0, 0, 0.25);
+    transition: color 0.2s;
+    line-height: 1;
+    padding: 0 4px;
+    text-align: center;
+    white-space: nowrap;
+  }}
+
+  /* Selected-locked state: vivid gold treatment, unmistakable from focused */
+  /* 1. Selected club always stays at full scale + opacity, even when not centered */
+  #bm-overlay .bm-club-chip.sel {{
+    transform: scale(1) !important;
+    opacity: 1 !important;
+  }}
+
+  /* 2. Big gold halo behind the entire chip */
+  #bm-overlay .bm-club-chip.sel::before {{
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100px;
+    height: 110px;
+    transform: translate(-50%, -55%);
+    background: radial-gradient(ellipse at center,
+      rgba(255, 201, 40, 0.4) 0%,
+      rgba(255, 201, 40, 0.18) 35%,
+      transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+    animation: bm-club-sel-pulse 2s ease-in-out infinite;
+  }}
+  @keyframes bm-club-sel-pulse {{
+    0%, 100% {{ opacity: 0.7; }}
+    50%      {{ opacity: 1; }}
+  }}
+  /* Need the chip to be a positioning context for ::before */
+  #bm-overlay .bm-clubs-scroll .bm-club-chip {{ position: relative; }}
+
+  /* 3. Stronger gold drop-shadow on the club itself */
+  #bm-overlay .bm-club-chip.sel .bm-club-obj {{
+    filter:
+      drop-shadow(0 0 6px rgba(255, 201, 40, 1))
+      drop-shadow(0 0 14px rgba(255, 201, 40, 0.65))
+      drop-shadow(0 3px 3px rgba(0, 0, 0, 0.6));
+    animation-duration: 3.5s;
+  }}
+
+  /* 4. Selected pedestal: vivid bright gold (not subtle warm gold) */
+  #bm-overlay .bm-club-chip.sel .bm-club-pad {{
+    opacity: 1;
+    background: radial-gradient(ellipse 50% 80% at 50% 100%,
+      rgba(255, 201, 40, 0.7) 0%,
+      rgba(255, 201, 40, 0.3) 40%,
+      transparent 80%);
+  }}
+  #bm-overlay .bm-club-chip.sel .bm-club-base {{
+    background: linear-gradient(180deg,
+      #fff4c0 0%,
+      #ffd040 25%,
+      #d4a020 65%,
+      #6a4818 100%);
+    border-color: #4a2e08;
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 252, 220, 1),
+      inset 0 -1.5px 0 rgba(0, 0, 0, 0.5),
+      0 0 14px rgba(255, 201, 40, 0.85),
+      0 0 4px rgba(255, 201, 40, 1),
+      0 3px 6px rgba(0, 0, 0, 0.6);
+  }}
+
+  /* 5. Selected label: dark engraving on bright gold reads more strongly */
+  #bm-overlay .bm-club-chip.sel .bm-club-label {{
+    color: #1a0f04;
+    font-weight: 800;
+    text-shadow:
+      0 1px 0 rgba(255, 252, 220, 0.85),
+      0 -0.5px 0 rgba(0, 0, 0, 0.4);
+  }}
+
+  /* 6. Tiny "★" marker prepended to selected label via pseudo-element */
+  #bm-overlay .bm-club-chip.sel .bm-club-label::before {{
+    content: '★ ';
+    color: #5a3408;
+    font-size: 8px;
+    margin-right: 1px;
+  }}
+  #bm-overlay .bm-club-chip.sel .bm-club-label::after {{
+    content: ' ★';
+    color: #5a3408;
+    font-size: 8px;
+    margin-left: 1px;
+  }}
+
+  /* Notes */
+  /* Notes — collapsible */
+  #bm-overlay .bm-notes {{
+    border: 3px solid #17211a;
+    border-radius: 9px;
+    background: #fbf4e1;
+    background-image: linear-gradient(0deg, transparent 65%, rgba(180, 140, 60, 0.25) 65%, rgba(180, 140, 60, 0.25) 67%, transparent 67%);
+    margin-bottom: 10px;
+    box-shadow: 0 4px 0 rgba(30, 43, 26, 0.18);
+    overflow: hidden;
+  }}
+  #bm-overlay .bm-notes-head {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }}
+  #bm-overlay .bm-notes-head .bm-lbl {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    color: #17211a;
+  }}
+  #bm-overlay .bm-notes-current {{
+    font-family: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 14px;
+    color: #1a3d55;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }}
+  #bm-overlay .bm-notes-current.empty {{
+    color: #9a8a68;
+    font-style: italic;
+    font-family: 'Rubik', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+  }}
+  #bm-overlay .bm-notes-chev {{
+    display: inline-block;
+    transition: transform 0.2s;
+    font-size: 11px;
+    color: #6a5a3a;
+    font-family: 'Rubik', sans-serif;
+    font-style: normal;
+    font-weight: 500;
+  }}
+  #bm-overlay .bm-notes.open .bm-notes-chev {{ transform: rotate(90deg); }}
+  #bm-overlay .bm-notes-body {{
+    display: none;
+    padding: 0 12px 8px;
+  }}
+  #bm-overlay .bm-notes.open .bm-notes-body {{ display: block; }}
+  #bm-overlay .bm-notes input {{
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font-family: 'EB Garamond', 'Cormorant Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 16px;
+    color: #1a3d55;
+    outline: none;
+    padding: 2px 0;
+  }}
+  #bm-overlay .bm-notes input::placeholder {{
+    color: #a89a78;
+    font-style: italic;
+  }}
+
+  /* Action row — secondary links + big Next button */
+  #bm-overlay .bm-actions {{
+    margin-top: 2px;
+  }}
+  #bm-overlay .bm-action-secondary-row {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Rubik', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 4px;
+    margin-bottom: 8px;
+  }}
+  #bm-overlay .bm-action-secondary-row a {{
+    color: #1a2744;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 4px 6px;
+  }}
+  #bm-overlay .bm-action-secondary-row a.disabled {{
+    color: #aaa;
+    cursor: default;
+    pointer-events: none;
+  }}
+  #bm-overlay .bm-action-secondary-row a.bm-flip-cover {{
+    background: #1a2744;
+    color: #d4a842;
+    padding: 5px 10px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    box-shadow: 0 2px 0 #0e1528;
+  }}
+  #bm-overlay .bm-action-secondary-row a.bm-flip-cover:active {{
+    transform: translateY(1px);
+    box-shadow: 0 1px 0 #0e1528;
+  }}
+
+  #bm-overlay .bm-next {{
+    width: 100%;
+    padding: 9px 12px 11px;
+    background: linear-gradient(180deg, #5dc46f 0%, #2f9e44 70%, #1a6a2a 100%);
+    border: 3px solid #17211a;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'Luckiest Guy', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #1a6a2a, 0 6px 12px rgba(30,43,26,0.18);
+    text-shadow: 2px 2px 0 #1a6a2a, 3px 3px 0 rgba(0,0,0,0.3);
+    touch-action: manipulation;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }}
+  #bm-overlay .bm-next:disabled {{
+    opacity: 0.55;
+    cursor: not-allowed;
+    box-shadow: 0 3px 0 #1a6a2a;
+  }}
+  #bm-overlay .bm-next .bm-next-hint {{
+    font-family: 'Rubik', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    text-shadow: none;
+  }}
+  #bm-overlay .bm-next:active:not(:disabled) {{
+    transform: translateY(3px);
+    box-shadow: 0 3px 0 #1a6a2a;
+  }}
+
+  #bm-overlay .bm-sync {{
+    text-align: center;
+    font-family: 'Rubik', sans-serif;
+    font-style: italic;
+    font-size: 10px;
+    color: #6a5a3a;
+    min-height: 14px;
+    margin-top: 6px;
+  }}
+  #bm-overlay .bm-sync.error {{ color: #9e2a18; font-style: normal; font-weight: 700; }}
+  #bm-overlay .bm-sync.success {{ color: #1a6a2a; }}
+</style>
+
+<div id="bm-overlay" role="dialog" aria-modal="true" aria-labelledby="bm-player-name">
+  <div class="bm-book-stage">
+    <div class="bm-book" id="bm-book">
+
+      <!-- Form (becomes visible once cover flips open) -->
+      <div class="bm-card">
+        <button type="button" class="bm-close" onclick="bmClose()" aria-label="Close overlay">×</button>
+
+        <div class="bm-head">
+          <div class="bm-head-left">
+            <img class="bm-head-flag" id="bm-player-flag" src="" alt="" onerror="this.style.display='none'">
+            <div class="bm-player" id="bm-player-name">—</div>
+          </div>
+          <span class="bm-head-sep">·</span>
+          <div class="bm-holeof">
+            <span class="bm-holeof-label">Hole</span>
+            <span id="bm-holeof">—</span>
+            <span class="bm-holeof-of">of 18</span>
+          </div>
+        </div>
+
+        <div class="bm-ctx">
+          <div class="bm-ctx-cell">
+            <div class="bm-ctx-label">PAR</div>
+            <div class="bm-ctx-val" id="bm-par">—</div>
+          </div>
+          <div class="bm-ctx-cell">
+            <div class="bm-ctx-label">HCP</div>
+            <div class="bm-ctx-val" id="bm-hcp">—</div>
+          </div>
+          <div class="bm-ctx-cell">
+            <div class="bm-ctx-label">YDS</div>
+            <div class="bm-ctx-val" id="bm-yds">—</div>
+          </div>
+        </div>
+
+        <div class="bm-strokes">
+          <div class="bm-strokes-label-wrap">
+            <div class="bm-strokes-label">STROKES</div>
+          </div>
+          <div class="bm-strokes-display" id="bm-strokes-display">
+            <div class="bm-strokes-deco" id="bm-strokes-deco"></div>
+            <div class="bm-strokes-num" id="bm-strokes-val">—</div>
+          </div>
+          <div class="bm-strokes-ctrl">
+            <button type="button" class="minus" onclick="bmStrokes(-1)">−</button>
+            <button type="button" class="plus" onclick="bmStrokes(1)">+</button>
+          </div>
+        </div>
+
+        <div class="bm-fields">
+          <div class="bm-row">
+            <span class="bm-lbl">FAIRWAY</span>
+            <div class="bm-ynt" id="bm-fir">
+              <button type="button" data-val="y" onclick="bmYN('fir','y')">Hit</button>
+              <button type="button" data-val="n" onclick="bmYN('fir','n')">Miss</button>
+            </div>
+          </div>
+          <div class="bm-row">
+            <span class="bm-lbl">GREEN</span>
+            <div class="bm-ynt" id="bm-gir">
+              <button type="button" data-val="y" onclick="bmYN('gir','y')">Hit</button>
+              <button type="button" data-val="n" onclick="bmYN('gir','n')">Miss</button>
+            </div>
+          </div>
+          <div class="bm-row">
+            <span class="bm-lbl">PUTTS</span>
+            <div class="bm-counter">
+              <button type="button" onclick="bmCounter('putts',-1)">−</button>
+              <span class="bm-counter-val empty" id="bm-putts">—</span>
+              <button type="button" onclick="bmCounter('putts',1)">+</button>
+            </div>
+          </div>
+          <div class="bm-row">
+            <span class="bm-lbl">PENALTIES</span>
+            <div class="bm-counter">
+              <button type="button" onclick="bmCounter('penalties',-1)">−</button>
+              <span class="bm-counter-val empty" id="bm-penalties">—</span>
+              <button type="button" onclick="bmCounter('penalties',1)">+</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bm-clubs" id="bm-clubs-panel">
+          <div class="bm-clubs-head" onclick="bmToggleClubs()">
+            <span class="bm-lbl">CLUB FROM THE TEE</span>
+            <span class="bm-clubs-current empty" id="bm-clubs-current">tap to set <span class="bm-clubs-chev">▸</span></span>
+          </div>
+          <div class="bm-clubs-body">
+            <div class="bm-clubs-grid"></div>
+            <div class="bm-clubs-horizon"></div>
+
+            <!-- Club images: PNGs in images/clubs/, mapped per club type below -->
+
+            <div class="bm-clubs-scroll" id="bm-clubs">
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="Driver">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/driver.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">DRIVER</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="3W">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/wood.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">3 WOOD</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="5W">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/wood.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">5 WOOD</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="Hybrid">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/hybrid.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">HYBRID</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="3i">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/iron.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">3 IRON</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="4i">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/iron.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">4 IRON</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="5i">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/iron.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">5 IRON</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="6i">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/iron.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">6 IRON</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="7i">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/iron.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">7 IRON</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="8i">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/iron.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">8 IRON</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="9i">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/iron.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">9 IRON</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="PW">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/wedge.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">PITCH W</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="GW">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/wedge.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">GAP W</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="SW">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/wedge.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">SAND W</div></div>
+              </button>
+              <button type="button" class="bm-club-chip" onclick="bmClub(this)" data-val="LW">
+                <div class="bm-club-viz">
+                  <div class="bm-club-pad"></div>
+                  <div class="bm-club-pool"></div>
+                  <img class="bm-club-obj" src="images/clubs/wedge.png" alt="" loading="lazy">
+                </div>
+                <div class="bm-club-base"><div class="bm-club-label">LOB W</div></div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bm-notes" id="bm-notes-panel">
+          <div class="bm-notes-head" onclick="bmToggleNotes()">
+            <span class="bm-lbl">REMARKS</span>
+            <span class="bm-notes-current empty" id="bm-notes-current">tap to add <span class="bm-notes-chev">▸</span></span>
+          </div>
+          <div class="bm-notes-body">
+            <input type="text" id="bm-notes-input" placeholder="one-hole note, optional" maxlength="140">
+          </div>
+        </div>
+
+        <div class="bm-actions">
+          <div class="bm-action-secondary-row">
+            <a id="bm-prev-link" onclick="bmPrev()">← Previous</a>
+            <a class="bm-flip-cover" onclick="bmFlipToCover()">FLIP TO COVER ↩</a>
+          </div>
+          <button type="button" class="bm-next" id="bm-next-btn" onclick="bmNext()" disabled>
+            <span id="bm-next-text">PROCEED TO HOLE 2</span>
+            <span class="bm-next-hint" id="bm-next-hint">enter strokes to continue</span>
+          </button>
+          <div class="bm-sync" id="bm-sync">&nbsp;</div>
+        </div>
+      </div>
+
+      <!-- Cover (leather face, flips open on tap) -->
+      <div class="bm-cover" onclick="bmFlipOpen()">
+        <div class="bm-cover-top">
+          <div class="bm-cover-eyebrow">YARDAGE GUIDE</div>
+          <div class="bm-cover-title" id="bm-cover-course">Irish Hills</div>
+          <span class="bm-cover-title-rule"></span>
+          <div class="bm-cover-sub" id="bm-cover-sub">G<span class="bm-cover-sub-amp">·&·</span>CC</div>
+          <svg class="bm-cover-emblem" viewBox="0 0 80 80">
+            <g stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <circle cx="40" cy="40" r="36" stroke="rgba(212, 168, 66, 0.85)" stroke-width="1.4"/>
+              <circle cx="40" cy="40" r="31" stroke="rgba(212, 168, 66, 0.4)" stroke-width="0.7"/>
+              <line x1="18" y1="18" x2="62" y2="62" stroke="rgba(255, 255, 255, 0.9)" stroke-width="1.8"/>
+              <line x1="62" y1="18" x2="18" y2="62" stroke="rgba(255, 255, 255, 0.9)" stroke-width="1.8"/>
+              <path d="M 15 15 L 25 17 L 23 23 L 13 20 Z" stroke="rgba(212, 168, 66, 0.9)" stroke-width="1.5" fill="rgba(212, 168, 66, 0.35)"/>
+              <ellipse cx="64" cy="18" rx="5" ry="4" stroke="rgba(212, 168, 66, 0.9)" stroke-width="1.5" fill="rgba(212, 168, 66, 0.35)"/>
+              <circle cx="40" cy="40" r="5" stroke="rgba(212, 168, 66, 0.9)" stroke-width="1.3" fill="rgba(244, 213, 122, 0.6)"/>
+              <circle cx="38.5" cy="38.5" r="0.6" stroke="none" fill="rgba(0,0,0,0.4)"/>
+              <circle cx="41" cy="39" r="0.6" stroke="none" fill="rgba(0,0,0,0.4)"/>
+              <circle cx="39.5" cy="41.5" r="0.6" stroke="none" fill="rgba(0,0,0,0.4)"/>
+              <circle cx="42" cy="41.5" r="0.6" stroke="none" fill="rgba(0,0,0,0.4)"/>
+              <line x1="40" y1="56" x2="40" y2="70" stroke="rgba(255, 255, 255, 0.85)" stroke-width="1.2"/>
+              <path d="M 40 58 L 48 60 L 48 64 L 40 62 Z" stroke="rgba(220, 62, 40, 0.9)" stroke-width="1.2" fill="rgba(220, 62, 40, 0.8)"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="bm-cover-owner">
+          <div class="bm-cover-player-line">
+            <img class="bm-cover-player-flag" id="bm-cover-flag" src="" alt="" onerror="this.style.display='none'">
+            <div class="bm-cover-player-name" id="bm-cover-player">—</div>
+          </div>
+          <div class="bm-cover-date" id="bm-cover-date">—</div>
+        </div>
+
+        <div class="bm-cover-brand">
+          <svg viewBox="0 0 28 28">
+            <g stroke="rgba(255,255,255,0.85)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.9">
+              <ellipse cx="14" cy="9" rx="7" ry="7.5" fill="rgba(255,255,255,0.2)"/>
+              <path d="M 9 11 Q 14 13.5 19 11" stroke-width="1"/>
+              <circle cx="11" cy="7.5" r="1.8" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="17" cy="7.5" r="1.8" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="11" cy="8" r="0.8" stroke="none" fill="#0e1528"/>
+              <circle cx="17" cy="8" r="0.8" stroke="none" fill="#0e1528"/>
+              <line x1="9" y1="5.5" x2="12" y2="6.2" stroke-width="0.7"/>
+              <line x1="19" y1="5.5" x2="16" y2="6.2" stroke-width="0.7"/>
+              <path d="M 11.5 16 L 10 22 L 11 24 L 14 23 L 17 24 L 18 22 L 16.5 16"/>
+              <line x1="12.5" y1="24" x2="12" y2="27"/>
+              <line x1="15.5" y1="24" x2="16" y2="27"/>
+              <line x1="17.5" y1="17" x2="22" y2="13" stroke-width="0.9"/>
+              <line x1="22" y1="13" x2="24.5" y2="7" stroke-width="0.9"/>
+              <ellipse cx="25" cy="6" rx="2" ry="1.5" fill="rgba(255,255,255,0.5)"/>
+            </g>
+          </svg>
+          <div class="bm-cover-brand-word">StrokeMaster<span class="tm">™</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   BEAST MODE OVERLAY - per-hole entry, Supabase-backed
+   ══════════════════════════════════════════════════════════════════ */
+(function(){{
+  var ROMAN = ['', 'I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV','XVI','XVII','XVIII'];
+
+  // ── State for the currently-open entry ───────────────────────────
+  var state = {{
+    player: null,
+    hole: 0,
+    strokes: null,  // number or null
+    putts: null,
+    penalties: null,
+    fir: null,      // 'y' | 'n' | null
+    gir: null,
+    teeClub: null,
+    notes: ''
+  }};
+
+  // Cache of round_id per round (course, date, tee_time) so we don't
+  // look it up on every Supabase call.
+  var ROUND_ID_CACHE = null;
+
+  // DOM refs we'll use a lot
+  var overlay, strokesVal, parEl, hcpEl, ydsEl, playerEl, holeofEl;
+  var puttsEl, penEl, notesInput, nextBtn, nextText, nextHint, syncEl;
+  var firButtons = {{}}, girButtons = {{}};
+
+  function ensureDOM() {{
+    if (overlay) return;
+    overlay    = document.getElementById('bm-overlay');
+    strokesVal = document.getElementById('bm-strokes-val');
+    parEl      = document.getElementById('bm-par');
+    hcpEl      = document.getElementById('bm-hcp');
+    ydsEl      = document.getElementById('bm-yds');
+    playerEl   = document.getElementById('bm-player-name');
+    holeofEl   = document.getElementById('bm-holeof');
+    puttsEl    = document.getElementById('bm-putts');
+    penEl      = document.getElementById('bm-penalties');
+    notesInput = document.getElementById('bm-notes-input');
+    nextBtn    = document.getElementById('bm-next-btn');
+    nextText   = document.getElementById('bm-next-text');
+    nextHint   = document.getElementById('bm-next-hint');
+    syncEl     = document.getElementById('bm-sync');
+    // FIR / GIR button lookup
+    var firGroup = document.getElementById('bm-fir');
+    firGroup.querySelectorAll('button').forEach(function(b){{ firButtons[b.getAttribute('data-val')] = b; }});
+    var girGroup = document.getElementById('bm-gir');
+    girGroup.querySelectorAll('button').forEach(function(b){{ girButtons[b.getAttribute('data-val')] = b; }});
+  }}
+
+  // ── Render state into the DOM ────────────────────────────────────
+  function render() {{
+    ensureDOM();
+    playerEl.textContent = state.player || '—';
+    // v11: holeofEl is now just the numeral; the " of 18" span is static
+    holeofEl.textContent = state.hole || '—';
+
+    // Hole context
+    var h = LAYOUT[state.hole - 1];
+    if (h) {{
+      parEl.textContent = h.par;
+      hcpEl.textContent = h.hcp;
+    }} else {{
+      parEl.textContent = '—';
+      hcpEl.textContent = '—';
+    }}
+    ydsEl.textContent = (HOLE_YARDS[state.hole - 1] != null) ? HOLE_YARDS[state.hole - 1] : '—';
+
+    // Strokes — show the number plus a scorecard-style decoration (circle/square)
+    var strokesDisplay = document.getElementById('bm-strokes-display');
+    var strokesDeco = document.getElementById('bm-strokes-deco');
+    if (state.strokes != null) {{
+      strokesVal.textContent = state.strokes;
+      strokesVal.classList.remove('empty');
+      // Score relative to par determines the decoration shape
+      var par = h ? h.par : null;
+      if (par != null && strokesDisplay && strokesDeco) {{
+        var d = state.strokes - par;
+        var scoreClass, decoSvg;
+        if (d <= -2) {{
+          scoreClass = 'eagle';
+          // Double green circle
+          decoSvg = '<svg width="120" height="100" viewBox="0 0 120 100">' +
+            '<ellipse cx="60" cy="50" rx="48" ry="42" fill="none" stroke="#1a6e2e" stroke-width="3"/>' +
+            '<ellipse cx="60" cy="50" rx="40" ry="34" fill="none" stroke="#1a6e2e" stroke-width="3"/>' +
+            '</svg>';
+        }} else if (d === -1) {{
+          scoreClass = 'birdie';
+          // Single green circle
+          decoSvg = '<svg width="110" height="92" viewBox="0 0 110 92">' +
+            '<ellipse cx="55" cy="46" rx="45" ry="38" fill="none" stroke="#2a7a3e" stroke-width="3"/>' +
+            '</svg>';
+        }} else if (d === 0) {{
+          scoreClass = 'par';
+          decoSvg = '';
+        }} else if (d === 1) {{
+          scoreClass = 'bogey';
+          // Single orange square
+          decoSvg = '<svg width="100" height="84" viewBox="0 0 100 84">' +
+            '<rect x="6" y="6" width="88" height="72" rx="3" fill="none" stroke="#c4621a" stroke-width="3"/>' +
+            '</svg>';
+        }} else if (d === 2) {{
+          scoreClass = 'double';
+          // Double red square
+          decoSvg = '<svg width="110" height="92" viewBox="0 0 110 92">' +
+            '<rect x="4" y="4" width="102" height="84" rx="3" fill="none" stroke="#c8220e" stroke-width="3"/>' +
+            '<rect x="14" y="14" width="82" height="64" rx="2" fill="none" stroke="#c8220e" stroke-width="3"/>' +
+            '</svg>';
+        }} else {{
+          scoreClass = 'triple';
+          // Filled red square (triple+)
+          decoSvg = '<svg width="100" height="84" viewBox="0 0 100 84">' +
+            '<rect x="6" y="6" width="88" height="72" rx="3" fill="rgba(200, 34, 14, 0.15)" stroke="#c8220e" stroke-width="3"/>' +
+            '</svg>';
+        }}
+        strokesDisplay.setAttribute('data-score', scoreClass);
+        strokesDeco.innerHTML = decoSvg;
+      }} else if (strokesDisplay && strokesDeco) {{
+        strokesDisplay.removeAttribute('data-score');
+        strokesDeco.innerHTML = '';
+      }}
+    }} else {{
+      strokesVal.textContent = '—';
+      strokesVal.classList.add('empty');
+      if (strokesDisplay) strokesDisplay.removeAttribute('data-score');
+      if (strokesDeco) strokesDeco.innerHTML = '';
+    }}
+
+    // Putts / penalties
+    if (state.putts != null) {{
+      puttsEl.textContent = state.putts;
+      puttsEl.classList.remove('empty');
+    }} else {{
+      puttsEl.textContent = '—';
+      puttsEl.classList.add('empty');
+    }}
+    if (state.penalties != null) {{
+      penEl.textContent = state.penalties;
+      penEl.classList.remove('empty');
+    }} else {{
+      penEl.textContent = '—';
+      penEl.classList.add('empty');
+    }}
+
+    // FIR / GIR toggles
+    Object.keys(firButtons).forEach(function(k){{ firButtons[k].classList.toggle('sel', state.fir === k); }});
+    Object.keys(girButtons).forEach(function(k){{ girButtons[k].classList.toggle('sel', state.gir === k); }});
+
+    // Tee club
+    var chips = document.querySelectorAll('#bm-clubs .bm-club-chip');
+    chips.forEach(function(c){{ c.classList.toggle('sel', c.getAttribute('data-val') === state.teeClub); }});
+    // v11: update the collapsed-state current-value label for clubs
+    var clubsCurrent = document.getElementById('bm-clubs-current');
+    if (clubsCurrent) {{
+      if (state.teeClub) {{
+        clubsCurrent.innerHTML = state.teeClub + ' <span class="bm-clubs-chev">▸</span>';
+        clubsCurrent.classList.remove('empty');
+      }} else {{
+        clubsCurrent.innerHTML = 'tap to set <span class="bm-clubs-chev">▸</span>';
+        clubsCurrent.classList.add('empty');
+      }}
+    }}
+
+    // Notes
+    notesInput.value = state.notes || '';
+    // v11: update the collapsed-state current-value label for notes
+    var notesCurrent = document.getElementById('bm-notes-current');
+    if (notesCurrent) {{
+      if (state.notes && state.notes.trim().length > 0) {{
+        // Show first ~20 chars with ellipsis if longer
+        var preview = state.notes.length > 22 ? state.notes.substring(0, 22) + '…' : state.notes;
+        notesCurrent.innerHTML = preview + ' <span class="bm-notes-chev">▸</span>';
+        notesCurrent.classList.remove('empty');
+      }} else {{
+        notesCurrent.innerHTML = 'tap to add <span class="bm-notes-chev">▸</span>';
+        notesCurrent.classList.add('empty');
+      }}
+    }}
+
+    // Next button enable / text
+    var canProceed = (state.strokes != null && state.strokes > 0);
+    nextBtn.disabled = !canProceed;
+    if (state.hole === 18) {{
+      nextText.textContent = 'FINISH ROUND';
+      nextHint.textContent = canProceed ? 'commit final hole and close' : 'enter strokes to continue';
+    }} else {{
+      nextText.textContent = 'PROCEED TO HOLE ' + (state.hole + 1);
+      nextHint.textContent = canProceed ? 'saves and advances' : 'enter strokes to continue';
+    }}
+
+    // Prev link
+    var prevLink = document.getElementById('bm-prev-link');
+    if (state.hole <= 1) {{ prevLink.classList.add('disabled'); }}
+    else {{ prevLink.classList.remove('disabled'); }}
+
+    syncEl.textContent = '\u00A0';
+    syncEl.classList.remove('error', 'success');
+  }}
+
+  // ── State mutators (called by buttons) ───────────────────────────
+  window.bmStrokes = function(delta) {{
+    var n = state.strokes != null ? state.strokes : 0;
+    n += delta;
+    if (n < 1) n = 1;
+    if (n > 20) n = 20;
+    state.strokes = n;
+    render();
+  }};
+
+  window.bmCounter = function(field, delta) {{
+    var n = state[field] != null ? state[field] : 0;
+    n += delta;
+    if (n < 0) n = 0;
+    if (n > 15) n = 15;
+    state[field] = n;
+    render();
+  }};
+
+  window.bmYN = function(field, val) {{
+    // Tapping the selected one again clears it
+    state[field] = (state[field] === val) ? null : val;
+    render();
+  }};
+
+  window.bmClub = function(btn) {{
+    var v = btn.getAttribute('data-val');
+    state.teeClub = (state.teeClub === v) ? null : v;
+    render();
+  }};
+
+  // Notes change tracking
+  document.addEventListener('input', function(e){{
+    if (e.target && e.target.id === 'bm-notes-input') {{
+      state.notes = e.target.value;
+    }}
+  }});
+
+  // ── Navigation ───────────────────────────────────────────────────
+  window.bmPrev = function() {{
+    if (state.hole <= 1) return;
+    // If strokes on current hole are entered, save it before going back.
+    // Otherwise just navigate without saving.
+    if (state.strokes != null && state.strokes > 0) {{
+      saveAndNavigate(state.hole - 1);
+    }} else {{
+      loadHole(state.player, state.hole - 1);
+    }}
+  }};
+
+  window.bmNext = function() {{
+    if (state.strokes == null || state.strokes <= 0) return;
+    if (state.hole >= 18) {{
+      // Finish: save and close
+      saveHole(function(err){{
+        if (err) return showSyncError(err);
+        showSyncSuccess('round complete');
+        setTimeout(bmClose, 800);
+      }});
+    }} else {{
+      saveAndNavigate(state.hole + 1);
+    }}
+  }};
+
+  function saveAndNavigate(targetHole) {{
+    saveHole(function(err){{
+      if (err) return showSyncError(err);
+      loadHole(state.player, targetHole);
+    }});
+  }}
+
+  window.bmClose = function() {{
+    ensureDOM();
+    // If there's an unsaved stroke count, try to save before closing
+    if (state.strokes != null && state.strokes > 0 && !state._saved) {{
+      saveHole(function(err){{
+        // Close regardless — we tried our best
+        overlay.classList.remove('open');
+        document.body.style.overflow = '';
+      }});
+    }} else {{
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }}
+  }};
+
+  // ── Open overlay for a (player, hole) ────────────────────────────
+  function loadHole(player, hole) {{
+    ensureDOM();
+    state.player = player;
+    state.hole = hole;
+    // Default strokes to par for the hole — most rounds someone scores par
+    // on most holes, so this is a sensible starting point. User can adjust
+    // up/down with the +/- buttons. Existing-score check below overrides.
+    var holeLayout = LAYOUT[hole - 1];
+    state.strokes = (holeLayout && holeLayout.par) ? holeLayout.par : null;
+    state.putts = null;
+    state.penalties = null;
+    state.fir = null;
+    state.gir = null;
+    state.teeClub = null;
+    state.notes = '';
+    state._saved = false;
+
+    // Check if there's already an existing score for this (player, hole) in the
+    // scorecard, and pre-populate strokes from that if so.
+    var existing = getScorecardCellValue(player, hole);
+    if (existing != null && existing > 0) {{
+      state.strokes = existing;
+      state._saved = true;   // we consider it already saved from wherever the cell got filled in
+    }}
+
+    // ── v11: populate the yardage-book cover with course + player info ──
+    // Course title + subtitle
+    var coverCourseEl = document.getElementById('bm-cover-course');
+    var coverSubEl = document.getElementById('bm-cover-sub');
+    if (coverCourseEl) {{
+      // Use short course name for the cover (e.g. "Irish Hills" from "Irish Hills G&CC")
+      // Strip common suffixes to get a clean cover title.
+      var title = COURSE_SHORT
+        .replace(/\s*G&CC\s*$/i, '')
+        .replace(/\s*GC\s*$/i, '')
+        .replace(/\s*CC\s*$/i, '')
+        .trim();
+      if (!title) title = COURSE_SHORT || COURSE;
+      coverCourseEl.textContent = title;
+      // Subtitle: what comes after the title (G&CC, GC, CC, etc.)
+      var sub = 'G·&·CC';
+      if (/G&CC/i.test(COURSE_SHORT)) {{
+        sub = 'G<span class="bm-cover-sub-amp">·&·</span>CC';
+      }} else if (/\bGC\b/i.test(COURSE_SHORT)) {{
+        sub = 'GOLF CLUB';
+      }} else if (/\bCC\b/i.test(COURSE_SHORT)) {{
+        sub = 'COUNTRY CLUB';
+      }} else {{
+        sub = '';
+      }}
+      if (coverSubEl) coverSubEl.innerHTML = sub;
+    }}
+    // Player name
+    var coverPlayerEl = document.getElementById('bm-cover-player');
+    if (coverPlayerEl) coverPlayerEl.textContent = player;
+    // Player flag
+    var coverFlagEl = document.getElementById('bm-cover-flag');
+    var headFlagEl = document.getElementById('bm-player-flag');
+    var flagSrc = (PLAYER_FLAGS && PLAYER_FLAGS[player]) ? PLAYER_FLAGS[player] : '';
+    if (coverFlagEl) {{
+      if (flagSrc) {{ coverFlagEl.src = flagSrc; coverFlagEl.style.display = 'block'; }}
+      else          {{ coverFlagEl.style.display = 'none'; }}
+    }}
+    if (headFlagEl) {{
+      if (flagSrc) {{ headFlagEl.src = flagSrc; headFlagEl.style.display = 'block'; }}
+      else          {{ headFlagEl.style.display = 'none'; }}
+    }}
+    // Date
+    var coverDateEl = document.getElementById('bm-cover-date');
+    if (coverDateEl) coverDateEl.textContent = COVER_DATE;
+
+    // Make sure the book starts with its cover CLOSED.
+    // The cover animates open on user tap (or automatically below).
+    var bookEl = document.getElementById('bm-book');
+    if (bookEl) bookEl.classList.remove('open');
+
+    // v11: collapsed state resets per hole
+    var clubsEl = document.getElementById('bm-clubs-panel');
+    if (clubsEl) clubsEl.classList.remove('open');
+    var notesEl = document.getElementById('bm-notes-panel');
+    if (notesEl) notesEl.classList.remove('open');
+
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    // Auto-flip the cover open after a brief pause, so the user sees the
+    // animation. If they want to see the cover again they tap FLIP TO COVER.
+    setTimeout(function(){{
+      if (bookEl) bookEl.classList.add('open');
+    }}, 600);
+
+    render();
+  }}
+
+  // ── v11: cover flip functions ──────────────────────────────────────
+  window.bmFlipOpen = function() {{
+    var bookEl = document.getElementById('bm-book');
+    if (bookEl) bookEl.classList.add('open');
+  }};
+  window.bmFlipToCover = function() {{
+    var bookEl = document.getElementById('bm-book');
+    if (bookEl) bookEl.classList.remove('open');
+  }};
+
+  // ── v11: collapse/expand helpers for clubs + notes ────────────────
+  window.bmToggleClubs = function() {{
+    var el = document.getElementById('bm-clubs-panel');
+    if (!el) return;
+    var wasOpen = el.classList.contains('open');
+    el.classList.toggle('open');
+    if (!wasOpen) {{
+      // Just opened. Initialize focus tracking + scroll to selected (or first) chip.
+      bmInitClubFocus();
+    }}
+  }};
+  window.bmToggleNotes = function() {{
+    var el = document.getElementById('bm-notes-panel');
+    if (el) el.classList.toggle('open');
+    // When opened, focus the input so the keyboard pops up
+    if (el && el.classList.contains('open')) {{
+      var input = document.getElementById('bm-notes-input');
+      if (input) setTimeout(function(){{ input.focus(); }}, 50);
+    }}
+  }};
+
+  // ── v11: Jetsons club carousel — center-focus tracking ─────────────
+  // As the user scrolls the clubs horizontally, the chip whose center
+  // is closest to the scroller's center gets the `.focused` class,
+  // which scales it up and brightens its hover-pad. Tapping a chip
+  // scrolls it to center AND selects it.
+  var clubFocusRAF = null;
+  function bmUpdateClubFocus() {{
+    var scroller = document.getElementById('bm-clubs');
+    if (!scroller) return;
+    var scrollerRect = scroller.getBoundingClientRect();
+    var scrollerCenter = scrollerRect.left + scrollerRect.width / 2;
+    var chips = scroller.querySelectorAll('.bm-club-chip');
+    var bestChip = null;
+    var bestDist = Infinity;
+    chips.forEach(function(c){{
+      var cr = c.getBoundingClientRect();
+      var ccenter = cr.left + cr.width / 2;
+      var d = Math.abs(ccenter - scrollerCenter);
+      if (d < bestDist) {{ bestDist = d; bestChip = c; }}
+    }});
+    chips.forEach(function(c){{ c.classList.toggle('focused', c === bestChip); }});
+  }}
+  function bmInitClubFocus() {{
+    var scroller = document.getElementById('bm-clubs');
+    if (!scroller) return;
+    // Wire up scroll listener (idempotent — replaces any previous)
+    if (scroller._bmScrollHandler) scroller.removeEventListener('scroll', scroller._bmScrollHandler);
+    scroller._bmScrollHandler = function(){{
+      if (clubFocusRAF) cancelAnimationFrame(clubFocusRAF);
+      clubFocusRAF = requestAnimationFrame(bmUpdateClubFocus);
+    }};
+    scroller.addEventListener('scroll', scroller._bmScrollHandler, {{passive: true}});
+    // Scroll the currently-selected club (or Driver) to center
+    var target = null;
+    if (state.teeClub) {{
+      target = scroller.querySelector('[data-val="' + state.teeClub.replace(/"/g, '\\"') + '"]');
+    }}
+    if (!target) target = scroller.querySelector('.bm-club-chip');
+    if (target) {{
+      // Delay one frame so the body has flexed open and measurements are valid
+      requestAnimationFrame(function(){{
+        target.scrollIntoView({{behavior: 'instant', block: 'nearest', inline: 'center'}});
+        bmUpdateClubFocus();
+      }});
+    }}
+  }}
+  // Scroll a chip to center when tapped (in addition to the bmClub handler)
+  document.addEventListener('click', function(e){{
+    var chip = e.target.closest('.bm-club-chip');
+    if (!chip) return;
+    var scroller = document.getElementById('bm-clubs');
+    if (!scroller || !scroller.contains(chip)) return;
+    // Smoothly snap the tapped chip to center
+    chip.scrollIntoView({{behavior: 'smooth', block: 'nearest', inline: 'center'}});
+  }}, false);
+
+  function getScorecardCellValue(player, hole) {{
+    // Find the scorecard input for (player, hole)
+    var rows = document.querySelectorAll('tr[data-player-row]');
+    for (var i = 0; i < rows.length; i++) {{
+      if (rows[i].getAttribute('data-player-row') === player) {{
+        var input = rows[i].querySelector('input[data-hole="' + hole + '"]');
+        if (!input) {{
+          // Back nine inputs might be in a different row — query globally
+          input = document.querySelector('tr[data-player-row="' + player + '"] input[data-hole="' + hole + '"]');
+        }}
+        if (input) {{
+          var raw = input.getAttribute('data-score') || input.value;
+          var n = parseInt(raw, 10);
+          return isNaN(n) ? null : n;
+        }}
+      }}
+    }}
+    return null;
+  }}
+
+  function setScorecardCellValue(player, hole, strokes) {{
+    var input = document.querySelector('tr[data-player-row="' + player + '"] input[data-hole="' + hole + '"]');
+    if (!input) return;
+    input.value = strokes;
+    input.setAttribute('data-score', strokes);
+    // Trigger a blur/change so the existing scorecard JS applies the symbol
+    var evt = new Event('change', {{ bubbles: true }});
+    input.dispatchEvent(evt);
+    evt = new Event('blur', {{ bubbles: true }});
+    input.dispatchEvent(evt);
+  }}
+
+  // ── Cell-tap handler: intercept if Beast Mode is on ──────────────
+  document.addEventListener('click', function(e) {{
+    if (!document.body.classList.contains('beast-active')) return;
+    var input = e.target.closest('input[data-player][data-hole]');
+    if (!input) return;
+    // Beast Mode active + cell tapped: intercept, open overlay
+    e.preventDefault();
+    e.stopPropagation();
+    input.blur();
+    var player = input.getAttribute('data-player');
+    var hole = parseInt(input.getAttribute('data-hole'), 10);
+    if (player && hole) loadHole(player, hole);
+  }}, true);
+
+  // Also intercept focus — don't want phone keyboard popping up when in Beast Mode
+  document.addEventListener('focusin', function(e) {{
+    if (!document.body.classList.contains('beast-active')) return;
+    var input = e.target.closest('input[data-player][data-hole]');
+    if (!input) return;
+    input.blur();
+    var player = input.getAttribute('data-player');
+    var hole = parseInt(input.getAttribute('data-hole'), 10);
+    if (player && hole) loadHole(player, hole);
+  }});
+
+  // ── Supabase writes ──────────────────────────────────────────────
+  function showSyncPending() {{
+    syncEl.textContent = 'saving...';
+    syncEl.classList.remove('error', 'success');
+  }}
+  function showSyncSuccess(msg) {{
+    syncEl.textContent = msg || 'saved';
+    syncEl.classList.add('success');
+    syncEl.classList.remove('error');
+  }}
+  function showSyncError(msg) {{
+    syncEl.textContent = msg || 'save failed';
+    syncEl.classList.add('error');
+    syncEl.classList.remove('success');
+  }}
+
+  function supabaseReady() {{
+    return SUPABASE_URL && SUPABASE_KEY && SUPABASE_URL !== '' && SUPABASE_KEY !== '' && SUPABASE_KEY !== 'REPLACE_ME_WITH_YOUR_PUBLISHABLE_KEY';
+  }}
+
+  function fetchJson(url, opts) {{
+    opts = opts || {{}};
+    opts.headers = opts.headers || {{}};
+    opts.headers['apikey'] = SUPABASE_KEY;
+    opts.headers['Authorization'] = 'Bearer ' + SUPABASE_KEY;
+    if (opts.body && !opts.headers['Content-Type']) {{
+      opts.headers['Content-Type'] = 'application/json';
+    }}
+    return fetch(url, opts).then(function(r){{
+      if (!r.ok) return r.text().then(function(t){{ throw new Error('HTTP ' + r.status + ': ' + t); }});
+      return r.status === 204 ? null : r.json();
+    }});
+  }}
+
+  function findOrCreateRound(cb) {{
+    if (ROUND_ID_CACHE) return cb(null, ROUND_ID_CACHE);
+    // Look up rounds matching (course_name, round_date, tee_time)
+    var q = SUPABASE_URL + '/rest/v1/rounds'
+      + '?course_name=eq.' + encodeURIComponent(COURSE)
+      + '&round_date=eq.' + encodeURIComponent(DATE)
+      + '&tee_time=eq.' + encodeURIComponent(TIME)
+      + '&select=id&limit=1';
+    fetchJson(q).then(function(rows){{
+      if (rows && rows.length > 0) {{
+        ROUND_ID_CACHE = rows[0].id;
+        return cb(null, ROUND_ID_CACHE);
+      }}
+      // Create new round
+      var body = {{
+        course_name: COURSE,
+        round_date: DATE,
+        tee_time: TIME
+      }};
+      return fetchJson(SUPABASE_URL + '/rest/v1/rounds', {{
+        method: 'POST',
+        headers: {{ 'Prefer': 'return=representation' }},
+        body: JSON.stringify(body)
+      }}).then(function(created){{
+        if (!created || !created.length) throw new Error('round create returned nothing');
+        ROUND_ID_CACHE = created[0].id;
+        cb(null, ROUND_ID_CACHE);
+      }});
+    }}).catch(function(err){{ cb(err.message || String(err)); }});
+  }}
+
+  function saveHole(cb) {{
+    if (!supabaseReady()) {{
+      // No Supabase config — still update the scorecard visually
+      if (state.strokes != null && state.strokes > 0) {{
+        setScorecardCellValue(state.player, state.hole, state.strokes);
+      }}
+      showSyncError('database not configured');
+      return cb ? cb('database not configured') : null;
+    }}
+    if (state.strokes == null || state.strokes <= 0) {{
+      return cb ? cb('no strokes entered') : null;
+    }}
+    showSyncPending();
+    // Always update the scorecard cell first (visual feedback is fast)
+    setScorecardCellValue(state.player, state.hole, state.strokes);
+    findOrCreateRound(function(err, roundId) {{
+      if (err) return cb && cb(err);
+      var row = {{
+        round_id: roundId,
+        player: state.player,
+        hole: state.hole,
+        strokes: state.strokes,
+        putts: state.putts,
+        fir: state.fir == null ? null : (state.fir === 'y'),
+        gir: state.gir == null ? null : (state.gir === 'y'),
+        penalties: state.penalties,
+        tee_club: state.teeClub,
+        notes: state.notes && state.notes.trim().length > 0 ? state.notes.trim() : null
+      }};
+      // Upsert: on conflict (round_id, player, hole) update
+      fetchJson(SUPABASE_URL + '/rest/v1/hole_scores?on_conflict=round_id,player,hole', {{
+        method: 'POST',
+        headers: {{
+          'Prefer': 'resolution=merge-duplicates,return=representation'
+        }},
+        body: JSON.stringify(row)
+      }}).then(function(){{
+        state._saved = true;
+        showSyncSuccess();
+        cb && cb(null);
+      }}).catch(function(e){{
+        showSyncError(e.message || String(e));
+        cb && cb(e.message || String(e));
+      }});
+    }});
+  }}
+
+  // ── Close on Escape, click-outside ───────────────────────────────
+  document.addEventListener('keydown', function(e){{
+    if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) bmClose();
+  }});
+  document.addEventListener('click', function(e){{
+    if (e.target === overlay) bmClose();
+  }});
+}})();
+</script>
+
+
 '''
 
 
@@ -2631,7 +5084,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
     parts = [
         f'<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">',
         f'<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">',
-        f'<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&family=Caveat:wght@600&family=Special+Elite&family=Creepster&display=swap" rel="stylesheet">',
+        f'<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&family=Caveat:wght@600&family=Special+Elite&family=Creepster&family=Bebas+Neue&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">',
         f'<style>{CSS}</style>',
         f'</head>\n<body>',
 
@@ -2646,19 +5099,24 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<a href="#sec-postround" style="font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:10px;font-weight:600;">After</a>'
         f'</div></div>',
 
-        # Hero
+        # Hero — V1 Stadium Board: black + lime tee time + amber accents,
+        # condensed Bebas Neue display type, score-line layout.
         f'<div class="header" style="margin-bottom:0;">'
-        f'<div style="background:linear-gradient(135deg,#1a2e1a 60%,#2d4a1e);border-radius:14px;padding:1.4rem 1.5rem 1.2rem;margin-bottom:10px;position:relative;overflow:hidden;">'
-        f'<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.15em;color:#8fcc7a;margin-bottom:10px;">&#9971; Course Guide</div>'
-        f'<div style="font-size:26px;font-weight:800;color:#ffffff;letter-spacing:-.5px;line-height:1.1;margin-bottom:4px;">{course_name}</div>'
-        f'<div style="font-size:14px;color:rgba(255,255,255,.7);margin-bottom:16px;">{meta.get("address","")}</div>'
-        f'<div style="background:rgba(0,0,0,.25);border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">'
-        f'<div><div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:3px;">Tee Time</div>'
-        f'<div style="font-size:32px;font-weight:800;color:#ffffff;letter-spacing:-.5px;line-height:1;">{time_display} <span style="font-size:16px;font-weight:600;color:rgba(255,255,255,.8);">{ampm}</span></div>'
-        f'<div style="font-size:12px;color:#7ecb6a;font-weight:600;margin-top:2px;">{day_name}, {date_display}</div></div>'
-        f'<div style="text-align:right;">'
-        f'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:4px;">{rounds_text}</div>'
-        f'<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;">Par {c["par"]} &middot; {c["yards"]:,} yds</div>'
+        f'<div style="background:#000;border-radius:10px;padding:20px 22px 18px;margin-bottom:10px;position:relative;border:1px solid rgba(168,255,94,0.3);overflow:hidden;">'
+        # Eyebrow — amber mono small caps
+        f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:600;letter-spacing:.3em;color:#ffa838;margin-bottom:14px;">&#9971; COURSE GUIDE</div>'
+        # Course name — big condensed Bebas Neue, white
+        f'<div style="font-family:\'Bebas Neue\',\'Impact\',sans-serif;font-size:56px;color:#fff;line-height:.9;letter-spacing:.005em;margin-bottom:4px;text-transform:uppercase;">{course_name}</div>'
+        # Address — mono small caps muted
+        f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:500;letter-spacing:.18em;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:18px;">{meta.get("address","").upper()}</div>'
+        # Tee row — lime time on the left, date + stats on the right, hairline divider above
+        f'<div style="display:flex;align-items:baseline;gap:14px;padding-top:14px;border-top:1px solid rgba(168,255,94,0.25);">'
+        # Lime tee time
+        f'<div style="font-family:\'Bebas Neue\',\'Impact\',sans-serif;font-size:44px;color:#a8ff5e;line-height:.9;letter-spacing:.01em;text-shadow:0 0 12px rgba(168,255,94,0.4);">{time_display}<span style="font-size:18px;color:#ffa838;font-family:\'Roboto Mono\',monospace;font-weight:700;text-shadow:none;margin-left:4px;">{ampm}</span></div>'
+        # Date + stats stack on the right
+        f'<div style="flex:1;text-align:right;">'
+        f'<div style="font-family:\'Roboto Mono\',monospace;font-size:11px;font-weight:600;color:#fff;letter-spacing:.2em;text-transform:uppercase;margin-bottom:4px;">{day_name.upper()[:3]} &middot; {date_display.upper()}</div>'
+        f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:500;color:rgba(255,168,56,0.85);letter-spacing:.12em;text-transform:uppercase;">{rounds_text.upper()} &middot; PAR {c["par"]} &middot; {c["yards"]:,} YDS</div>'
         f'</div></div></div></div>',
 
         # Reviews section
@@ -2710,7 +5168,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
 
         # Scorecard
         f'<div id="sec-scorecard"></div>',
-        f'<div class="section" style="margin-top:0.75rem;margin-bottom:0.75rem;padding:0;border:1.5px solid #1a1f3a;border-radius:10px;overflow:hidden;">'
+        f'<div id="scorecard-container" class="section" style="position:relative;margin-top:0.75rem;margin-bottom:0.75rem;padding:0;border:1.5px solid #1a1f3a;border-radius:10px;overflow:hidden;">'
         f'<div style="text-align:center;padding:12px 0 10px;">'
         f'<div style="font-family:Georgia,serif;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.25em;color:#888;margin-bottom:4px;">{course_name}</div>'
         f'<div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#1a1f3a;letter-spacing:.05em;">SCORECARD</div>'
@@ -2761,7 +5219,9 @@ def build_report(course_name, date_str, time_str, players, output_path):
         build_js(course_name, date_str, time_str, players,
                  [h['par'] for h in front], [h['par'] for h in back],
                  meta.get('lat', 45.353), meta.get('lng', -76.030),
-                 sunrise_str=sunrise_str),
+                 sunrise_str=sunrise_str,
+                 layout=layout, hole_yards=yards,
+                 supabase_url=SUPABASE_URL, supabase_key=SUPABASE_PUBLISHABLE_KEY),
         f'</body>\n</html>',
     ]
 
