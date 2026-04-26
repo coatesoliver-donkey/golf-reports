@@ -89,17 +89,17 @@
         "Brett",
         "Ollie"
       ],
-      "address": "Ontario, Canada",
+      "address": "465 Ch Edelweiss, Wakefield, QC J0X 3G0, Canada",
       "tee": "Bleu",
       "yards": 6383,
       "par": 72,
       "wx": {
-        "temp": "-2°C",
-        "icon": "&#9728;&#65039;",
-        "condition": "Clear Sky",
-        "rain": "4%"
+        "temp": "1°C",
+        "icon": "&#9729;&#65039;",
+        "condition": "Overcast",
+        "rain": "17%"
       }
     }
   ],
-  "updated": "2026-04-26T14:52:05"
+  "updated": "2026-04-26T19:30:37"
 }

@@ -1887,34 +1887,29 @@
       "fun_fact": "Irish Hills sits just outside the village of Carp, ON — home to the <strong>Diefenbunker</strong>, Canada's Cold War nuclear bunker. Built in 1959 to shelter 535 government officials, it was kept secret for decades and is now a national museum.",
       "reviews": [
         {
-          "stars": 1,
-          "text": "Greens were terrible — like putting on gravel. Not sure who is maintaining them but they need a serious upgrade.",
+          "stars": 4,
+          "text": "Very well run, from the girl on the phone who took the tee time, the pro shop to the starter, all were first class. Course was under repair in a few places, looked like some big storm damage, but greens and fairways were in great shape",
           "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "Showed up for our tee time and they had double-booked the slot. Staff shrugged. Somehow still charged us a cancellation fee.",
+          "stars": 4,
+          "text": "The golf course is amazing and the greens are well maintained. My husband and I had a blast golfing on our day off. They have an onsite restaurant that serves breakfast, lunch and dinner.  The prices for lunch menu are affordable. I had the Chicken Wrap and it was pretty good!…",
           "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "Course conditions were shocking for the price. Fairways were patchy, divots everywhere, and the cart path nearly destroyed my suspension.",
+          "stars": 5,
+          "text": "We hosted our Babes & Boo’s Golf Tournament at Irish Hills and I can confidently say it was the smoothest, best-run event I’ve ever organized! From start to finish, the staff went above and beyond to make sure everything was perfect.\n\nThe course was in beautiful shape, the acc…",
           "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "Tee boxes are basically dirt patches at this point. Paid full price to hit off what felt like a construction site.",
-          "source": "TripAdvisor"
+          "stars": 5,
+          "text": "I had a wonderful experience today as a first time golfer. The staff were exceptional friendly and did a great job at ensuring I was comfortable!\n\nThe manager Jeff took the time to give me a tour around the golf club and a crash course lesson in golf! Jeff was patient and ensu…",
+          "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "In the Spring, the mosquitos and blackflies can be thick. Spent more time swatting than swinging.",
-          "source": "TripAdvisor"
-        },
-        {
-          "stars": 1,
-          "text": "Some fairways need top dressing badly. Inconsistent conditions throughout — you'll have a great hole then a disaster.",
-          "source": "TripAdvisor"
+          "stars": 5,
+          "text": "Fantastic party - Irish hills hosted a group of 40 people at their simulators - very kid friendly. Everyone had a great time. Chef Jen is fantastic. Highly recommended for any occasion.",
+          "source": "Google Reviews"
         }
       ],
       "stops": [
@@ -1922,56 +1917,31 @@
           "icon": "🍦",
           "name": "Carp Custom Creamery",
           "addr": "3763 Carp Rd, Carp",
-          "dist": "2 min from the course",
-          "desc": "Local institution. Real cream, huge scoops, unique flavours like Skoreo, raspberry cheesecake, and banoffee pie. People drive 40km just for this. Milkshakes too.",
+          "dist": "3 min from the course",
+          "desc": "",
           "rating": 4.8,
           "badge": "Ice Cream",
-          "hours": "Open daily 11am–8pm",
-          "color": "#e05a8a"
+          "hours": "Monday: 11:00 AM – 9:00 PM · Tuesday: 11:00 AM – 9:00 PM…"
         },
         {
           "icon": "🥐",
-          "name": "Carp Bakery",
+          "name": "Carp Bakery The",
           "addr": "461 Donald B. Munro Dr, Carp",
-          "dist": "2 min from the course",
-          "desc": "Family-run bakery right in the village. Legendary cinnamon buns — light, fresh, and barely sweet. Sourdough that gets shipped back to BC. Show up early before they sell out.",
+          "dist": "4 min from the course",
+          "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Mon–Sat 8:30am–6pm · Closed Sun",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "☕",
-          "name": "Skylark Café",
-          "addr": "415 Donald B. Munro Dr, Carp",
-          "dist": "2 min from the course",
-          "desc": "Perfect 5.0 rating. Cosy, welcoming café right in Carp village. Handmade tables, great coffee, homemade sandwiches and gluten-free treats. The owner made every detail herself.",
-          "rating": 5.0,
-          "badge": "Café",
-          "hours": "Daily 8am–3pm",
-          "color": "#2a8a6a"
-        },
-        {
-          "icon": "🫙",
-          "name": "Alice's Village Café",
-          "addr": "3773 Carp Rd, Carp",
-          "dist": "3 min from the course",
-          "desc": "Beloved local spot with 1,371 reviews. The big cinnamon bun is not to be missed. Fresh soups, flatbreads, and salads. Closes at 3pm so time it right after the round.",
-          "rating": 4.5,
-          "badge": "Café",
-          "hours": "Wed–Sun 9am–3pm · Closed Mon & Tue",
-          "color": "#7a5cc4"
+          "hours": "Monday: 8:30 AM – 6:00 PM · Tuesday: 8:30 AM – 6:00 PM…"
         },
         {
           "icon": "🥐",
-          "name": "VANILLE Café & Bakery",
-          "addr": "1473 Stittsville Main St",
-          "dist": "15 min from the course",
-          "desc": "New family-owned café on Stittsville Main. French pastries, almond croissants, macarons. The pistachio royal latte and honey almond latte are standouts.",
-          "rating": 4.8,
-          "badge": "Café & Bakery",
-          "hours": "Daily 9am–7pm (Fri–Sat to 9pm)",
-          "color": "#c4401a"
+          "name": "La Maison du Kouign-Amann",
+          "addr": "101 A Schneider Rd, Kanata",
+          "dist": "18 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Bakery",
+          "hours": "Monday: 7:00 AM – 7:00 PM · Tuesday: 7:00 AM – 7:00 PM…"
         }
       ]
     },
@@ -2977,6 +2947,11 @@
       "google_reviews": 102,
       "reviews": [
         {
+          "stars": 4,
+          "text": "Nice spot, greens were in good shape. Quite dry for this early in the season. Looking forward to more games here.",
+          "source": "Google Reviews"
+        },
+        {
           "stars": 5,
           "text": "We enjoyed the golf course; well maintained with interesting obstacles. We were warned about Ladies Night and we did have time to complete our 9 holes.",
           "source": "Google Reviews"
@@ -2995,25 +2970,9 @@
           "stars": 5,
           "text": "Beauty course. Well maintained and relaxed atmosphere. Played 18 with my buddy the other day and was impressed with the course. Greens are super challenging and besides the 1st,9th and 18th no two holes are the same. Highly recommended.",
           "source": "Google Reviews"
-        },
-        {
-          "stars": 4,
-          "text": "Nice spot, greens were in good shape. Quite dry for this early in the season. Looking forward to more games here.",
-          "source": "Google Reviews"
         }
       ],
       "stops": [
-        {
-          "icon": "🥐",
-          "name": "The Fieldhouse Bakery And Restaurant",
-          "addr": "43 Herriott St, Perth",
-          "dist": "8 min from the course",
-          "desc": "",
-          "rating": 4.8,
-          "badge": "Bakery",
-          "hours": "Monday: 11:00 AM – 2:00 PM · Tuesday: 10:00 AM – 3:00 PM…",
-          "color": "#d4860a"
-        },
         {
           "icon": "🥐",
           "name": "Perth Pie Co.",
@@ -3022,8 +2981,7 @@
           "desc": "",
           "rating": 4.7,
           "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 4:00 PM · Tuesday: 8:00 AM – 4:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 4:00 PM · Tuesday: 8:00 AM – 4:00 PM…"
         },
         {
           "icon": "🥐",
@@ -3033,19 +2991,7 @@
           "desc": "",
           "rating": 4.6,
           "badge": "Bakery",
-          "hours": "Monday: 9:00 AM – 3:00 PM · Tuesday: 9:00 AM – 3:00 PM…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Barnabe's Your Independent Grocer Perth",
-          "addr": "80 Dufferin St, Perth",
-          "dist": "12 min from the course",
-          "desc": "",
-          "rating": 4,
-          "badge": "Bakery",
-          "hours": "Daily 7:00 AM – 9:00 PM",
-          "color": "#d4860a"
+          "hours": "Monday: 9:00 AM – 3:00 PM · Tuesday: 9:00 AM – 3:00 PM…"
         },
         {
           "icon": "🥐",
@@ -3055,8 +3001,27 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: 11:00 AM – 5:00 PM · Tuesday: 10:00 AM – 5:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 11:00 AM – 5:00 PM · Tuesday: 10:00 AM – 5:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Little Stream Bakery",
+          "addr": "667 Glen Tay Rd, Perth",
+          "dist": "5 min from the course",
+          "desc": "",
+          "rating": 4.8,
+          "badge": "Bakery",
+          "hours": "Monday: Closed · Tuesday: Closed…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Basic Kneads Bakery",
+          "addr": "98 Gore St E, Perth",
+          "dist": "8 min from the course",
+          "desc": "",
+          "rating": 4.9,
+          "badge": "Bakery",
+          "hours": "Monday: Closed · Tuesday: Closed…"
         }
       ]
     }
@@ -3551,11 +3516,6 @@
       "google_reviews": 148,
       "reviews": [
         {
-          "stars": 5,
-          "text": "Absolutely rock solid course all throughout the board, beautifully kept, 2 amazing 18's with distinctly different feelings and vibes, the premiere is a bit more open and forgiving while the legacy is a bit trickier with many demanding tee shots. The fairways are like carpet an…",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 4,
           "text": "Pros:\n- nice hole layouts, with a few bends and elevation changes.\n- fairways and greens were in excellent shape and rolling well\n- deer sightings!\n\nCons:\n- bugs were relentless and unbearabl. They were present everywhere on the Legacy course (even in the middle of a wide open…",
           "source": "Google Reviews"
@@ -3566,13 +3526,18 @@
           "source": "Google Reviews"
         },
         {
-          "stars": 5,
-          "text": "One of my favourite courses in the greater Ottawa area. Conditions are always top notch and despite a slight price increase this season it is still a great price for the quality of course. Legacy is the more challenging of the 18 hole options with much more variation between h…",
+          "stars": 4,
+          "text": "Nice, well maintained course but was a little backed up halfway through. Four groups all bunched up at each tee off which became very frustrating. Clubhouse is a little tired but food staff are great and the food is very good.",
           "source": "Google Reviews"
         },
         {
-          "stars": 4,
-          "text": "Nice, well maintained course but was a little backed up halfway through. Four groups all bunched up at each tee off which became very frustrating. Clubhouse is a little tired but food staff are great and the food is very good.",
+          "stars": 5,
+          "text": "Absolutely rock solid course all throughout the board, beautifully kept, 2 amazing 18's with distinctly different feelings and vibes, the premiere is a bit more open and forgiving while the legacy is a bit trickier with many demanding tee shots. The fairways are like carpet an…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "One of my favourite courses in the greater Ottawa area. Conditions are always top notch and despite a slight price increase this season it is still a great price for the quality of course. Legacy is the more challenging of the 18 hole options with much more variation between h…",
           "source": "Google Reviews"
         }
       ],
@@ -3585,8 +3550,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Ice Cream",
-          "hours": "Monday: 11:00 AM – 9:00 PM · Tuesday: 11:00 AM – 9:00 PM…",
-          "color": "#e05a8a"
+          "hours": "Monday: 11:00 AM – 9:00 PM · Tuesday: 11:00 AM – 9:00 PM…"
         },
         {
           "icon": "🍦",
@@ -3596,8 +3560,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Ice Cream",
-          "hours": "Monday: 9:00 AM – 6:00 PM · Tuesday: 9:00 AM – 6:00 PM…",
-          "color": "#e05a8a"
+          "hours": "Monday: 9:00 AM – 6:00 PM · Tuesday: 9:00 AM – 6:00 PM…"
         },
         {
           "icon": "🥐",
@@ -3607,30 +3570,27 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
         },
         {
           "icon": "🥐",
-          "name": "Browns' Your Independent Grocer Stittsville",
-          "addr": "1251 Main Street North, Stittsville",
-          "dist": "15 min from the course",
+          "name": "Baker Bob's",
+          "addr": "75 Little Bridge St, Almonte",
+          "dist": "14 min from the course",
           "desc": "",
-          "rating": 4.2,
+          "rating": 4.7,
           "badge": "Bakery",
-          "hours": "Daily 8:00 AM – 9:00 PM",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: 6:00 AM – 6:00 PM…"
         },
         {
-          "icon": "🍦",
-          "name": "BeaverTails- Queues de Castor (Tanger Outlets)",
-          "addr": "8555 Campeau Dr, Ottawa",
+          "icon": "🍰",
+          "name": "Lindt Chocolate Shop - Kanata",
+          "addr": "8555 Campeau Dr Unit 996, Ottawa",
           "dist": "13 min from the course",
           "desc": "",
-          "rating": 4.5,
-          "badge": "Ice Cream",
-          "hours": "Monday: 10:00 AM – 9:00 PM · Tuesday: 10:00 AM – 9:00 PM…",
-          "color": "#e05a8a"
+          "rating": 4.4,
+          "badge": "Dessert",
+          "hours": "Monday: 10:00 AM – 9:00 PM · Tuesday: 10:00 AM – 9:00 PM…"
         }
       ]
     }
@@ -3994,9 +3954,14 @@
       "lat": 45.196468,
       "lng": -75.996758,
       "address": "7967 Fernbank Rd, Ashton, ON K0A 1B0, Canada",
-      "google_rating": 4.3,
-      "google_reviews": 112,
+      "google_rating": 4.4,
+      "google_reviews": 113,
       "reviews": [
+        {
+          "stars": 4,
+          "text": "It's a very good golf course, well maintained fairway.",
+          "source": "Google Reviews"
+        },
         {
           "stars": 5,
           "text": "A gem of a course just outside of Stittsville on Fernbank road, nothing too strenuous but beautifully manicured with several tight drives between tree-lined fairways. The course will provide a challenge for all levels of golfer and is quickly becoming my favourite course in th…",
@@ -4013,11 +3978,6 @@
           "source": "Google Reviews"
         },
         {
-          "stars": 4,
-          "text": "It's a very good golf course, well maintained fairway.",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 5,
           "text": "Stittsville Golf Course hosted our company Christmas party this season. Can’t say enough about the awesome food, amazing staff and great location! Thanks so much for having us, will definitely be back!!!",
           "source": "Google Reviews"
@@ -4026,25 +3986,13 @@
       "stops": [
         {
           "icon": "🥐",
-          "name": "Browns' Your Independent Grocer Stittsville",
-          "addr": "1251 Main Street North, Stittsville",
-          "dist": "12 min from the course",
-          "desc": "",
-          "rating": 4.2,
-          "badge": "Bakery",
-          "hours": "Daily 8:00 AM – 9:00 PM",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
           "name": "Maverick's Donuts, Stittsville",
           "addr": "1408 Stittsville Main St #1, Stittsville",
           "dist": "11 min from the course",
           "desc": "",
           "rating": 4.4,
           "badge": "Bakery",
-          "hours": "Monday: 7:00 AM – 7:00 PM · Tuesday: 7:00 AM – 7:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 7:00 AM – 7:00 PM · Tuesday: 7:00 AM – 7:00 PM…"
         },
         {
           "icon": "🥐",
@@ -4054,19 +4002,7 @@
           "desc": "",
           "rating": 4.6,
           "badge": "Bakery",
-          "hours": "Monday: 10:00 AM – 6:00 PM · Tuesday: 10:00 AM – 6:00 PM…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Jeff and Holly's NOFRILLS Stittsville",
-          "addr": "30 Iber Rd, Stittsville",
-          "dist": "14 min from the course",
-          "desc": "",
-          "rating": 4.1,
-          "badge": "Bakery",
-          "hours": "Daily 8:00 AM – 9:00 PM",
-          "color": "#d4860a"
+          "hours": "Monday: 10:00 AM – 6:00 PM · Tuesday: 10:00 AM – 6:00 PM…"
         },
         {
           "icon": "🍦",
@@ -4076,8 +4012,27 @@
           "desc": "",
           "rating": 4.5,
           "badge": "Ice Cream",
-          "hours": "Monday: 12:00 – 8:00 PM · Tuesday: 12:00 – 8:00 PM…",
-          "color": "#e05a8a"
+          "hours": "Monday: 12:00 – 8:00 PM · Tuesday: 12:00 – 8:00 PM…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Jo-Jo’s Creameria",
+          "addr": "1573 Stittsville Main St, Stittsville",
+          "dist": "10 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Ice Cream",
+          "hours": "Hours unavailable"
+        },
+        {
+          "icon": "🥐",
+          "name": "Richmond Village Bakehouse",
+          "addr": "3468 McBean St, Richmond",
+          "dist": "15 min from the course",
+          "desc": "",
+          "rating": 4.9,
+          "badge": "Bakery",
+          "hours": "Monday: Closed · Tuesday: Closed…"
         }
       ]
     }
@@ -4565,22 +4520,10 @@
     },
     "drive_min_from_kanata": 30,
     "meta": {
-      "lat": 51.253775,
-      "lng": -85.323214,
-      "address": "Ontario, Canada",
+      "address": "7800, Golf Club Way, Ashton, ON K0A 1B0, Canada",
       "google_rating": 4.4,
       "google_reviews": 433,
       "reviews": [
-        {
-          "stars": 5,
-          "text": "1st time playing this course. Very nice. West course isn’t long but it’s tight with a lot of holes with left or right doglegs.",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 5,
-          "text": "Absolutely stunning golf course! I appreciate the rate of play, the fancy carts, and all the great staff. You will always have a good time when you visit.",
-          "source": "Google Reviews"
-        },
         {
           "stars": 1,
           "text": "This was only my second time playing golf, and I was looking forward to learning with my more experienced partner and brother. Unfortunately, just 5 minutes after teeing off, staff asked us to hurry up and pick up our ball. As paying customers, we felt rushed and singled out i…",
@@ -4593,11 +4536,74 @@
         },
         {
           "stars": 5,
+          "text": "1st time playing this course. Very nice. West course isn’t long but it’s tight with a lot of holes with left or right doglegs.",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "Absolutely stunning golf course! I appreciate the rate of play, the fancy carts, and all the great staff. You will always have a good time when you visit.",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
           "text": "Played here yesterday for the first time. Course is spectacular and impeccable condiotions. Staff is friendly and helpful. One of my favourite courses so far this year!",
           "source": "Google Reviews"
         }
       ],
-      "stops": []
+      "stops": [
+        {
+          "icon": "🥐",
+          "name": "Maverick's Donuts, Stittsville",
+          "addr": "1408 Stittsville Main St #1, Stittsville",
+          "dist": "14 min from the course",
+          "desc": "",
+          "rating": 4.4,
+          "badge": "Bakery",
+          "hours": "Monday: 7:00 AM – 7:00 PM · Tuesday: 7:00 AM – 7:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "British Pride Bakery Stittsville",
+          "addr": "1250 Main Street North, Stittsville",
+          "dist": "14 min from the course",
+          "desc": "",
+          "rating": 4.6,
+          "badge": "Bakery",
+          "hours": "Monday: 10:00 AM – 6:00 PM · Tuesday: 10:00 AM – 6:00 PM…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Lois 'N' Frima's Ice Cream",
+          "addr": "1626 Stittsville Main St, Stittsville",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Ice Cream",
+          "hours": "Monday: 12:00 – 8:00 PM · Tuesday: 12:00 – 8:00 PM…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Jo-Jo’s Creameria",
+          "addr": "1573 Stittsville Main St, Stittsville",
+          "dist": "16 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Ice Cream",
+          "hours": "Hours unavailable"
+        },
+        {
+          "icon": "🍦",
+          "name": "Hummingbird Chocolate Factory, Store & Café",
+          "addr": "476 Ottawa St, Almonte",
+          "dist": "16 min from the course",
+          "desc": "",
+          "rating": 4.8,
+          "badge": "Ice Cream",
+          "hours": "Monday: 9:00 AM – 6:00 PM · Tuesday: 9:00 AM – 6:00 PM…"
+        }
+      ],
+      "lat": 45.219186,
+      "lng": -76.012747
     }
   },
   "Nation Golf Club": {
@@ -5118,6 +5124,16 @@
       "google_reviews": 354,
       "reviews": [
         {
+          "stars": 1,
+          "text": "To the ownership & management.\nOn Sunday, August 24th, my daughter and I tee'd of at 4:10 for 18 holes, with instruction from Jean that our cart was due back by 8:10. Nice guy, no problem. Starter, nice guy, no problem.\nThe problem starts on the 8th hole, with a marshal named …",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 4,
+          "text": "One of my favourite courses. It's in great shape this year.  Pace of play is a bit too slow at times as their time of 8 minutes between tee times is not enough.  Also despite a sign saying pace of play is enforced, it is not true.  A double-par limit should be observed by all …",
+          "source": "Google Reviews"
+        },
+        {
           "stars": 5,
           "text": "Fantastic course that is kept in great conditions.\nLots of elevation changes with alot of tight tree lined fairways.\nStaff were friendly and courteous.\nMe and my son had a great time and will be back again!",
           "source": "Google Reviews"
@@ -5131,30 +5147,9 @@
           "stars": 5,
           "text": "First time golfing here and really enjoyed it. The course was challenging but fun and it was in really good shape. Looking forward to returning. The carts are pretty high tech love that about them.",
           "source": "Google Reviews"
-        },
-        {
-          "stars": 4,
-          "text": "One of my favourite courses. It's in great shape this year.  Pace of play is a bit too slow at times as their time of 8 minutes between tee times is not enough.  Also despite a sign saying pace of play is enforced, it is not true.  A double-par limit should be observed by all …",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 1,
-          "text": "To the ownership & management.\nOn Sunday, August 24th, my daughter and I tee'd of at 4:10 for 18 holes, with instruction from Jean that our cart was due back by 8:10. Nice guy, no problem. Starter, nice guy, no problem.\nThe problem starts on the 8th hole, with a marshal named …",
-          "source": "Google Reviews"
         }
       ],
       "stops": [
-        {
-          "icon": "🥐",
-          "name": "Mike DEAN Local GROCER - Bourget",
-          "addr": "2212 Laval Rd, Bourget",
-          "dist": "9 min from the course",
-          "desc": "",
-          "rating": 4.1,
-          "badge": "Bakery",
-          "hours": "Monday: 9:00 AM – 7:30 PM · Tuesday: 9:00 AM – 7:30 PM…",
-          "color": "#d4860a"
-        },
         {
           "icon": "🥐",
           "name": "Megan Michelle",
@@ -5163,8 +5158,17 @@
           "desc": "",
           "rating": 5,
           "badge": "Bakery",
-          "hours": "Monday: 8:30 AM – 5:30 PM · Tuesday: 8:30 AM – 5:30 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:30 AM – 5:30 PM · Tuesday: 8:30 AM – 5:30 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Sweet Delights Bakery",
+          "addr": "236 Trillium Cir, Wendover",
+          "dist": "10 min from the course",
+          "desc": "",
+          "rating": 5,
+          "badge": "Bakery",
+          "hours": "Monday: Closed · Tuesday: Closed…"
         }
       ]
     }
@@ -5656,7 +5660,7 @@
       "lng": -76.717814,
       "address": "955 Opeongo Rd, Renfrew, ON K7V 3Z5, Canada",
       "google_rating": 4.7,
-      "google_reviews": 215,
+      "google_reviews": 216,
       "reviews": [
         {
           "stars": 5,
@@ -5686,39 +5690,6 @@
       ],
       "stops": [
         {
-          "icon": "🥐",
-          "name": "Bonnechere Bakery & Bistro and Bonnechere at Home",
-          "addr": "258 Raglan St S, Renfrew",
-          "dist": "7 min from the course",
-          "desc": "",
-          "rating": 4.7,
-          "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 7:00 AM – 4:30 PM…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Chris & Tanya's NOFRILLS Renfrew",
-          "addr": "680 O'Brien Rd, Renfrew",
-          "dist": "11 min from the course",
-          "desc": "",
-          "rating": 4.4,
-          "badge": "Bakery",
-          "hours": "Monday: 7:00 AM – 9:00 PM · Tuesday: 7:00 AM – 9:00 PM…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🍦",
-          "name": "Dairy Queen Grill & Chill",
-          "addr": "401 O'Brien Rd, Renfrew",
-          "dist": "8 min from the course",
-          "desc": "",
-          "rating": 4,
-          "badge": "Ice Cream",
-          "hours": "Daily 11:00 AM – 9:00 PM",
-          "color": "#e05a8a"
-        },
-        {
           "icon": "🍦",
           "name": "The Valley Scoop",
           "addr": "117 Raglan St S, Renfrew",
@@ -5726,19 +5697,17 @@
           "desc": "",
           "rating": 5,
           "badge": "Ice Cream",
-          "hours": "Hours unavailable",
-          "color": "#e05a8a"
+          "hours": "Hours unavailable"
         },
         {
-          "icon": "🥐",
-          "name": "Tim Hortons",
-          "addr": "383 Stewart St, Renfrew",
-          "dist": "9 min from the course",
+          "icon": "🍦",
+          "name": "J & J's Chocolate Sensations",
+          "addr": "204 Raglan St S, Renfrew",
+          "dist": "7 min from the course",
           "desc": "",
-          "rating": 3.9,
-          "badge": "Bakery",
-          "hours": "Daily Open 24 hours",
-          "color": "#d4860a"
+          "rating": 4.5,
+          "badge": "Ice Cream",
+          "hours": "Monday: Closed · Tuesday: 11:00 AM – 6:00 PM…"
         }
       ]
     }
@@ -6108,11 +6077,6 @@
       "google_reviews": 61,
       "reviews": [
         {
-          "stars": 5,
-          "text": "First time playing and broke 90 for first time. Open yet challenging fairways. Conditions were nice. Got a free Hot dog and fries with October Fest which was super generous of the club to do. Really nice staff and greens were in great condition. Good selection of drinks too ; )",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 2,
           "text": "I havent played there yet but the prices are quite high for a course that isnt even rated 4 stars. How do you justify those prices?",
           "source": "Google Reviews"
@@ -6131,6 +6095,11 @@
           "stars": 4,
           "text": "Always enjoy this track. Its a true links style course that can be pretty tricky when having to deal with the wind. Makes you feel like you are playing your own Open Championship. Pace of play can be a bit slow at times. Usually have some pretty decent specials throughout the …",
           "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "First time playing and broke 90 for first time. Open yet challenging fairways. Conditions were nice. Got a free Hot dog and fries with October Fest which was super generous of the club to do. Really nice staff and greens were in great condition. Good selection of drinks too ; )",
+          "source": "Google Reviews"
         }
       ],
       "stops": [
@@ -6142,8 +6111,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 5:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 5:00 PM…"
         },
         {
           "icon": "🥐",
@@ -6153,8 +6121,7 @@
           "desc": "",
           "rating": 4.7,
           "badge": "Bakery",
-          "hours": "Hours unavailable",
-          "color": "#d4860a"
+          "hours": "Hours unavailable"
         },
         {
           "icon": "🍦",
@@ -6164,19 +6131,7 @@
           "desc": "",
           "rating": 4.6,
           "badge": "Ice Cream",
-          "hours": "Daily 1:00 – 8:00 PM",
-          "color": "#e05a8a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Tim Hortons",
-          "addr": "12105 Main St W, Winchester",
-          "dist": "6 min from the course",
-          "desc": "",
-          "rating": 3.7,
-          "badge": "Bakery",
-          "hours": "Daily 5:00 AM – 10:00 PM",
-          "color": "#d4860a"
+          "hours": "Daily 1:00 – 8:00 PM"
         },
         {
           "icon": "🥐",
@@ -6186,8 +6141,17 @@
           "desc": "",
           "rating": 4.3,
           "badge": "Bakery",
-          "hours": "Monday: 7:00 AM – 7:00 PM · Tuesday: 7:00 AM – 7:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 7:00 AM – 7:00 PM · Tuesday: 7:00 AM – 7:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "ABU ALI BAKERY AND PIZZA",
+          "addr": "8228 Victoria St UNIT 100, Ottawa",
+          "dist": "13 min from the course",
+          "desc": "",
+          "rating": 4.9,
+          "badge": "Bakery",
+          "hours": "Monday: 8:00 AM – 6:00 PM · Tuesday: 8:00 AM – 6:00 PM…"
         }
       ]
     }
@@ -6555,13 +6519,13 @@
       "google_reviews": 412,
       "reviews": [
         {
-          "stars": 5,
-          "text": "Been going to metcalf just about every weekend since this season started. Amazing course, challenging yet so much fun. I played yesterday the 10th and that’s what sparked this review. The changing of leafs makes this course even more beautiful. The greens are immaculate always…",
+          "stars": 4,
+          "text": "A very nice golf course in good shape. There’s lots of challenges with doglegs, narrow fairways and speedy greens. There’s lots service is friendly and you actually see effective Marshall’s. I’d recommend to visit if in town.",
           "source": "Google Reviews"
         },
         {
-          "stars": 4,
-          "text": "A very nice golf course in good shape. There’s lots of challenges with doglegs, narrow fairways and speedy greens. There’s lots service is friendly and you actually see effective Marshall’s. I’d recommend to visit if in town.",
+          "stars": 5,
+          "text": "Been going to metcalf just about every weekend since this season started. Amazing course, challenging yet so much fun. I played yesterday the 10th and that’s what sparked this review. The changing of leafs makes this course even more beautiful. The greens are immaculate always…",
           "source": "Google Reviews"
         },
         {
@@ -6580,19 +6544,7 @@
           "source": "Google Reviews"
         }
       ],
-      "stops": [
-        {
-          "icon": "🍦",
-          "name": "Campbell's Metcalfe Variety",
-          "addr": "8196 Victoria St, Metcalfe",
-          "dist": "5 min from the course",
-          "desc": "",
-          "rating": 3.5,
-          "badge": "Ice Cream",
-          "hours": "Daily 6:00 AM – 9:00 PM",
-          "color": "#e05a8a"
-        }
-      ]
+      "stops": []
     }
   },
   "Sand Point Golf & Country Club": {
@@ -6958,16 +6910,6 @@
       "google_reviews": 149,
       "reviews": [
         {
-          "stars": 5,
-          "text": "Amazing course and very affordable prices! Thank you for such a great time! Had a very nice putting and chipping area, I will be back to play again!!",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 5,
-          "text": "This is my first time golfing Sand Point.  Challenging course, tough greens.\n\nSoldi value, and great views of the Ottawa River from some holes.\n\nA dog leg left and a dog leg right (both par 4s) make you strategically pit your driver away  bot on all other parts 4s and 5s, you …",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 3,
           "text": "Gorgeous views and great staff with an excellent bar and restaurant. Fairways and greens could've been in better condition but o believe this is peak season (Mid June). Make sure to play 18 as the turn has some of the best views of the river.",
           "source": "Google Reviews"
@@ -6975,6 +6917,16 @@
         {
           "stars": 4,
           "text": "Decent track in the Ottawa valley. Course is in good shape. Not a lot of overly challenging holes. A couple long par fours. A few easy doglegs. Not too much in the way of hazards in play. Staff was all friendly. Course is very open. The rough is fairly thick throughout. They m…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "Amazing course and very affordable prices! Thank you for such a great time! Had a very nice putting and chipping area, I will be back to play again!!",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "This is my first time golfing Sand Point.  Challenging course, tough greens.\n\nSoldi value, and great views of the Ottawa River from some holes.\n\nA dog leg left and a dog leg right (both par 4s) make you strategically pit your driver away  bot on all other parts 4s and 5s, you …",
           "source": "Google Reviews"
         },
         {
@@ -6992,41 +6944,7 @@
           "desc": "",
           "rating": 5,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Mark's NOFRILLS Arnprior",
-          "addr": "39 Winners Cir Dr Rr 3, Arnprior",
-          "dist": "12 min from the course",
-          "desc": "",
-          "rating": 4.1,
-          "badge": "Bakery",
-          "hours": "Daily 8:00 AM – 9:00 PM",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🍦",
-          "name": "Mallard's Milk Bar",
-          "addr": "55 John St N, Arnprior",
-          "dist": "10 min from the course",
-          "desc": "",
-          "rating": 5,
-          "badge": "Ice Cream",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#e05a8a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Ottawa Valley Coffee Arnprior",
-          "addr": "32 Elgin St W, Arnprior",
-          "dist": "10 min from the course",
-          "desc": "",
-          "rating": 4.7,
-          "badge": "Bakery",
-          "hours": "Daily 8:30 AM – 5:00 PM",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
         },
         {
           "icon": "🥐",
@@ -7036,8 +6954,37 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 5:00 PM · Tuesday: 8:00 AM – 5:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 5:00 PM · Tuesday: 8:00 AM – 5:00 PM…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Dairy Queen (Treat)",
+          "addr": "136 Madawaska Blvd, Arnprior",
+          "dist": "11 min from the course",
+          "desc": "",
+          "rating": 4,
+          "badge": "Ice Cream",
+          "hours": "Daily 11:00 AM – 9:00 PM"
+        },
+        {
+          "icon": "🍰",
+          "name": "Chocolade Huis",
+          "addr": "75 Elgin St W, Arnprior",
+          "dist": "10 min from the course",
+          "desc": "",
+          "rating": 5,
+          "badge": "Dessert",
+          "hours": "Daily 10:00 AM – 8:00 PM"
+        },
+        {
+          "icon": "🍦",
+          "name": "Flavour Container",
+          "addr": "160 John St N, Arnprior",
+          "dist": "10 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Ice Cream",
+          "hours": "Monday: 2:30 – 8:00 PM · Tuesday: 12:00 – 8:00 PM…"
         }
       ]
     }
@@ -7568,8 +7515,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
         },
         {
           "icon": "🥐",
@@ -7579,8 +7525,7 @@
           "desc": "",
           "rating": 5,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 8:00 AM – 4:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: 8:00 AM – 4:00 PM…"
         },
         {
           "icon": "🥐",
@@ -7590,30 +7535,27 @@
           "desc": "",
           "rating": 5,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 9:30 AM – 5:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: 9:30 AM – 5:00 PM…"
         },
         {
           "icon": "🥐",
-          "name": "Cobden Grocery Mart",
-          "addr": "54 Main St, Cobden",
-          "dist": "5 min from the course",
+          "name": "The Country Garden",
+          "addr": "3024 Renfrew County Rd 4, Foresters Falls",
+          "dist": "8 min from the course",
           "desc": "",
-          "rating": 3.6,
+          "rating": 4.9,
           "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 9:00 PM · Tuesday: 8:00 AM – 9:00 PM…",
-          "color": "#d4860a"
+          "hours": "Daily Open 24 hours"
         },
         {
-          "icon": "🥐",
-          "name": "Tim Hortons",
-          "addr": "9 Pembroke St, Cobden",
+          "icon": "🍦",
+          "name": "The Silly Scoop",
+          "addr": "33 Main St Unit 1, Cobden",
           "dist": "5 min from the course",
           "desc": "",
-          "rating": 3.7,
-          "badge": "Bakery",
-          "hours": "Monday: 6:00 AM – 11:00 PM · Tuesday: 6:00 AM – 11:00 PM…",
-          "color": "#d4860a"
+          "rating": 4.4,
+          "badge": "Ice Cream",
+          "hours": "Monday: Closed · Tuesday: Closed…"
         }
       ]
     }
@@ -7982,11 +7924,6 @@
       "google_reviews": 393,
       "reviews": [
         {
-          "stars": 5,
-          "text": "Best ball tournament for Ride For Dad. Course was great. Staff were fabulous. The food was so good.... wraps and home fries for breakfast. We had a choice of pasta, I had lasagna with salad for our meal after our round of golf. Topped off with endless table of deserts. Excelle…",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 3,
           "text": "Decent course in okay condition. At almost $100 for the round I was somewhat disappointed with the condition of the fairways and greens. There are definitely better options around for the same or lower green fee.",
           "source": "Google Reviews"
@@ -8003,33 +7940,16 @@
         },
         {
           "stars": 5,
+          "text": "Best ball tournament for Ride For Dad. Course was great. Staff were fabulous. The food was so good.... wraps and home fries for breakfast. We had a choice of pasta, I had lasagna with salad for our meal after our round of golf. Topped off with endless table of deserts. Excelle…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
           "text": "I Had my babyshower here, and it was perfect! The venue was large enough to hold all my 57 guests and have them seated at tables for a lunch. The food they provided was amazing! All my guest enjoyed and loved it!. My family was able to arrive ahead of time to set decorations, …",
           "source": "Google Reviews"
         }
       ],
       "stops": [
-        {
-          "icon": "🥐",
-          "name": "Daniel's NOFRILLS Casselman",
-          "addr": "726 Principale St Rr 3, Casselman",
-          "dist": "6 min from the course",
-          "desc": "",
-          "rating": 4.2,
-          "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 9:00 PM · Tuesday: 8:00 AM – 9:00 PM…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Tim Hortons",
-          "addr": "2 Racine St, Casselman",
-          "dist": "5 min from the course",
-          "desc": "",
-          "rating": 4.1,
-          "badge": "Bakery",
-          "hours": "Daily Open 24 hours",
-          "color": "#d4860a"
-        },
         {
           "icon": "🥐",
           "name": "Kakes by Kal",
@@ -8038,8 +7958,7 @@
           "desc": "",
           "rating": 5,
           "badge": "Bakery",
-          "hours": "Daily 9:00 AM – 6:00 PM",
-          "color": "#d4860a"
+          "hours": "Daily 9:00 AM – 6:00 PM"
         }
       ]
     }
@@ -8434,39 +8353,6 @@
       ],
       "stops": [
         {
-          "icon": "🥐",
-          "name": "Chris & Tanya's NOFRILLS Renfrew",
-          "addr": "680 O'Brien Rd, Renfrew",
-          "dist": "15 min from the course",
-          "desc": "",
-          "rating": 4.4,
-          "badge": "Bakery",
-          "hours": "Monday: 7:00 AM – 9:00 PM · Tuesday: 7:00 AM – 9:00 PM…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Bonnechere Bakery & Bistro and Bonnechere at Home",
-          "addr": "258 Raglan St S, Renfrew",
-          "dist": "11 min from the course",
-          "desc": "",
-          "rating": 4.7,
-          "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 7:00 AM – 4:30 PM…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🍦",
-          "name": "Dairy Queen Grill & Chill",
-          "addr": "401 O'Brien Rd, Renfrew",
-          "dist": "13 min from the course",
-          "desc": "",
-          "rating": 4,
-          "badge": "Ice Cream",
-          "hours": "Daily 11:00 AM – 9:00 PM",
-          "color": "#e05a8a"
-        },
-        {
           "icon": "🍦",
           "name": "The Valley Scoop",
           "addr": "117 Raglan St S, Renfrew",
@@ -8474,19 +8360,37 @@
           "desc": "",
           "rating": 5,
           "badge": "Ice Cream",
-          "hours": "Hours unavailable",
-          "color": "#e05a8a"
+          "hours": "Hours unavailable"
         },
         {
           "icon": "🥐",
-          "name": "Tim Hortons",
-          "addr": "383 Stewart St, Renfrew",
-          "dist": "9 min from the course",
+          "name": "Sour Jo’s Sourdough Bakery",
+          "addr": "59 Main St, Cobden",
+          "dist": "17 min from the course",
           "desc": "",
-          "rating": 3.9,
+          "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Daily Open 24 hours",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
+        },
+        {
+          "icon": "🍦",
+          "name": "J & J's Chocolate Sensations",
+          "addr": "204 Raglan St S, Renfrew",
+          "dist": "10 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Ice Cream",
+          "hours": "Monday: Closed · Tuesday: 11:00 AM – 6:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Sconed Bakeshop",
+          "addr": "33 Main St, Cobden",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 5,
+          "badge": "Bakery",
+          "hours": "Monday: Closed · Tuesday: 8:00 AM – 4:00 PM…"
         }
       ]
     }
@@ -8859,8 +8763,8 @@
       "google_reviews": 277,
       "reviews": [
         {
-          "stars": 5,
-          "text": "Well loved our time here, loved our one bedroom villa. We stayed for 3 days but we had originally only booked two nights but wanted to stay an extra to do more sledding. The trails were magnificent so we just couldn’t leave yet.\n\nOur villa was so clean and well appointed. We d…",
+          "stars": 1,
+          "text": "A friend and I drove over a hour and were excited to check out this course on a beautiful fall sunday morning.  We were riding and were paired up with another twosome walking and teed off.  Upon checking in there was a dog off leash roaming around that seemed to belong to the …",
           "source": "Google Reviews"
         },
         {
@@ -8869,34 +8773,23 @@
           "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "A friend and I drove over a hour and were excited to check out this course on a beautiful fall sunday morning.  We were riding and were paired up with another twosome walking and teed off.  Upon checking in there was a dog off leash roaming around that seemed to belong to the …",
+          "stars": 4,
+          "text": "I have used Calabogie Highland golf resort several times over the years for my annual Swine Cup golf tournament. The staff are amazing, the course is challenging and the villas for a stayover are perfect. The units are showing some wear and tear over the years and could use so…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "Well loved our time here, loved our one bedroom villa. We stayed for 3 days but we had originally only booked two nights but wanted to stay an extra to do more sledding. The trails were magnificent so we just couldn’t leave yet.\n\nOur villa was so clean and well appointed. We d…",
           "source": "Google Reviews"
         },
         {
           "stars": 5,
           "text": "What an amazing place in Barryvale, very close to Calabogie.  Golf course, villa, the water and the Social House are all within walking distance.  The service was excellent and the amenities were very good.  I will return for sure.",
           "source": "Google Reviews"
-        },
-        {
-          "stars": 4,
-          "text": "I have used Calabogie Highland golf resort several times over the years for my annual Swine Cup golf tournament. The staff are amazing, the course is challenging and the villas for a stayover are perfect. The units are showing some wear and tear over the years and could use so…",
-          "source": "Google Reviews"
         }
       ],
       "fun_fact": "Laid-back resort featuring suites, 2 golf courses and a casual restaurant with a bar.",
       "stops": [
-        {
-          "icon": "🍦",
-          "name": "Mad River Paddle Co.",
-          "addr": "1022 Madawaska St, Calabogie",
-          "dist": "9 min from the course",
-          "desc": "",
-          "rating": 5,
-          "badge": "Ice Cream",
-          "hours": "Hours unavailable",
-          "color": "#e05a8a"
-        },
         {
           "icon": "☕",
           "name": "Oh-el-la Cafe Calabogie",
@@ -8905,8 +8798,7 @@
           "desc": "",
           "rating": 4.9,
           "badge": "Café",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#2a8a6a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
         }
       ]
     }
@@ -9274,13 +9166,13 @@
       "google_reviews": 440,
       "reviews": [
         {
-          "stars": 4,
-          "text": "I'm a new member here this year. Opening conditions were extremely wet and hole 17 is likely a growing concern year after year but they are managing as best they can.\n\nGreens were very slow to start but since mid Jun they have been getting quicker. I wouldn't call them fast bu…",
+          "stars": 3,
+          "text": "Course was in fine condition for being late in the season. Lots of water on the course today unfortunately. But that brought ducks & geese and even turkey vultures so that was nice lol. You gotta put up with A LOT of airplanes passing low overhead. Very friendly and helpful ma…",
           "source": "Google Reviews"
         },
         {
-          "stars": 5,
-          "text": "Fun course with a nice design. Great value at under $50 to walk 18 on a weekend. Course in great shape as of mid October",
+          "stars": 4,
+          "text": "I'm a new member here this year. Opening conditions were extremely wet and hole 17 is likely a growing concern year after year but they are managing as best they can.\n\nGreens were very slow to start but since mid Jun they have been getting quicker. I wouldn't call them fast bu…",
           "source": "Google Reviews"
         },
         {
@@ -9290,27 +9182,16 @@
         },
         {
           "stars": 5,
-          "text": "Great place to golf. Not too busy so good for beginners but the first 3 holes on the 9 hole course are very tough. Fun course though with some tight fairways, nice greens, and a nice Mia of water and sand features.",
+          "text": "Fun course with a nice design. Great value at under $50 to walk 18 on a weekend. Course in great shape as of mid October",
           "source": "Google Reviews"
         },
         {
-          "stars": 3,
-          "text": "Course was in fine condition for being late in the season. Lots of water on the course today unfortunately. But that brought ducks & geese and even turkey vultures so that was nice lol. You gotta put up with A LOT of airplanes passing low overhead. Very friendly and helpful ma…",
+          "stars": 5,
+          "text": "Great place to golf. Not too busy so good for beginners but the first 3 holes on the 9 hole course are very tough. Fun course though with some tight fairways, nice greens, and a nice Mia of water and sand features.",
           "source": "Google Reviews"
         }
       ],
       "stops": [
-        {
-          "icon": "🍰",
-          "name": "Juice Dudez Bank Street",
-          "addr": "1702 Bank St, Ottawa",
-          "dist": "17 min from the course",
-          "desc": "",
-          "rating": 4.8,
-          "badge": "Dessert",
-          "hours": "Monday: 10:00 AM – 1:00 AM · Tuesday: 10:00 AM – 1:00 AM…",
-          "color": "#b8408a"
-        },
         {
           "icon": "🥐",
           "name": "Gingerbread Man",
@@ -9319,8 +9200,17 @@
           "desc": "",
           "rating": 4.9,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Purple Cow Chocolate And Ice Cream",
+          "addr": "111 Colonnade Rd, Nepean",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Ice Cream",
+          "hours": "Monday: 10:00 AM – 9:00 PM · Tuesday: 10:00 AM – 9:00 PM…"
         }
       ]
     }
@@ -9683,9 +9573,7 @@
     },
     "drive_min_from_kanata": 35,
     "meta": {
-      "lat": 51.253775,
-      "lng": -85.323214,
-      "address": "Ontario, Canada",
+      "address": "915 Chem. du Mont-des-Cascades, Cantley, QC J8V 3B2, Canada",
       "google_rating": 4.3,
       "google_reviews": 313,
       "reviews": [
@@ -9715,7 +9603,60 @@
           "source": "Google Reviews"
         }
       ],
-      "stops": []
+      "stops": [
+        {
+          "icon": "🥐",
+          "name": "Boulangerie Wakefield",
+          "addr": "813 Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "13 min from the course",
+          "desc": "",
+          "rating": 4.6,
+          "badge": "Bakery",
+          "hours": "Monday: 7:00 AM – 8:00 PM · Tuesday: 7:00 AM – 8:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Pipolinka Bakery",
+          "addr": "757B Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "14 min from the course",
+          "desc": "",
+          "rating": 4.7,
+          "badge": "Bakery",
+          "hours": "Monday: Closed · Tuesday: Closed…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Wakefield MaBoule; crème glacée/ice cream",
+          "addr": "761 Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "14 min from the course",
+          "desc": "",
+          "rating": 4.6,
+          "badge": "Ice Cream",
+          "hours": "Hours unavailable"
+        },
+        {
+          "icon": "🍦",
+          "name": "Sur la Lune - Crème glacée",
+          "addr": "31A Chem. de la Vall. de Wakefield, Wakefield, QC J0X 3G0, Canada",
+          "dist": "15 min from the course",
+          "desc": "",
+          "rating": 4.4,
+          "badge": "Ice Cream",
+          "hours": "Hours unavailable"
+        },
+        {
+          "icon": "🍰",
+          "name": "La Confiserie Wakefield Confectionery - Homemade treats and retro candy",
+          "addr": "817 Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "13 min from the course",
+          "desc": "",
+          "rating": 4.8,
+          "badge": "Dessert",
+          "hours": "Monday: Closed · Tuesday: Closed…"
+        }
+      ],
+      "lat": 45.607826,
+      "lng": -75.884628
     }
   },
   "Whitetail Golf Club": {
@@ -10054,8 +9995,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
         },
         {
           "icon": "🍦",
@@ -10065,8 +10005,7 @@
           "desc": "",
           "rating": 5,
           "badge": "Ice Cream",
-          "hours": "Hours unavailable",
-          "color": "#e05a8a"
+          "hours": "Hours unavailable"
         },
         {
           "icon": "🥐",
@@ -10076,19 +10015,17 @@
           "desc": "",
           "rating": 5,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 8:00 AM – 4:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: 8:00 AM – 4:00 PM…"
         },
         {
-          "icon": "☕",
-          "name": "Fifth Chute Coffee",
-          "addr": "291 Bridge St, Eganville",
-          "dist": "7 min from the course",
+          "icon": "🍦",
+          "name": "Jay's ice cream",
+          "addr": "224 Bonnechere St W, Eganville",
+          "dist": "8 min from the course",
           "desc": "",
-          "rating": 4.8,
-          "badge": "Café",
-          "hours": "Monday: Closed · Tuesday: 8:00 AM – 4:00 PM…",
-          "color": "#2a8a6a"
+          "rating": 3.5,
+          "badge": "Ice Cream",
+          "hours": "Daily 12:00 – 9:00 PM"
         }
       ]
     }
@@ -10449,20 +10386,18 @@
     },
     "drive_min_from_kanata": 80,
     "meta": {
-      "lat": 51.253775,
-      "lng": -85.323214,
-      "address": "Ontario, Canada",
+      "address": "154 Caldwell St, Lanark, ON K0G 1K0, Canada",
       "google_rating": 4.6,
       "google_reviews": 181,
       "reviews": [
         {
-          "stars": 5,
-          "text": "A beautiful location and beautiful day for a beautiful wedding!! The staff were incredibly nice and professional. Thank you for an amazing time!",
+          "stars": 4,
+          "text": "Well prepared all around. Verging 5🌟 !!!Playability/speed would improve with additional score card or course markings for layout, hazards, distances considering blind shots. Definitely a cart course on hot days - loads of elevation changes.",
           "source": "Google Reviews"
         },
         {
-          "stars": 4,
-          "text": "Well prepared all around. Verging 5🌟 !!!Playability/speed would improve with additional score card or course markings for layout, hazards, distances considering blind shots. Definitely a cart course on hot days - loads of elevation changes.",
+          "stars": 5,
+          "text": "A beautiful location and beautiful day for a beautiful wedding!! The staff were incredibly nice and professional. Thank you for an amazing time!",
           "source": "Google Reviews"
         },
         {
@@ -10481,7 +10416,60 @@
           "source": "Google Reviews"
         }
       ],
-      "stops": []
+      "stops": [
+        {
+          "icon": "🍰",
+          "name": "Village Treats",
+          "addr": "70 George St, Lanark",
+          "dist": "3 min from the course",
+          "desc": "",
+          "rating": 4.9,
+          "badge": "Dessert",
+          "hours": "Daily 8:00 AM – 4:00 PM"
+        },
+        {
+          "icon": "🍦",
+          "name": "Balderson Village Cheese Store",
+          "addr": "1410 511, Balderson",
+          "dist": "7 min from the course",
+          "desc": "",
+          "rating": 4.3,
+          "badge": "Ice Cream",
+          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 5:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Perth Pie Co.",
+          "addr": "12 Gore St E, Perth",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 4.7,
+          "badge": "Bakery",
+          "hours": "Monday: 8:00 AM – 4:00 PM · Tuesday: 8:00 AM – 4:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "North Folk Cafe",
+          "addr": "1 Gore St W, Perth",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 4.6,
+          "badge": "Bakery",
+          "hours": "Monday: 9:00 AM – 3:00 PM · Tuesday: 9:00 AM – 3:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Perth Chocolate Works",
+          "addr": "17 Wilson St E, Perth",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 4.8,
+          "badge": "Bakery",
+          "hours": "Monday: 11:00 AM – 5:00 PM · Tuesday: 10:00 AM – 5:00 PM…"
+        }
+      ],
+      "lat": 45.012468,
+      "lng": -76.360597
     }
   },
   "Château Cartier": {
@@ -10734,108 +10722,47 @@
       "address": "1170 Chemin Aylmer, Gatineau, QC",
       "lat": 45.3956,
       "lng": -75.8466,
-      "google_rating": 3.6,
-      "google_reviews": 27,
+      "google_rating": 3.9,
+      "google_reviews": 1358,
       "booking": "chronogolf",
       "fun_fact": "Château Cartier Golf Course opened in <strong>1923</strong> and sits on the banks of the <strong>Ottawa River</strong>, offering views of the Champlain Bridge rapids and Parliament Hill's Peace Tower. It's considered one of Canada's best downtown golf resort experiences.",
       "reviews": [
         {
           "stars": 1,
-          "text": "Fairways lacking grass, tee boxes essentially no grass and hard to place your tee, greens not well kept, bumpy. Same high-end price though!",
-          "source": "GolfPass"
+          "text": "By far one of the worst hotel stays I've ever had.\nWe checked in at about 10pm on a Wednesday.  When we got to the room I used the washroom.  The toilet paper holder was broken, the toilet paper was on the floor and the sink faucet was also broken.  The handle of the faucet wa…",
+          "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "Half of the yardage markers on the tees are facing the wrong way, and some holes almost seem to overlap. Dangerous.",
-          "source": "GolfPass"
+          "stars": 2,
+          "text": "My fiancé booked us a weekend getaway at the spa and a night at the hotel for my birthday and to celebrate our engagement. The spa was amazing but the hotel was very underwhelming for the price we paid. He mentioned it was for my birthday and to celebrate our engagement. Howev…",
+          "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "The condos have taken over! The first and 18th holes are terrible. Hole 18 is somewhere around 50-60 yards long.",
-          "source": "TripAdvisor"
+          "stars": 4,
+          "text": "Just enjoyed a very nice stay at Chateau Cartier, which was part of a spa gift package. The booking couldn't have been easier, and the staff were friendly and very accommodating. We booked a King suite, and it was spotless, and we were able to check in early. The hotel is olde…",
+          "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "I am always concerned before crossing the road along the river to play the 4th hole as car traffic is important and people drive like maniacs.",
-          "source": "TripAdvisor"
+          "stars": 4,
+          "text": "Love the location. Enjoyed services at the spa and Keona. Appreciate that you use bottles of shampoo, conditioner and body wash. Suggestions: change ripped lamp shade, mirror light is not working, doors are very dirty especially near the handles. The room would need some minor…",
+          "source": "Google Reviews"
         },
         {
-          "stars": 1,
-          "text": "The folks at Cartier need to take a lesson in customer service and get their business straightened out with Chrono Golf. Avoid this golf course.",
-          "source": "TripAdvisor"
-        },
-        {
-          "stars": 1,
-          "text": "Ok but not in great shape. There are a lot of overlapping holes which I think is dangerous. A few interesting holes but too many dull ones.",
-          "source": "GolfPass"
+          "stars": 4,
+          "text": "A cozy, old but well maintained hotel. Don't go expecting modern or luxurious facilities, and you won't be disappointed! Has all the basics and more, with gym, breakfast, in addition to the Spa and Golf based on the season.\n\nRoom got a little bit of a damp smell, nothing that …",
+          "source": "Google Reviews"
         }
       ],
       "stops": [
         {
-          "icon": "🥐",
-          "name": "Boulangerie Aux Deux Frères",
-          "addr": "146 Rue Principale, Aylmer",
-          "dist": "5 min from the course",
-          "desc": "4.9 stars from 474 reviews. Best croissants and chocolatines in Aylmer. Small place, fresh baked daily — get there before they sell out.",
-          "rating": 4.9,
-          "badge": "Bakery",
-          "hours": "Wed–Sun 9am–5/6pm · Closed Mon & Tue",
-          "color": "#e05a8a"
-        },
-        {
-          "icon": "🎂",
-          "name": "Maison Oddo",
-          "addr": "260 Bd Saint-Raymond, Gatineau",
-          "dist": "7 min from the course",
-          "desc": "One of the best patisseries in the Ottawa-Gatineau region. A French diplomat reportedly drives 25 minutes every day just for the croissants. Borderline unreasonable.",
-          "rating": 4.7,
-          "badge": "Patisserie",
-          "hours": "Open daily 8am–7pm",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "☕",
-          "name": "les cafés Aroma Select",
-          "addr": "200 Rue Principale, Aylmer",
-          "dist": "5 min from the course",
-          "desc": "Best coffee in the NCR according to regulars. Freshly roasted and ground on-site. Staff match you to the perfect roast. Also carries tea, spices, and chocolate.",
-          "rating": 4.9,
-          "badge": "Coffee Roaster",
-          "hours": "Mon–Fri 9am–5pm · Sat 8:30am–4pm · Closed Sun",
-          "color": "#2a8a6a"
-        },
-        {
-          "icon": "☕",
-          "name": "Café Mulligan",
-          "addr": "149 Rue Principale, Aylmer",
-          "dist": "5 min from the course",
-          "desc": "Cosy locally owned café with heart and soul. Exceptional mochas, fresh food, gluten-free options. Closes at 3pm — head straight there after the round.",
-          "rating": 4.6,
-          "badge": "Café",
-          "hours": "Mon–Fri 8am–3pm · Sat–Sun 9am–3pm",
-          "color": "#7a5cc4"
-        },
-        {
-          "icon": "🍫",
-          "name": "Chocolats Favoris",
-          "addr": "181 Rue Principale, Aylmer",
+          "icon": "🍦",
+          "name": "Potager Eardley",
+          "addr": "398 Chem. Eardley, Gatineau, QC J9J 2Y9, Canada",
           "dist": "6 min from the course",
-          "desc": "Specialty chocolate-dipped ice cream. The dip is absurdly thick — get the cone filled with fondant at the bottom for the full experience. Order a small.",
-          "rating": 4.4,
+          "desc": "",
+          "rating": 4.5,
           "badge": "Ice Cream",
-          "hours": "Daily 10am–9pm (Fri–Sat to 9:30pm)",
-          "color": "#c4401a"
-        },
-        {
-          "icon": "🎂",
-          "name": "Fidélice – Artisan gourmet",
-          "addr": "425 Chemin Vanier, Gatineau",
-          "dist": "12 min from the course",
-          "desc": "Stunning artisan cakes and pastries. The chocolate mousse cake Évasion is legendary. Gluten-free options available. Worth the slightly longer drive.",
-          "rating": 4.6,
-          "badge": "Patisserie",
-          "hours": "Tue–Sun 8am–5/7pm · Closed Mon",
-          "color": "#e05a8a"
+          "hours": "Hours unavailable"
         }
       ]
     },
@@ -11305,39 +11232,90 @@
     },
     "drive_min_from_kanata": 45,
     "meta": {
-      "lat": 51.253775,
-      "lng": -85.323214,
-      "address": "Ontario, Canada",
-      "google_rating": 4.7,
-      "google_reviews": 211,
+      "address": "465 Ch Edelweiss, Wakefield, QC J0X 3G0, Canada",
+      "google_rating": 4,
+      "google_reviews": 176,
       "reviews": [
         {
-          "stars": 5,
-          "text": "I've played courses across the state and many of the best ones throughout the country and Edelweiss is one of my favorites. Top notch staff, course, food, drinks, fun, and at a price that is so much better than anything comparable. This place used to be a hidden gem. Now's it'…",
+          "stars": 3,
+          "text": "Awesome place for tubing, we had lots of fun.\nStaff are very welcoming and helpful.\n\nThe only thing that disappointed us was the fact that one the websites it is mentioned (as well as photos) that there are 'family' tubes - with space for 3 persons. In reality, such thing didn…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 3,
+          "text": "Sadly, I was really disappointed in the condition of this golf course.\nIt was well overpriced for what you get for your buck....especially after driving nearly 1 hour to get there.\nDon't get me wrong, I really love the layout of the course & the staff are nice & courteous.\nNot…",
           "source": "Google Reviews"
         },
         {
           "stars": 5,
-          "text": "Had a great time! Course was fun! Staff was great! Greens were in great shape! As a single was easily incorporated into a 3some and had a blast. Cart girl was awesome nice and friendly they have New Glarus on Tap!",
+          "text": "Best customer service experience I’ve had at a golf course! The staff were really professional, accommodating, welcoming and eager to help. The course was also beautiful, especially in the fall! 🍁",
           "source": "Google Reviews"
         },
         {
           "stars": 5,
-          "text": "Scenic course near New Glarus.  Challenging and fair.  I have played the course many times.  I like it and will be back.  Nice bar area.  Did not have any food, but heard from others there that food was good.  Worth a visit.",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 4,
-          "text": "Beautiful views of southern Wisconsin. The course takes 2nd or 3rd to the views. Uneven tee boxes, and super bumpy greens. Overall a very short course, so if you want to shoot a lower score this is a good option. Not a ton of characters.",
+          "text": "Friendly staff and a challenging course that is in great shape for the price. Nothing beats fall golf here.",
           "source": "Google Reviews"
         },
         {
           "stars": 5,
-          "text": "Fun and challenging course, some holes you really need to play position golf if you want to score well!",
+          "text": "Dear Golf Edelweiss\n\nSuch a wonderful day 9/15/23 !  😎\n\nThank you sincerely to Gabby, Duncan & the whole Golf Edelweiss Team for the gracious hospitality.\n\nComing from Vermont we truly appreciated your scenic (Hole 14 !!) & supremely well cared for Course.  Playing the Back 9 …",
           "source": "Google Reviews"
         }
       ],
-      "stops": []
+      "stops": [
+        {
+          "icon": "🥐",
+          "name": "Boulangerie Wakefield",
+          "addr": "813 Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "7 min from the course",
+          "desc": "",
+          "rating": 4.6,
+          "badge": "Bakery",
+          "hours": "Monday: 7:00 AM – 8:00 PM · Tuesday: 7:00 AM – 8:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Pipolinka Bakery",
+          "addr": "757B Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "8 min from the course",
+          "desc": "",
+          "rating": 4.7,
+          "badge": "Bakery",
+          "hours": "Monday: Closed · Tuesday: Closed…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Wakefield MaBoule; crème glacée/ice cream",
+          "addr": "761 Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "8 min from the course",
+          "desc": "",
+          "rating": 4.6,
+          "badge": "Ice Cream",
+          "hours": "Hours unavailable"
+        },
+        {
+          "icon": "🍦",
+          "name": "Sur la Lune - Crème glacée",
+          "addr": "31A Chem. de la Vall. de Wakefield, Wakefield, QC J0X 3G0, Canada",
+          "dist": "9 min from the course",
+          "desc": "",
+          "rating": 4.4,
+          "badge": "Ice Cream",
+          "hours": "Hours unavailable"
+        },
+        {
+          "icon": "🍰",
+          "name": "La Confiserie Wakefield Confectionery - Homemade treats and retro candy",
+          "addr": "817 Chem. Riverside, Wakefield, QC J0X 3G0, Canada",
+          "dist": "7 min from the course",
+          "desc": "",
+          "rating": 4.8,
+          "badge": "Dessert",
+          "hours": "Monday: Closed · Tuesday: Closed…"
+        }
+      ],
+      "lat": 45.651682,
+      "lng": -75.862258
     }
   },
   "Madawaska Golf Club": {
@@ -11709,6 +11687,11 @@
           "source": "Google Reviews"
         },
         {
+          "stars": 4,
+          "text": "We went at 4 pm for Twilight and it was nice and quiet as far as not being rushed etc. Twisted pines wasn't in bad shape. If you do go fo Twilight definitely bring your bug spray!",
+          "source": "Google Reviews"
+        },
+        {
           "stars": 5,
           "text": "I’m a very new golfer and I sincerely appreciate everything about Madawaska Golf Course. Locally owned by Rick Munro, this club is run very well. The staff team are extremely friendly and always accommodating. Sumac is a par 3 and perfect for me to learn the sport and my clubs…",
           "source": "Google Reviews"
@@ -11716,11 +11699,6 @@
         {
           "stars": 5,
           "text": "5 star for being the cheapest course around! If you want a quick round, and do not want to spend a lot of money, this course is great. I played their par 61 course as I try to improve my short game.",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 4,
-          "text": "We went at 4 pm for Twilight and it was nice and quiet as far as not being rushed etc. Twisted pines wasn't in bad shape. If you do go fo Twilight definitely bring your bug spray!",
           "source": "Google Reviews"
         },
         {
@@ -11738,41 +11716,7 @@
           "desc": "",
           "rating": 5,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Mark's NOFRILLS Arnprior",
-          "addr": "39 Winners Cir Dr Rr 3, Arnprior",
-          "dist": "7 min from the course",
-          "desc": "",
-          "rating": 4.1,
-          "badge": "Bakery",
-          "hours": "Daily 8:00 AM – 9:00 PM",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🍦",
-          "name": "Mallard's Milk Bar",
-          "addr": "55 John St N, Arnprior",
-          "dist": "8 min from the course",
-          "desc": "",
-          "rating": 5,
-          "badge": "Ice Cream",
-          "hours": "Monday: Closed · Tuesday: Closed…",
-          "color": "#e05a8a"
-        },
-        {
-          "icon": "🥐",
-          "name": "Ottawa Valley Coffee Arnprior",
-          "addr": "32 Elgin St W, Arnprior",
-          "dist": "7 min from the course",
-          "desc": "",
-          "rating": 4.7,
-          "badge": "Bakery",
-          "hours": "Daily 8:30 AM – 5:00 PM",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: Closed…"
         },
         {
           "icon": "🥐",
@@ -11782,8 +11726,37 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 5:00 PM · Tuesday: 8:00 AM – 5:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 5:00 PM · Tuesday: 8:00 AM – 5:00 PM…"
+        },
+        {
+          "icon": "🍦",
+          "name": "Dairy Queen (Treat)",
+          "addr": "136 Madawaska Blvd, Arnprior",
+          "dist": "5 min from the course",
+          "desc": "",
+          "rating": 4,
+          "badge": "Ice Cream",
+          "hours": "Daily 11:00 AM – 9:00 PM"
+        },
+        {
+          "icon": "🍦",
+          "name": "Scoop's Ice Cream",
+          "addr": "111 Waba Rd, Pakenham",
+          "dist": "12 min from the course",
+          "desc": "",
+          "rating": 4.6,
+          "badge": "Ice Cream",
+          "hours": "Daily 12:00 – 7:00 PM"
+        },
+        {
+          "icon": "🍰",
+          "name": "Chocolade Huis",
+          "addr": "75 Elgin St W, Arnprior",
+          "dist": "7 min from the course",
+          "desc": "",
+          "rating": 5,
+          "badge": "Dessert",
+          "hours": "Daily 10:00 AM – 8:00 PM"
         }
       ]
     }
@@ -11922,18 +11895,8 @@
       "fun_fact": "Designed by Canadian architect Graham Cooke. The original 18 (East/West) opened July 2007; the South nine was added in 2012, creating today’s 27-hole layout with three rotating combinations.",
       "reviews": [
         {
-          "stars": 5,
-          "text": "I really like this course and its pricing. It’s challenging, great views in the Fall, and everyone has always been super nice (even people I get paired up with). Also, during October, they do Oktoberfest and your round comes with a free hot dog. Let me tell you, the hot dog wa…",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 1,
           "text": "Easy, boring, wide open course. Hard to tell the rough from the fairways. As a single walking cost me 70$… same price as many private clubs this time of year, feeling ripped off.",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 5,
-          "text": "First time playing golf in Canada and found this course. Nice open course with some good hazards. Ended up in a 4 ball with other guys and had a great time. Fairways not the best, greens pretty good. Will definitely play here again if I visit Canada again.",
           "source": "Google Reviews"
         },
         {
@@ -11945,20 +11908,19 @@
           "stars": 1,
           "text": "Worst experience at a golf course yet, I overheard my server get tormented by their manager, from what I heard named was Morgan. Morgan was incredibly rude to not just me but also the other workers at the course. I would not recommend anyone come here for dining or buying anyt…",
           "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "I really like this course and its pricing. It’s challenging, great views in the Fall, and everyone has always been super nice (even people I get paired up with). Also, during October, they do Oktoberfest and your round comes with a free hot dog. Let me tell you, the hot dog wa…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "First time playing golf in Canada and found this course. Nice open course with some good hazards. Ended up in a 4 ball with other guys and had a great time. Fairways not the best, greens pretty good. Will definitely play here again if I visit Canada again.",
+          "source": "Google Reviews"
         }
       ],
       "stops": [
-        {
-          "icon": "🥐",
-          "name": "Mid-East Food Centre",
-          "addr": "1010 Belfast Rd, Ottawa",
-          "dist": "15 min from the course",
-          "desc": "",
-          "rating": 4.4,
-          "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 8:00 PM · Tuesday: 8:00 AM – 8:00 PM…",
-          "color": "#d4860a"
-        },
         {
           "icon": "🥐",
           "name": "Mr Kaak",
@@ -11967,8 +11929,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 7:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 7:00 PM…"
         },
         {
           "icon": "🥐",
@@ -11978,30 +11939,37 @@
           "desc": "",
           "rating": 4.6,
           "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 6:00 PM · Tuesday: 8:00 AM – 6:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 6:00 PM · Tuesday: 8:00 AM – 6:00 PM…"
         },
         {
           "icon": "🥐",
-          "name": "Loblaws Bank Street",
-          "addr": "2210C Bank St, Ottawa",
+          "name": "Sweet Castle",
+          "addr": "2446 Bank St Unit- 133, Ottawa",
+          "dist": "16 min from the course",
+          "desc": "",
+          "rating": 4.2,
+          "badge": "Bakery",
+          "hours": "Monday: 11:00 AM – 9:00 PM · Tuesday: 11:00 AM – 9:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "Patisserie Fine Delice Royal",
+          "addr": "1600 Forest Valley Dr, Orléans",
           "dist": "17 min from the course",
           "desc": "",
-          "rating": 4.1,
+          "rating": 4.5,
           "badge": "Bakery",
-          "hours": "Daily 7:00 AM – 10:00 PM",
-          "color": "#d4860a"
+          "hours": "Monday: Closed · Tuesday: 8:30 AM – 5:30 PM…"
         },
         {
-          "icon": "🥐",
-          "name": "The Green Door Restaurant & Bakery",
-          "addr": "198 Main St, Ottawa",
-          "dist": "18 min from the course",
+          "icon": "🍰",
+          "name": "Oh My Choco",
+          "addr": "1054B Ogilvie Rd, Gloucester",
+          "dist": "14 min from the course",
           "desc": "",
-          "rating": 4.6,
-          "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 11:30 AM – 8:30 PM…",
-          "color": "#d4860a"
+          "rating": 4.8,
+          "badge": "Dessert",
+          "hours": "Monday: 4:00 PM – 12:00 AM · Tuesday: 4:00 PM – 12:00 AM…"
         }
       ]
     },
@@ -12142,18 +12110,8 @@
       "fun_fact": "Designed by Canadian architect Graham Cooke. The original 18 (East/West) opened July 2007; the South nine was added in 2012, creating today’s 27-hole layout with three rotating combinations.",
       "reviews": [
         {
-          "stars": 5,
-          "text": "I really like this course and its pricing. It’s challenging, great views in the Fall, and everyone has always been super nice (even people I get paired up with). Also, during October, they do Oktoberfest and your round comes with a free hot dog. Let me tell you, the hot dog wa…",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 1,
           "text": "Easy, boring, wide open course. Hard to tell the rough from the fairways. As a single walking cost me 70$… same price as many private clubs this time of year, feeling ripped off.",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 5,
-          "text": "First time playing golf in Canada and found this course. Nice open course with some good hazards. Ended up in a 4 ball with other guys and had a great time. Fairways not the best, greens pretty good. Will definitely play here again if I visit Canada again.",
           "source": "Google Reviews"
         },
         {
@@ -12165,20 +12123,19 @@
           "stars": 1,
           "text": "Worst experience at a golf course yet, I overheard my server get tormented by their manager, from what I heard named was Morgan. Morgan was incredibly rude to not just me but also the other workers at the course. I would not recommend anyone come here for dining or buying anyt…",
           "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "I really like this course and its pricing. It’s challenging, great views in the Fall, and everyone has always been super nice (even people I get paired up with). Also, during October, they do Oktoberfest and your round comes with a free hot dog. Let me tell you, the hot dog wa…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "First time playing golf in Canada and found this course. Nice open course with some good hazards. Ended up in a 4 ball with other guys and had a great time. Fairways not the best, greens pretty good. Will definitely play here again if I visit Canada again.",
+          "source": "Google Reviews"
         }
       ],
       "stops": [
-        {
-          "icon": "🥐",
-          "name": "Mid-East Food Centre",
-          "addr": "1010 Belfast Rd, Ottawa",
-          "dist": "15 min from the course",
-          "desc": "",
-          "rating": 4.4,
-          "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 8:00 PM · Tuesday: 8:00 AM – 8:00 PM…",
-          "color": "#d4860a"
-        },
         {
           "icon": "🥐",
           "name": "Mr Kaak",
@@ -12187,8 +12144,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 7:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 7:00 PM…"
         },
         {
           "icon": "🥐",
@@ -12198,30 +12154,37 @@
           "desc": "",
           "rating": 4.6,
           "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 6:00 PM · Tuesday: 8:00 AM – 6:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 6:00 PM · Tuesday: 8:00 AM – 6:00 PM…"
         },
         {
           "icon": "🥐",
-          "name": "Loblaws Bank Street",
-          "addr": "2210C Bank St, Ottawa",
-          "dist": "17 min from the course",
-          "desc": "",
-          "rating": 4.1,
-          "badge": "Bakery",
-          "hours": "Daily 7:00 AM – 10:00 PM",
-          "color": "#d4860a"
-        },
-        {
-          "icon": "🥐",
-          "name": "The Green Door Restaurant & Bakery",
-          "addr": "198 Main St, Ottawa",
+          "name": "Tartelette Bakery & Cafe",
+          "addr": "175 Main St unit 7, Ottawa",
           "dist": "18 min from the course",
           "desc": "",
-          "rating": 4.6,
+          "rating": 4.5,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 11:30 AM – 8:30 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 7:00 PM · Tuesday: 8:00 AM – 7:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "The SconeWitch (Elgin)",
+          "addr": "150 Elgin St, Ottawa",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Bakery",
+          "hours": "Daily 6:30 AM – 4:00 PM"
+        },
+        {
+          "icon": "🥐",
+          "name": "COBS Bread",
+          "addr": "1910 St. Laurent Blvd Unit G, Ottawa",
+          "dist": "14 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Bakery",
+          "hours": "Daily 7:00 AM – 7:00 PM"
         }
       ]
     },
@@ -12362,18 +12325,8 @@
       "fun_fact": "Designed by Canadian architect Graham Cooke. The original 18 (East/West) opened July 2007; the South nine was added in 2012, creating today’s 27-hole layout with three rotating combinations.",
       "reviews": [
         {
-          "stars": 5,
-          "text": "I really like this course and its pricing. It’s challenging, great views in the Fall, and everyone has always been super nice (even people I get paired up with). Also, during October, they do Oktoberfest and your round comes with a free hot dog. Let me tell you, the hot dog wa…",
-          "source": "Google Reviews"
-        },
-        {
           "stars": 1,
           "text": "Easy, boring, wide open course. Hard to tell the rough from the fairways. As a single walking cost me 70$… same price as many private clubs this time of year, feeling ripped off.",
-          "source": "Google Reviews"
-        },
-        {
-          "stars": 5,
-          "text": "First time playing golf in Canada and found this course. Nice open course with some good hazards. Ended up in a 4 ball with other guys and had a great time. Fairways not the best, greens pretty good. Will definitely play here again if I visit Canada again.",
           "source": "Google Reviews"
         },
         {
@@ -12385,20 +12338,19 @@
           "stars": 1,
           "text": "Worst experience at a golf course yet, I overheard my server get tormented by their manager, from what I heard named was Morgan. Morgan was incredibly rude to not just me but also the other workers at the course. I would not recommend anyone come here for dining or buying anyt…",
           "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "I really like this course and its pricing. It’s challenging, great views in the Fall, and everyone has always been super nice (even people I get paired up with). Also, during October, they do Oktoberfest and your round comes with a free hot dog. Let me tell you, the hot dog wa…",
+          "source": "Google Reviews"
+        },
+        {
+          "stars": 5,
+          "text": "First time playing golf in Canada and found this course. Nice open course with some good hazards. Ended up in a 4 ball with other guys and had a great time. Fairways not the best, greens pretty good. Will definitely play here again if I visit Canada again.",
+          "source": "Google Reviews"
         }
       ],
       "stops": [
-        {
-          "icon": "🥐",
-          "name": "Mid-East Food Centre",
-          "addr": "1010 Belfast Rd, Ottawa",
-          "dist": "15 min from the course",
-          "desc": "",
-          "rating": 4.4,
-          "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 8:00 PM · Tuesday: 8:00 AM – 8:00 PM…",
-          "color": "#d4860a"
-        },
         {
           "icon": "🥐",
           "name": "Mr Kaak",
@@ -12407,8 +12359,7 @@
           "desc": "",
           "rating": 4.8,
           "badge": "Bakery",
-          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 7:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 9:00 AM – 5:00 PM · Tuesday: 9:00 AM – 7:00 PM…"
         },
         {
           "icon": "🥐",
@@ -12418,30 +12369,37 @@
           "desc": "",
           "rating": 4.6,
           "badge": "Bakery",
-          "hours": "Monday: 8:00 AM – 6:00 PM · Tuesday: 8:00 AM – 6:00 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 6:00 PM · Tuesday: 8:00 AM – 6:00 PM…"
         },
         {
-          "icon": "🥐",
-          "name": "Loblaws Bank Street",
-          "addr": "2210C Bank St, Ottawa",
-          "dist": "17 min from the course",
+          "icon": "🍰",
+          "name": "Oh My Choco",
+          "addr": "1054B Ogilvie Rd, Gloucester",
+          "dist": "14 min from the course",
           "desc": "",
-          "rating": 4.1,
-          "badge": "Bakery",
-          "hours": "Daily 7:00 AM – 10:00 PM",
-          "color": "#d4860a"
+          "rating": 4.8,
+          "badge": "Dessert",
+          "hours": "Monday: 4:00 PM – 12:00 AM · Tuesday: 4:00 PM – 12:00 AM…"
         },
         {
           "icon": "🥐",
-          "name": "The Green Door Restaurant & Bakery",
-          "addr": "198 Main St, Ottawa",
+          "name": "Tartelette Bakery & Cafe",
+          "addr": "175 Main St unit 7, Ottawa",
           "dist": "18 min from the course",
           "desc": "",
-          "rating": 4.6,
+          "rating": 4.5,
           "badge": "Bakery",
-          "hours": "Monday: Closed · Tuesday: 11:30 AM – 8:30 PM…",
-          "color": "#d4860a"
+          "hours": "Monday: 8:00 AM – 7:00 PM · Tuesday: 8:00 AM – 7:00 PM…"
+        },
+        {
+          "icon": "🥐",
+          "name": "The SconeWitch (Elgin)",
+          "addr": "150 Elgin St, Ottawa",
+          "dist": "17 min from the course",
+          "desc": "",
+          "rating": 4.5,
+          "badge": "Bakery",
+          "hours": "Daily 6:30 AM – 4:00 PM"
         }
       ]
     },

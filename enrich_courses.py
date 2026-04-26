@@ -216,22 +216,46 @@ def haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
 
 
 def classify_place(place: dict) -> str:
-    """Map a Google place to one of our categories. 'other' = exclude."""
+    """Map a Google place to one of our categories. 'other' = exclude.
+
+    Hard rule: if ANY excluded type is present, REJECT — even if a wanted type
+    is also present. This kills big-box stores (Costco bakeries, Walmart Tim
+    Hortons, supermarket coffee counters, etc.) that Google sometimes tags
+    with both their parent type AND a food/drink subtype."""
     types = set(place.get('types', []) or [])
     primary = place.get('primaryType', '')
     if primary:
         types.add(primary)
 
-    excluded_hits = types & EXCLUDED_TYPES
-    wanted_hits = [PLACE_TYPE_MAP[t] for t in types if t in PLACE_TYPE_MAP]
-
-    if excluded_hits and not wanted_hits:
+    # HARD REJECT — if it's any kind of big-box / non-standalone-shop type,
+    # excluded types win regardless of what other tags it has
+    if types & EXCLUDED_TYPES:
         return 'other'
+
+    wanted_hits = [PLACE_TYPE_MAP[t] for t in types if t in PLACE_TYPE_MAP]
     if wanted_hits:
         return max(wanted_hits, key=lambda c: CATEGORY_WEIGHTS.get(c, 0))
 
     # Heuristics from the name
     name = (place.get('displayName', {}).get('text', '') or '').lower()
+
+    # Reject by name too — chains and big-box that snuck through without type tags
+    NAME_REJECT = [
+        # Big-box stores & supermarkets
+        'walmart', 'costco', 'loblaws', 'metro grocery', 'sobeys',
+        'shoppers drug mart', 'no frills', 'food basics', 'farm boy',
+        'real canadian superstore', 'giant tiger', 'home depot', 'canadian tire',
+        'foodland', 'independent grocer', 'your independent grocer',
+        # Generic grocery / convenience patterns
+        'grocery', 'convenience', 'gas bar', 'esso', 'petro-canada', 'shell',
+        # Coffee/donut chains (so common they're not a 'stop' worth promoting)
+        'tim hortons', "tim's", 'starbucks', 'second cup', 'country style',
+        'mcdonald', 'a&w', 'wendy', 'burger king', 'subway', 'kfc',
+        'pizza hut', 'domino', 'mary brown',
+    ]
+    if any(n in name for n in NAME_REJECT):
+        return 'other'
+
     if any(k in name for k in ['chip', 'poutine', 'fries', 'french fry']):
         if 'restaurant' in types or 'meal_takeaway' in types:
             if any(k in name for k in ['wagon', 'stand', 'truck', 'shack']):
@@ -296,8 +320,12 @@ def format_hours(weekday_descriptions: list[str] | None) -> str:
 
 
 def shape_stop_for_renderer(place: dict, category: str, drive_min: float) -> dict:
-    """Produce the {icon, name, addr, dist, desc, rating, badge, hours, color}
-    dict that report_builder.py's build_stops() helper expects."""
+    """Produce the {icon, name, addr, dist, desc, rating, badge, hours} dict
+    that report_builder.py's build_stops() helper expects.
+
+    NOTE: We intentionally do NOT set 'color' — the renderer cycles its own
+    5-color palette across stops so consecutive cards visually differ even
+    when they share a category (e.g., 5 cafés get 5 different colors)."""
     display = CATEGORY_DISPLAY.get(category, CATEGORY_DISPLAY['other'])
     name = (place.get('displayName', {}) or {}).get('text', '') or 'Unknown'
     addr_full = place.get('formattedAddress', '') or ''
@@ -314,7 +342,7 @@ def shape_stop_for_renderer(place: dict, category: str, drive_min: float) -> dic
         'rating': round(place.get('rating', 0), 1),
         'badge':  display['badge'],
         'hours':  hours,
-        'color':  display['color'],
+        # 'color' deliberately omitted — see docstring above
     }
 
 
@@ -337,7 +365,10 @@ def shape_review_for_renderer(google_review: dict) -> dict:
 # ══════════════════════════════════════════════════════════════════════════
 
 def geocode(query: str, verbose: bool = False) -> dict | None:
-    """Geocoding API → {lat, lng, formatted_address} or None on failure."""
+    """Geocoding API → {lat, lng, formatted_address} or None on failure.
+
+    Also returns None if the result looks too generic (country/region only),
+    so the caller can try a different query strategy."""
     params = {
         'address': query,
         'key': API_KEY,
@@ -355,6 +386,21 @@ def geocode(query: str, verbose: bool = False) -> dict | None:
     if data.get('status') != 'OK' or not data.get('results'):
         return None
     result = data['results'][0]
+
+    # Reject country/region-only results — these are signs Google fell back
+    # because the query was too vague (e.g., 'Canadian Golf' matching all of
+    # Canada). Useful results have specific types like establishment, premise,
+    # street_address. Pure country/admin-area matches are useless.
+    types = set(result.get('types', []))
+    GENERIC_TYPES = {'country', 'administrative_area_level_1',
+                     'administrative_area_level_2', 'political'}
+    SPECIFIC_TYPES = {'establishment', 'street_address', 'premise',
+                      'subpremise', 'route', 'point_of_interest'}
+    if types & GENERIC_TYPES and not (types & SPECIFIC_TYPES):
+        if verbose:
+            print(f"      [api] rejected — too generic: '{result.get('formatted_address','')}' types={types}")
+        return None
+
     loc = result['geometry']['location']
     return {
         'lat': round(loc['lat'], 6),
@@ -587,16 +633,59 @@ def enrich_course(name: str, course: dict, verbose: bool = False) -> bool:
     """Full pipeline for one course. Mutates course in place. Returns True on success."""
     meta = course.setdefault('meta', {})
 
-    # ── STEP 1: Geocode (if no coords) ────────────────────────────────
-    if not (meta.get('lat') and meta.get('lng')):
-        print(f"  [1/5] Geocoding...")
-        geo = geocode(f"{name} golf course Ontario Canada", verbose=verbose)
+    # ── STEP 1: Geocode (if no coords, or address looks generic) ──────
+    addr_now = (meta.get('address') or '').strip()
+    looks_generic = addr_now.lower() in ('ontario, canada', 'canada', 'quebec, canada', '')
+    needs_geocode = (
+        not (meta.get('lat') and meta.get('lng'))
+        or looks_generic
+    )
+    if needs_geocode:
+        if looks_generic and meta.get('lat'):
+            print(f"  [1/5] Re-geocoding (existing address '{addr_now}' looks generic)...")
+            # Clear old bad coords so we don't keep them on failure
+            meta.pop('lat', None)
+            meta.pop('lng', None)
+        else:
+            print(f"  [1/5] Geocoding...")
+        # Try multiple query strategies — some course names are ambiguous
+        # (e.g. "Canadian Golf & Country Club" matches all of Canada with
+        # the wrong query). Stop on first non-generic result.
+        candidates = [
+            f"{name}",                            # name as-is, sometimes specific enough
+            f"{name} Ottawa Ontario",             # bias toward Ottawa region directly
+            f"{name} golf course Canada",         # original strategy
+            f"{name} Ontario Canada",             # broader Ontario hint
+        ]
+        geo = None
+        for q in candidates:
+            geo = geocode(q, verbose=verbose)
+            if geo:
+                if verbose:
+                    print(f"      [geocode] strategy '{q}' succeeded")
+                break
+
+        # Last-resort fallback: Places Text Search (returns place_id of best match)
         if not geo:
-            print(f"    ⚠ Geocoding failed — skipping this course.")
+            print(f"    [geocode] all geocode strategies failed, trying Places Text Search…")
+            place_id = find_place_id(f"{name} golf course",
+                                      KANATA_LAT, KANATA_LNG, verbose=verbose)
+            if place_id:
+                details = place_details(place_id, verbose=verbose)
+                if details and 'location' in details:
+                    loc = details['location']
+                    geo = {
+                        'lat': round(loc['latitude'], 6),
+                        'lng': round(loc['longitude'], 6),
+                        'formatted_address': details.get('formattedAddress', ''),
+                    }
+
+        if not geo:
+            print(f"    ⚠ All geocoding strategies failed — skipping this course.")
             return False
         meta['lat'] = geo['lat']
         meta['lng'] = geo['lng']
-        if not meta.get('address'):
+        if not meta.get('address') or meta.get('address') in ('Ontario, Canada', 'Canada'):
             meta['address'] = geo['formatted_address']
         print(f"    → {geo['lat']}, {geo['lng']}  |  {geo['formatted_address']}")
     else:
@@ -628,12 +717,23 @@ def enrich_course(name: str, course: dict, verbose: bool = False) -> bool:
                 meta['google_rating'] = round(details['rating'], 1)
             if 'userRatingCount' in details:
                 meta['google_reviews'] = details['userRatingCount']
-            reviews_raw = details.get('reviews', [])[:6]
+            # Sort by rating ASCENDING so the lowest-star (funniest/saltiest)
+            # reviews land at the top. The report's build_reviews() prefers
+            # 1-star reviews — keep them all here so it has the widest pool.
+            reviews_raw = sorted(
+                details.get('reviews', []),
+                key=lambda r: r.get('rating', 5)
+            )
             if reviews_raw:
                 meta['reviews'] = [shape_review_for_renderer(r) for r in reviews_raw]
+                star_breakdown = {}
+                for r in meta['reviews']:
+                    s = r['stars']
+                    star_breakdown[s] = star_breakdown.get(s, 0) + 1
+                breakdown_str = ', '.join(f'{c}×{s}★' for s, c in sorted(star_breakdown.items()))
                 print(f"    → rating {meta.get('google_rating')}, "
                       f"{meta.get('google_reviews')} total reviews, "
-                      f"{len(meta['reviews'])} review snippets saved")
+                      f"{len(meta['reviews'])} snippets saved ({breakdown_str})")
             # Save editorial summary as fun_fact if we don't have one
             if not meta.get('fun_fact'):
                 summary = (details.get('editorialSummary') or {}).get('text', '')

@@ -563,7 +563,7 @@ def build_games_section(players, short_name):
     closed_icon_attr = _html.escape(closed_icon, quote=True)
     open_icon_attr = _html.escape(open_icon, quote=True)
     return (
-        f'<div class="saw-panel">'
+        f'<div class="saw-panel" id="games-section">'
         # ── Top evidence-label banner: round file identifier for this course
         f'<div class="saw-evidence-tape">'
         f'<span>&#9899; Round file &mdash; {short_name}</span>'
@@ -1264,6 +1264,94 @@ def _build_elev_caption(rd):
     return '&#8597; approx. elevation range'
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# POST-STOP SUGGESTIONS — sweet/snack stops near the course
+# Data populated by enrich_courses.py, read here to render the report card.
+# ══════════════════════════════════════════════════════════════════════════
+def _build_post_stops(course_name, c):
+    """
+    Render the "On the way home" card showing 1-5 sweet/snack stops near the
+    course. Reads `post_stops` from courses.json (populated by enrich_courses.py).
+
+    Returns empty string if no stops are available — the card hides gracefully
+    rather than showing a placeholder.
+    """
+    stops = c.get('post_stops') or []
+    if not stops:
+        return ''
+
+    # Category icon + label per category
+    cat_meta = {
+        'bakery':     ('🥐', 'BAKERY'),
+        'ice_cream':  ('🍦', 'ICE CREAM'),
+        'donut':      ('🍩', 'DONUTS'),
+        'candy':      ('🍬', 'SWEET SHOP'),
+        'dessert':    ('🍰', 'DESSERT'),
+        'snack':      ('🍟', 'SNACKS'),
+        'chip_wagon': ('🍟', 'CHIP WAGON'),
+        'cafe':       ('☕', 'CAFÉ'),
+    }
+
+    rows_html = ''
+    for s in stops:
+        name = s.get('name', '')
+        addr = s.get('address', '')
+        cat = s.get('category', 'snack')
+        rating = s.get('rating')
+        reviews = s.get('review_count')
+        drive_min = s.get('drive_min')
+        maps_url = s.get('maps_url') or ''
+
+        icon, cat_label = cat_meta.get(cat, ('📍', cat.upper()))
+
+        # Star rating display: round to 1 decimal, show as "4.6★"
+        rating_str = f'{rating:.1f}★' if rating is not None else ''
+        review_str = f'{reviews:,} reviews' if reviews else ''
+        drive_str = f'{drive_min:.0f} min' if drive_min is not None else ''
+
+        # Trim address — drop province/postal if long
+        addr_short = addr.split(',')[0] if addr else ''
+
+        rows_html += (
+            f'<a href="{maps_url}" target="_blank" rel="noopener" '
+            f'style="display:flex;align-items:center;gap:10px;padding:10px 12px;'
+            f'background:#fffbf2;border:1px solid #f5c96e44;border-radius:10px;'
+            f'text-decoration:none;color:inherit;margin-bottom:6px;">'
+            f'<div style="font-size:22px;flex-shrink:0;line-height:1;">{icon}</div>'
+            f'<div style="flex:1;min-width:0;">'
+            f'<div style="font-size:13px;font-weight:700;color:#1a2e1a;line-height:1.2;'
+            f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{name}</div>'
+            f'<div style="font-size:10px;color:#6a6a6a;margin-top:2px;'
+            f'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{addr_short}</div>'
+            f'<div style="display:flex;gap:8px;font-size:10px;font-weight:600;'
+            f'color:#888;margin-top:3px;text-transform:uppercase;letter-spacing:.05em;">'
+            f'<span style="color:#c4621a;">{cat_label}</span>'
+            f'{f"<span>·</span><span>{rating_str}</span>" if rating_str else ""}'
+            f'{f"<span>·</span><span>{review_str}</span>" if review_str else ""}'
+            f'</div></div>'
+            f'<div style="text-align:right;flex-shrink:0;">'
+            f'<div style="font-size:16px;font-weight:800;color:#2f8a44;line-height:1;">{drive_str}</div>'
+            f'<div style="font-size:9px;color:#999;letter-spacing:.1em;text-transform:uppercase;'
+            f'margin-top:2px;">drive</div>'
+            f'</div>'
+            f'</a>'
+        )
+
+    return (
+        f'<div class="section" style="padding:0.6rem 1rem;margin-top:5px;">'
+        f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+        f'<div style="font-size:11px;font-weight:700;color:#c4621a;letter-spacing:.08em;'
+        f'text-transform:uppercase;">After the round</div>'
+        f'<div style="flex:1;height:1px;background:#f5c96e44;"></div>'
+        f'<div style="font-size:10px;color:#999;font-weight:600;">'
+        f'{len(stops)} sweet stop{"s" if len(stops) != 1 else ""} within '
+        f'{max(int(s.get("drive_min", 15)) for s in stops)} min</div>'
+        f'</div>'
+        f'{rows_html}'
+        f'</div>'
+    )
+
+
 def _build_elev_ex(course_name, c):
     """Explainer block for Elevation."""
     rd = c.get('roundData') or {}
@@ -1734,6 +1822,8 @@ def build_lcd(time_str='3:41'):
 
 def build_stops(meta, location_str):
     stops = meta.get('stops') or []   # tolerate explicit None as well as missing key
+    if not stops:
+        return ''   # no section at all if no stops — don't render an empty header
     cards = ''
     for i, s in enumerate(stops):
         colour = s.get('color', STOP_COLOURS[i % len(STOP_COLOURS)])
@@ -1751,7 +1841,7 @@ def build_stops(meta, location_str):
             f'</div></div></div>'
         )
     return (
-        f'<div class="section">'
+        f'<div class="section" id="postround-section">'
         f'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:8px;">'
         f'<div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#c4621a;margin-bottom:2px;">'
         f'<span id="sec-postround"></span>&#127846; Post-Round Stop Options</div>'
@@ -1768,16 +1858,32 @@ def build_reviews(meta, rng):
     reviews = meta.get('reviews', [])
     if not reviews:
         return ''
-    # Pick 2 random 1-star reviews
-    bad = [r for r in reviews if r['stars'] == 1]
-    if len(bad) >= 2:
-        picks = rng.sample(bad, 2)
-    else:
-        picks = bad[:2]
+    # Prefer the lowest-star reviews — they're the funniest. Walk up the
+    # star ladder until we have at least 2.
+    picks = []
+    for star_target in [1, 2, 3]:
+        bucket = [r for r in reviews if r.get('stars') == star_target]
+        for r in bucket:
+            if r not in picks and len(picks) < 2:
+                picks.append(r)
+        if len(picks) >= 2:
+            break
+    # Final fallback — just take the 2 lowest-rated reviews regardless of star.
+    if len(picks) < 2:
+        sorted_revs = sorted(reviews, key=lambda r: r.get('stars', 5))
+        for r in sorted_revs:
+            if r not in picks and len(picks) < 2:
+                picks.append(r)
+    if not picks:
+        return ''
+    # Per-review star rendering — solid for stars present, hollow for missing.
+    def stars_html(n):
+        n = max(1, min(5, int(n)))
+        return ('&#9733;' * n) + ('&#9734;' * (5 - n))
     cards = ''.join(
         f'<div class="stat" style="background:#fffbf2;border:1px solid #f5c96e33;">'
         f'<div style="font-size:11px;color:#666;line-height:1.5;font-style:italic;border-left:2px solid #f5c96e;padding-left:8px;">"{r["text"]}"</div>'
-        f'<div style="font-size:10px;color:#aaa;margin-top:5px;">&#9733;&#9734;&#9734;&#9734;&#9734; &middot; {r["source"]}</div>'
+        f'<div style="font-size:10px;color:#aaa;margin-top:5px;">{stars_html(r.get("stars", 1))} &middot; {r["source"]}</div>'
         f'</div>'
         for r in picks
     )
@@ -4547,7 +4653,8 @@ window.editScores=function(pi){{
     if (state.strokes != null && state.strokes > 0) {{
       saveAndNavigate(state.hole - 1);
     }} else {{
-      loadHole(state.player, state.hole - 1);
+      // Skip cover flip — we're navigating within the form, not opening fresh
+      loadHole(state.player, state.hole - 1, true);
     }}
   }};
 
@@ -4568,7 +4675,8 @@ window.editScores=function(pi){{
   function saveAndNavigate(targetHole) {{
     saveHole(function(err){{
       if (err) return showSyncError(err);
-      loadHole(state.player, targetHole);
+      // Pass true to skip the cover flip — we're already inside the form.
+      loadHole(state.player, targetHole, true);
     }});
   }}
 
@@ -4588,7 +4696,10 @@ window.editScores=function(pi){{
   }};
 
   // ── Open overlay for a (player, hole) ────────────────────────────
-  function loadHole(player, hole) {{
+  // skipCoverFlip: when true, leave the book in its current open state
+  // (used for hole-to-hole navigation via PROCEED button — the user is
+  // already inside the form, no need to replay the cover animation).
+  function loadHole(player, hole, skipCoverFlip) {{
     ensureDOM();
     state.player = player;
     state.hole = hole;
@@ -4621,9 +4732,9 @@ window.editScores=function(pi){{
       // Use short course name for the cover (e.g. "Irish Hills" from "Irish Hills G&CC")
       // Strip common suffixes to get a clean cover title.
       var title = COURSE_SHORT
-        .replace(/\s*G&CC\s*$/i, '')
-        .replace(/\s*GC\s*$/i, '')
-        .replace(/\s*CC\s*$/i, '')
+        .replace(/\\s*G&CC\\s*$/i, '')
+        .replace(/\\s*GC\\s*$/i, '')
+        .replace(/\\s*CC\\s*$/i, '')
         .trim();
       if (!title) title = COURSE_SHORT || COURSE;
       coverCourseEl.textContent = title;
@@ -4659,10 +4770,10 @@ window.editScores=function(pi){{
     var coverDateEl = document.getElementById('bm-cover-date');
     if (coverDateEl) coverDateEl.textContent = COVER_DATE;
 
-    // Make sure the book starts with its cover CLOSED.
-    // The cover animates open on user tap (or automatically below).
+    // Make sure the book starts with its cover CLOSED — but only on initial
+    // open. For hole-to-hole nav (skipCoverFlip), leave the book exactly as it is.
     var bookEl = document.getElementById('bm-book');
-    if (bookEl) bookEl.classList.remove('open');
+    if (bookEl && !skipCoverFlip) bookEl.classList.remove('open');
 
     // v11: collapsed state resets per hole
     var clubsEl = document.getElementById('bm-clubs-panel');
@@ -4673,11 +4784,13 @@ window.editScores=function(pi){{
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
 
-    // Auto-flip the cover open after a brief pause, so the user sees the
-    // animation. If they want to see the cover again they tap FLIP TO COVER.
-    setTimeout(function(){{
-      if (bookEl) bookEl.classList.add('open');
-    }}, 600);
+    // Auto-flip the cover open after a brief pause — only on initial open.
+    // Hole-to-hole nav skips this since the cover is already open.
+    if (!skipCoverFlip) {{
+      setTimeout(function(){{
+        if (bookEl) bookEl.classList.add('open');
+      }}, 600);
+    }}
 
     render();
   }}
@@ -5083,6 +5196,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
     # ── Assemble HTML ──────────────────────────────────────────────────────
     parts = [
         f'<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">',
+        f'<title>NOB Golf &middot; {short_name} &middot; {date_short}</title>',
         f'<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">',
         f'<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300&family=Caveat:wght@600&family=Special+Elite&family=Creepster&family=Bebas+Neue&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">',
         f'<style>{CSS}</style>',
@@ -5090,13 +5204,20 @@ def build_report(course_name, date_str, time_str, players, output_path):
 
         # Sticky nav
         f'<div id="sticky-nav" style="position:sticky;top:0;z-index:999;background:#1a2e1a;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 8px rgba(0,0,0,.3);margin:-12px -12px 12px -12px;">'
-        f'<div><div style="font-size:11px;font-weight:700;color:#fff;letter-spacing:.04em;">{short_name}</div>'
-        f'<div style="font-size:10px;color:#7ecb6a;font-weight:600;">{time_full} &nbsp;&middot;&nbsp; {date_short}</div></div>'
-        f'<div style="display:flex;gap:6px;">'
+        f'<div style="display:flex;align-items:center;gap:10px;min-width:0;">'
+        # Home button — lime accent, prominent, matches Stadium Board hero
+        f'<a href="/" title="Back to all reports" style="display:inline-flex;align-items:center;gap:4px;background:#a8ff5e;color:#0a0a0a;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:11px;font-weight:800;letter-spacing:.03em;padding:5px 9px 5px 7px;border-radius:6px;box-shadow:0 1px 3px rgba(0,0,0,.4),inset 0 -1px 0 rgba(0,0,0,.18);flex-shrink:0;">'
+        f'<svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7l6-5 6 5v7a1 1 0 0 1-1 1h-3v-5H6v5H3a1 1 0 0 1-1-1V7z"/></svg>'
+        f'<span>HOME</span></a>'
+        f'<div style="min-width:0;overflow:hidden;">'
+        f'<div style="font-size:11px;font-weight:700;color:#fff;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{short_name}</div>'
+        f'<div style="font-size:10px;color:#7ecb6a;font-weight:600;">{time_full} &nbsp;&middot;&nbsp; {date_short}</div>'
+        f'</div></div>'
+        f'<div style="display:flex;gap:6px;flex-shrink:0;">'
         f'<a href="#sec-stats" style="font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:10px;font-weight:600;">Stats</a>'
         f'<a href="#sec-scorecard" style="font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:10px;font-weight:600;">Card</a>'
-        f'<a href="#sec-weather" style="font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:10px;font-weight:600;">Weather</a>'
-        f'<a href="#sec-postround" style="font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:10px;font-weight:600;">After</a>'
+        f'<a href="#sec-weather" class="nav-anchor-weather" style="font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:10px;font-weight:600;">Weather</a>'
+        f'<a href="#sec-postround" class="nav-anchor-postround" style="font-size:10px;color:rgba(255,255,255,.75);text-decoration:none;background:rgba(255,255,255,.1);padding:4px 8px;border-radius:10px;font-weight:600;">After</a>'
         f'</div></div>',
 
         # Hero — V1 Stadium Board: black + lime tee time + amber accents,
@@ -5166,6 +5287,10 @@ def build_report(course_name, date_str, time_str, players, output_path):
           f'{_build_elev_ex(course_name, c)}')
          if c.get('roundData') else ''),
 
+        # Post-round stops (sweet/snack stops near the course) — hidden if no
+        # post_stops data in courses.json (run enrich_courses.py to populate).
+        _build_post_stops(course_name, c),
+
         # Scorecard
         f'<div id="sec-scorecard"></div>',
         f'<div id="scorecard-container" class="section" style="position:relative;margin-top:0.75rem;margin-bottom:0.75rem;padding:0;border:1.5px solid #1a1f3a;border-radius:10px;overflow:hidden;">'
@@ -5180,7 +5305,7 @@ def build_report(course_name, date_str, time_str, players, output_path):
 
         # Weather
         f'<div id="sec-weather"></div>',
-        f'<div class="section">'
+        f'<div class="section" id="weather-section">'
         f'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">'
         f'<div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#3a6a9a;margin-bottom:2px;">&#127780; {day_name} Morning Weather</div>'
         f'<div style="font-size:13px;font-weight:600;color:#1a1a16;">{location} &nbsp;&middot;&nbsp; {date_display}</div></div>'
@@ -5222,6 +5347,32 @@ def build_report(course_name, date_str, time_str, players, output_path):
                  sunrise_str=sunrise_str,
                  layout=layout, hole_yards=yards,
                  supabase_url=SUPABASE_URL, supabase_key=SUPABASE_PUBLISHABLE_KEY),
+
+        # Post-round suppression — runs client-side so the same static HTML
+        # adapts as time passes. Trigger: midnight after the round day.
+        '<script>\n'
+        '(function(){\n'
+        '  // Compute the moment when the report flips to post-round mode:\n'
+        '  // midnight at the END of the round day (i.e. start of the next day).\n'
+        '  // DATE is "YYYY-MM-DD" (build-time global). Add 1 day.\n'
+        '  if (typeof DATE !== "string" || !/^\\d{4}-\\d{2}-\\d{2}$/.test(DATE)) return;\n'
+        '  var parts = DATE.split("-").map(Number);\n'
+        '  var endOfRoundDay = new Date(parts[0], parts[1]-1, parts[2] + 1, 0, 0, 0); // midnight after\n'
+        '  var now = new Date();\n'
+        '  if (now < endOfRoundDay) return;  // still upcoming or same-day — keep everything\n'
+        '\n'
+        '  // ── Post-round mode: hide irrelevant sections ─────────────────\n'
+        '  function hide(sel) {\n'
+        '    document.querySelectorAll(sel).forEach(function(el){ el.style.display = "none"; });\n'
+        '  }\n'
+        '  hide("#weather-section");\n'
+        '  hide("#postround-section");\n'
+        '  hide("#games-section");\n'
+        '  hide(".nav-anchor-weather");\n'
+        '  hide(".nav-anchor-postround");\n'
+        '})();\n'
+        '</script>',
+
         f'</body>\n</html>',
     ]
 
@@ -5311,133 +5462,377 @@ def update_manifest_and_index(output_path, course_name, date_str, time_str,
 
 
 def write_index(index_path, reports):
-    """Render index.html — cohesive with the report design."""
+    """Render index.html — landing page with hero banner, Next Round preview,
+    and compact past-rounds list.
+
+    Layout (top to bottom):
+      1. Full-bleed hero banner (background image + group identity overlay)
+      2. "Next Round" hero card (preview of closest future round) OR
+         placeholder if none scheduled
+      3. Optional small "Also coming up" section if 2+ future rounds exist
+      4. Compact past-rounds list (one tappable row per round, scannable)
+      5. Footer
+    """
     from datetime import date as _date
-    import json as _json
 
     today = _date.today().isoformat()
 
-    # Sort newest first
-    sorted_reports = sorted(reports, key=lambda r: (r['date'], r.get('time_24','')), reverse=True)
-    upcoming = [r for r in sorted_reports if r['date'] >= today]
-    past     = [r for r in sorted_reports if r['date'] <  today]
+    # Sort + bucket
+    sorted_reports = sorted(reports, key=lambda r: (r['date'], r.get('time_24', '')))
+    future = [r for r in sorted_reports if r['date'] >= today]
+    past   = [r for r in sorted(sorted_reports, key=lambda r: (r['date'], r.get('time_24','')), reverse=True)
+              if r['date'] < today]
+    next_round = future[0] if future else None
+    other_future = future[1:] if len(future) > 1 else []
 
-    def fmt_card(r, is_past):
+    # ────────────────────────────────────────────────────────────────────
+    # Component: player chips (small flag + initial)
+    # ────────────────────────────────────────────────────────────────────
+    PLAYER_FLAG_SRC = {
+        'Nick':  'images/flags/gr.svg',
+        'Ollie': 'images/flags/uk.svg',
+        'Brett': 'images/flags/ca.svg',
+    }
+
+    def player_chips(players, size=22):
+        """Stacked circular flag chips for a list of players."""
+        chips = ''
+        for p in players:
+            flag = PLAYER_FLAG_SRC.get(p, '')
+            initial = p[0].upper() if p else '?'
+            if flag:
+                chips += (
+                    f'<span style="display:inline-flex;align-items:center;justify-content:center;'
+                    f'width:{size}px;height:{size}px;border-radius:50%;background:#fff;'
+                    f'margin-right:-6px;border:2px solid #fff;overflow:hidden;'
+                    f'box-shadow:0 1px 3px rgba(0,0,0,.15);">'
+                    f'<img src="{flag}" alt="{p}" style="width:100%;height:100%;object-fit:cover;"/>'
+                    f'</span>'
+                )
+            else:
+                chips += (
+                    f'<span style="display:inline-flex;align-items:center;justify-content:center;'
+                    f'width:{size}px;height:{size}px;border-radius:50%;background:#1a2e1a;color:#fff;'
+                    f'font-size:10px;font-weight:700;font-family:Caveat,cursive;'
+                    f'margin-right:-6px;border:2px solid #fff;">{initial}</span>'
+                )
+        return chips
+
+    # ────────────────────────────────────────────────────────────────────
+    # Component: NEXT ROUND hero preview card
+    # ────────────────────────────────────────────────────────────────────
+    if next_round:
+        r = next_round
         wx = r.get('wx') or {}
-        temp_chip = ''
+        # Weather strip
+        wx_strip = ''
         if wx.get('temp') is not None:
             icon = wx.get('icon') or '&#9925;&#65039;'
             cond = wx.get('condition') or ''
             rain = wx.get('rain')
-            rain_chip = (f'<span style="font-size:10px;color:#3a6a9a;background:#eef2f6;'
-                         f'padding:2px 7px;border-radius:8px;margin-left:5px;">{rain}% rain</span>'
-                         if rain not in (None, 0, '0%', '0', 0.0) else '')
-            temp_chip = (f'<div style="display:flex;align-items:center;gap:6px;margin-top:6px;">'
-                         f'<span style="font-size:16px;">{icon}</span>'
-                         f'<span style="font-size:12px;color:#666;">{wx["temp"]} &middot; {cond}</span>'
-                         f'{rain_chip}</div>')
-        # Players row — just initials in colored chips
-        chips = ''
-        for i, p in enumerate(r.get('players', [])):
-            chips += (f'<span style="display:inline-flex;align-items:center;justify-content:center;'
-                      f'width:22px;height:22px;border-radius:50%;background:#1a2e1a;color:#fff;'
-                      f'font-size:10px;font-weight:700;font-family:Caveat,cursive;'
-                      f'margin-right:-6px;border:2px solid #fff;">{p[0].upper()}</span>')
-        players_html = (f'<div style="display:flex;align-items:center;margin-top:8px;">'
-                        f'<div style="display:flex;">{chips}</div>'
-                        f'<span style="font-size:11px;color:#888;margin-left:14px;">'
-                        f'{", ".join(r.get("players", []))}</span></div>')
+            rain_pill = ''
+            if rain not in (None, 0, '0%', '0', 0.0):
+                rain_pill = (f'<span style="display:inline-flex;align-items:center;font-size:10px;'
+                             f'font-weight:700;color:#a8ff5e;background:rgba(168,255,94,0.12);'
+                             f'border:1px solid rgba(168,255,94,0.3);padding:3px 8px;border-radius:8px;'
+                             f'letter-spacing:.04em;">{rain}% RAIN</span>')
+            wx_strip = (
+                f'<div style="display:flex;align-items:center;gap:10px;margin-top:14px;'
+                f'padding-top:14px;border-top:1px solid rgba(255,255,255,0.12);">'
+                f'<span style="font-size:22px;line-height:1;">{icon}</span>'
+                f'<span style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;">'
+                f'{wx["temp"]} &middot; {cond}</span>{rain_pill}</div>'
+            )
 
-        # Completed badge for past rounds
-        badge = ''
-        if is_past:
-            badge = (f'<span style="background:#1a6e2e;color:#fff;font-size:9px;font-weight:700;'
-                     f'text-transform:uppercase;letter-spacing:.1em;padding:3px 8px;border-radius:8px;'
-                     f'margin-left:8px;vertical-align:middle;">&#10003; Played</span>')
+        # Course meta strip (par, yards, tee)
+        meta_chips = []
+        if r.get('par'):   meta_chips.append(f'PAR {r["par"]}')
+        if r.get('yards'): meta_chips.append(f'{r["yards"]:,} YDS')
+        if r.get('tee'):   meta_chips.append(f'{r["tee"].upper()} TEES')
+        meta_line = (
+            f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:600;'
+            f'letter-spacing:.18em;color:#ffa838;margin-top:10px;">'
+            f'{" &middot; ".join(meta_chips)}</div>'
+        ) if meta_chips else ''
 
-        bg = '#fff' if not is_past else '#fafaf6'
-        border = '2px solid #1a2e1a' if not is_past else '1px solid #e5e3de'
+        # Players row
+        players_row = (
+            f'<div style="display:flex;align-items:center;gap:14px;margin-top:14px;">'
+            f'<div style="display:flex;">{player_chips(r.get("players", []))}</div>'
+            f'<span style="font-size:11px;color:rgba(255,255,255,0.7);font-weight:500;">'
+            f'{", ".join(r.get("players", []))}</span></div>'
+        )
 
-        # Yards and par sub-line
-        meta_chips = ''
-        if r.get('par'):  meta_chips += f'<span style="margin-right:10px;">Par {r["par"]}</span>'
-        if r.get('yards'): meta_chips += f'<span style="margin-right:10px;">{r["yards"]:,} yds</span>'
-        if r.get('tee'):   meta_chips += f'<span>{r["tee"]} tees</span>'
-
-        return (
+        next_round_card = (
             f'<a href="{r["file"]}" style="text-decoration:none;color:inherit;display:block;'
-            f'background:{bg};border-radius:12px;padding:1rem 1.1rem;margin-bottom:.65rem;'
-            f'border:{border};box-shadow:0 1px 4px rgba(0,0,0,.04);transition:transform .1s;">'
-            f'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">'
-            f'<div style="flex:1;min-width:0;">'
-            f'<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;'
-            f'color:#c4621a;margin-bottom:3px;">{r["day_name"]} &middot; {r["time_display"]}</div>'
-            f'<div style="font-size:15px;font-weight:700;color:#1a1a16;line-height:1.25;">'
-            f'{r["short"] or r["course"]}{badge}</div>'
-            f'<div style="font-size:11px;color:#888;margin-top:3px;">{r["date_display"]}</div>'
-            f'<div style="font-size:10px;color:#999;margin-top:5px;">{meta_chips}</div>'
-            f'{temp_chip}'
-            f'{players_html}'
+            f'background:#000;border-radius:14px;padding:22px 24px;margin-bottom:1.6rem;'
+            f'border:1px solid rgba(168,255,94,0.3);box-shadow:0 4px 16px rgba(0,0,0,.18);'
+            f'position:relative;overflow:hidden;transition:transform .12s;">'
+
+            # Course name (Bebas Neue style)
+            f'<div style="font-family:\'Bebas Neue\',\'Impact\',sans-serif;font-size:38px;'
+            f'color:#fff;line-height:.95;letter-spacing:.005em;margin-bottom:6px;'
+            f'text-transform:uppercase;">{r["short"] or r["course"]}</div>'
+
+            # Date / day / tee time
+            f'<div style="display:flex;align-items:baseline;gap:10px;margin-top:8px;flex-wrap:wrap;">'
+            f'<span style="font-family:\'Bebas Neue\',\'Impact\',sans-serif;font-size:32px;'
+            f'color:#a8ff5e;letter-spacing:.02em;line-height:1;text-shadow:0 0 12px rgba(168,255,94,0.35);">'
+            f'{r["time_display"]}</span>'
+            f'<span style="font-family:\'Roboto Mono\',monospace;font-size:11px;font-weight:600;'
+            f'color:rgba(255,255,255,0.85);letter-spacing:.12em;text-transform:uppercase;">'
+            f'{r["day_name"]} &middot; {r["date_display"]}</span>'
             f'</div>'
-            f'<div style="font-size:18px;color:#c4621a;flex-shrink:0;margin-top:4px;">&rsaquo;</div>'
-            f'</div></a>'
+
+            f'{meta_line}'
+            f'{wx_strip}'
+            f'{players_row}'
+
+            # Subtle CTA
+            f'<div style="display:flex;justify-content:flex-end;align-items:center;gap:6px;'
+            f'margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);">'
+            f'<span style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:600;'
+            f'letter-spacing:.18em;color:#ffa838;text-transform:uppercase;">View Report</span>'
+            f'<span style="color:#ffa838;font-size:14px;line-height:1;">&rsaquo;</span>'
+            f'</div>'
+            f'</a>'
+        )
+    else:
+        # Placeholder when no round is scheduled
+        next_round_card = (
+            f'<div style="background:#000;border-radius:14px;padding:32px 24px;margin-bottom:1.6rem;'
+            f'border:1px solid rgba(168,255,94,0.18);box-shadow:0 4px 16px rgba(0,0,0,.18);'
+            f'text-align:center;">'
+            f'<div style="font-family:\'Bebas Neue\',\'Impact\',sans-serif;font-size:30px;'
+            f'color:#fff;line-height:1;letter-spacing:.005em;margin-bottom:8px;'
+            f'text-transform:uppercase;">No Round Scheduled Yet</div>'
+            f'<div style="font-size:12px;color:rgba(255,255,255,0.55);font-style:italic;'
+            f'max-width:340px;margin:6px auto 0;line-height:1.5;">'
+            f'When the next tee time gets locked in, the report will land here.</div>'
+            f'</div>'
         )
 
-    upcoming_html = ''.join(fmt_card(r, False) for r in upcoming)
-    past_html     = ''.join(fmt_card(r, True)  for r in past)
-
-    upcoming_section = ''
-    if upcoming:
-        upcoming_section = (
-            f'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;'
-            f'color:#1a2e1a;margin:0 0 12px 4px;">&#9971; Upcoming</div>'
-            f'{upcoming_html}'
+    # ────────────────────────────────────────────────────────────────────
+    # Component: "Also coming up" — extra future rounds (compact)
+    # ────────────────────────────────────────────────────────────────────
+    other_future_html = ''
+    if other_future:
+        rows = ''
+        for r in other_future:
+            rows += (
+                f'<a href="{r["file"]}" style="text-decoration:none;color:inherit;display:flex;'
+                f'align-items:center;gap:12px;padding:10px 14px;background:#fff;'
+                f'border-radius:10px;margin-bottom:6px;border:1px solid #e5e3de;'
+                f'box-shadow:0 1px 2px rgba(0,0,0,.03);">'
+                f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:700;'
+                f'color:#c4621a;letter-spacing:.08em;text-transform:uppercase;'
+                f'min-width:70px;line-height:1.2;">{r["day_name"][:3]}<br>{r["date_display"]}</div>'
+                f'<div style="flex:1;min-width:0;">'
+                f'<div style="font-size:13px;font-weight:700;color:#1a1a16;'
+                f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+                f'{r["short"] or r["course"]}</div>'
+                f'<div style="font-size:10px;color:#888;margin-top:2px;">'
+                f'{r["time_display"]} &middot; {", ".join(r.get("players", []))}</div></div>'
+                f'<div style="display:flex;flex-shrink:0;">{player_chips(r.get("players", []), size=18)}</div>'
+                f'<span style="color:#c4621a;font-size:14px;flex-shrink:0;">&rsaquo;</span>'
+                f'</a>'
+            )
+        other_future_html = (
+            f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:700;'
+            f'text-transform:uppercase;letter-spacing:.18em;color:#1a2e1a;margin:0 0 10px 4px;">'
+            f'Also Coming Up</div>'
+            f'{rows}'
         )
-    past_section = ''
+
+    # ────────────────────────────────────────────────────────────────────
+    # Component: Past rounds (compact rows)
+    # ────────────────────────────────────────────────────────────────────
+    past_html = ''
     if past:
-        past_section = (
-            f'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;'
-            f'color:#888;margin:24px 0 12px 4px;">Past Rounds</div>'
-            f'{past_html}'
+        rows = ''
+        for r in past:
+            rows += (
+                f'<a href="{r["file"]}" style="text-decoration:none;color:inherit;display:flex;'
+                f'align-items:center;gap:12px;padding:10px 14px;background:#fafaf6;'
+                f'border-radius:10px;margin-bottom:6px;border:1px solid #ece9e3;'
+                f'box-shadow:0 1px 2px rgba(0,0,0,.02);">'
+                f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:700;'
+                f'color:#888;letter-spacing:.08em;text-transform:uppercase;'
+                f'min-width:70px;line-height:1.2;">{r["day_name"][:3]}<br>{r["date_display"]}</div>'
+                f'<div style="flex:1;min-width:0;">'
+                f'<div style="font-size:13px;font-weight:700;color:#3a3a36;'
+                f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'
+                f'{r["short"] or r["course"]}'
+                f'<span style="background:#1a6e2e;color:#fff;font-size:8px;font-weight:700;'
+                f'text-transform:uppercase;letter-spacing:.1em;padding:2px 6px;border-radius:6px;'
+                f'margin-left:8px;vertical-align:middle;">&#10003; Played</span>'
+                f'</div>'
+                f'<div style="font-size:10px;color:#999;margin-top:2px;">'
+                f'{r["time_display"]} &middot; {", ".join(r.get("players", []))}</div></div>'
+                f'<div style="display:flex;flex-shrink:0;">{player_chips(r.get("players", []), size=18)}</div>'
+                f'<span style="color:#aaa;font-size:14px;flex-shrink:0;">&rsaquo;</span>'
+                f'</a>'
+            )
+        past_html = (
+            f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:700;'
+            f'text-transform:uppercase;letter-spacing:.18em;color:#888;margin:1.6rem 0 10px 4px;">'
+            f'Past Rounds &middot; {len(past)}</div>'
+            f'{rows}'
         )
-    empty = ''
-    if not upcoming and not past:
-        empty = ('<div style="background:#fff;border-radius:12px;padding:2rem;text-align:center;'
-                 'color:#aaa;font-size:13px;">No reports yet. Run the build script to add one.</div>')
 
+    # ────────────────────────────────────────────────────────────────────
+    # Component: Pre-Tracking History (lite rows from courses.json)
+    # ────────────────────────────────────────────────────────────────────
+    # These are scorecards imported from earlier rounds (pre-Supabase, pre-app).
+    # They have date / course / gross / vsPar — but no tee time, no per-player
+    # attribution, no permalink. Render as compact informational rows.
+    pretrack_html = ''
+    try:
+        import os as _os
+        _courses_path = _os.path.join(_os.path.dirname(index_path), 'courses.json')
+        if _os.path.exists(_courses_path):
+            import json as _j
+            with open(_courses_path, 'r', encoding='utf-8') as _f:
+                _courses = _j.load(_f)
+            # Flatten all scorecards across all courses, attach course name
+            _pretrack = []
+            for _cname, _c in _courses.items():
+                _short = (_c.get('meta') or {}).get('short') or _cname
+                for _sc in (_c.get('scorecards') or []):
+                    if _sc.get('date'):
+                        _pretrack.append({
+                            'date':   _sc['date'],
+                            'course': _cname,
+                            'short':  _short,
+                            'gross':  _sc.get('gross'),
+                            'vsPar':  _sc.get('vsPar'),
+                            'par':    _sc.get('par'),
+                        })
+            # Sort reverse-chrono
+            _pretrack.sort(key=lambda x: x['date'], reverse=True)
+            if _pretrack:
+                _rows = ''
+                for _pt in _pretrack:
+                    # Date display: "Sep 30 · 2023" mono small caps
+                    _date_label = _pt['date']
+                    try:
+                        from datetime import datetime as _dt
+                        _d = _dt.strptime(_pt['date'], '%Y-%m-%d')
+                        _date_label = _d.strftime('%b %d').upper() + ' &middot; ' + _d.strftime('%Y')
+                    except Exception:
+                        pass
+
+                    # Score data deliberately omitted — pre-track rows show
+                    # only date + course (no per-player attribution exists, and
+                    # surfacing one player's gross on a shared landing page
+                    # isn't desired).
+                    _rows += (
+                        f'<div style="display:flex;align-items:center;gap:12px;padding:9px 14px;'
+                        f'background:#f4f1eb;border-radius:8px;margin-bottom:5px;'
+                        f'border:1px solid #ece9e3;">'
+                        f'<div style="font-family:\'Roboto Mono\',monospace;font-size:9px;font-weight:700;'
+                        f'color:#999;letter-spacing:.08em;text-transform:uppercase;'
+                        f'min-width:70px;line-height:1.3;">{_date_label}</div>'
+                        f'<div style="flex:1;min-width:0;font-size:12px;font-weight:600;color:#3a3a36;'
+                        f'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{_pt["course"]}</div>'
+                        f'</div>'
+                    )
+
+                pretrack_html = (
+                    f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:700;'
+                    f'text-transform:uppercase;letter-spacing:.18em;color:#aaa;margin:1.6rem 0 6px 4px;">'
+                    f'Pre-Tracking History &middot; {len(_pretrack)}</div>'
+                    f'<div style="font-size:10px;color:#999;font-style:italic;margin:0 0 10px 4px;'
+                    f'line-height:1.4;">Rounds played before digital scorecards.</div>'
+                    f'{_rows}'
+                )
+    except Exception as _e:
+        # Don't let pre-track errors break the index
+        pretrack_html = ''
+
+    # ────────────────────────────────────────────────────────────────────
+    # CSS
+    # ────────────────────────────────────────────────────────────────────
     css = (
-        'html{scroll-behavior:smooth;}*{box-sizing:border-box;margin:0;padding:0;}'
+        'html{scroll-behavior:smooth;}'
+        '*{box-sizing:border-box;margin:0;padding:0;}'
         'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;'
-        'background:#f4f1eb;color:#1a1a16;padding:14px;max-width:680px;margin:0 auto;padding-bottom:3rem;}'
+        'background:#f4f1eb;color:#1a1a16;padding:0;margin:0;padding-bottom:3rem;}'
+        'main{max-width:680px;margin:0 auto;padding:0 14px;}'
+        'a{transition:transform .12s,background .15s;}'
         'a:active{transform:scale(0.99);}'
+
+        # Hero banner — full bleed, tall on mobile, image + dark gradient overlay
+        '.hero-banner{position:relative;width:100%;'
+        'background:#1a2e1a;'
+        'background-image:linear-gradient(180deg,rgba(0,0,0,0.15) 0%,rgba(0,0,0,0.45) 60%,rgba(0,0,0,0.78) 100%),'
+        'url(\'images/landing-hero.png\');'
+        'background-size:cover;background-position:center 40%;'
+        'min-height:280px;display:flex;align-items:flex-end;'
+        'border-bottom:1px solid rgba(168,255,94,0.18);}'
+        '.hero-inner{max-width:680px;width:100%;margin:0 auto;padding:0 18px 24px;color:#fff;text-align:right;}'
+        '.hero-eyebrow{font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:600;'
+        'letter-spacing:.3em;color:#a8ff5e;margin-bottom:8px;text-transform:uppercase;}'
+        '.hero-title{font-family:\'Bebas Neue\',\'Impact\',sans-serif;font-size:48px;line-height:.95;'
+        'letter-spacing:.005em;margin-bottom:8px;color:#fff;text-transform:uppercase;'
+        'text-shadow:0 2px 12px rgba(0,0,0,0.4);}'
+        '.hero-sub{font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:600;'
+        'letter-spacing:.18em;color:#ffa838;text-transform:uppercase;}'
+
+        # Slightly taller hero on bigger screens to let the image breathe
+        '@media(min-width:600px){.hero-banner{min-height:340px;}'
+        '.hero-title{font-size:60px;}}'
+
+        # Content area below hero
+        'main{padding-top:1.6rem;}'
     )
+
+    # ────────────────────────────────────────────────────────────────────
+    # Hero banner copy
+    # ────────────────────────────────────────────────────────────────────
+    total_rounds = len(reports)
+    rounds_label = f'Round Reports &middot; {total_rounds} on file' if total_rounds != 1 else 'Round Reports &middot; 1 on file'
+    hero_html = (
+        f'<div class="hero-banner">'
+        f'<div class="hero-inner">'
+        f'<div class="hero-eyebrow">&#9971; Est. 2023</div>'
+        f'<div class="hero-title">NOB Golf</div>'
+        f'<div class="hero-sub">{rounds_label}</div>'
+        f'</div></div>'
+    )
+
+    empty_html = ''
+    if not future and not past:
+        empty_html = (
+            f'<div style="background:#fff;border-radius:12px;padding:2rem;text-align:center;'
+            f'color:#aaa;font-size:13px;border:1px solid #e5e3de;">'
+            f'No reports yet. Run the build script to add one.</div>'
+        )
 
     html = (
         f'<!DOCTYPE html>\n<html lang="en">\n<head>\n'
         f'<meta charset="UTF-8">\n'
         f'<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">\n'
-        f'<title>NoB Golf Reports</title>\n'
-        f'<link href="https://fonts.googleapis.com/css2?family=Caveat&display=swap" rel="stylesheet">\n'
+        f'<title>NOB Golf</title>\n'
+        f'<link href="https://fonts.googleapis.com/css2?family=Caveat&family=Bebas+Neue&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">\n'
         f'<style>{css}</style>\n'
         f'</head>\n<body>\n'
-        # Hero
-        f'<div style="background:linear-gradient(135deg,#1a2e1a 60%,#2d4a1e);border-radius:14px;'
-        f'padding:1.4rem 1.5rem;margin-bottom:1rem;color:#fff;">'
-        f'<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.15em;'
-        f'color:#8fcc7a;margin-bottom:6px;">&#9971; NoB Golf Group</div>'
-        f'<div style="font-family:Caveat,cursive;font-size:32px;font-weight:700;line-height:1.1;">'
-        f'Round Reports</div>'
-        f'<div style="font-size:12px;color:rgba(255,255,255,.7);margin-top:6px;">'
-        f'{len(reports)} round{"s" if len(reports)!=1 else ""} on file'
-        f'</div>'
-        f'</div>'
-        f'{upcoming_section}'
-        f'{past_section}'
-        f'{empty}'
+        f'{hero_html}'
+        f'<main>'
+        f'<div style="font-family:\'Roboto Mono\',monospace;font-size:10px;font-weight:700;'
+        f'text-transform:uppercase;letter-spacing:.18em;color:#1a6e2e;margin:0 0 10px 4px;">'
+        f'&#9971; Next Round</div>'
+        f'{next_round_card}'
+        f'{other_future_html}'
+        f'{past_html}'
+        f'{pretrack_html}'
+        f'{empty_html}'
         f'<div style="margin-top:2rem;padding-top:1rem;border-top:1px solid #e5e3de;'
-        f'font-size:10px;color:#aaa;text-align:center;">'
+        f'font-size:10px;color:#aaa;text-align:center;font-family:\'Roboto Mono\',monospace;'
+        f'letter-spacing:.08em;">'
         f'Each report includes course intel, weather, and a digital scorecard.'
         f'</div>'
+        f'</main>'
         f'</body>\n</html>'
     )
 
