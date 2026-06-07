@@ -5540,10 +5540,11 @@ def write_index(index_path, reports):
             rain = wx.get('rain')
             rain_pill = ''
             if rain not in (None, 0, '0%', '0', 0.0):
+                rain_val = str(rain).rstrip('%')
                 rain_pill = (f'<span style="display:inline-flex;align-items:center;font-size:10px;'
                              f'font-weight:700;color:#a8ff5e;background:rgba(168,255,94,0.12);'
                              f'border:1px solid rgba(168,255,94,0.3);padding:3px 8px;border-radius:8px;'
-                             f'letter-spacing:.04em;">{rain}% RAIN</span>')
+                             f'letter-spacing:.04em;">{rain_val}% RAIN</span>')
             wx_strip = (
                 f'<div style="display:flex;align-items:center;gap:10px;margin-top:14px;'
                 f'padding-top:14px;border-top:1px solid rgba(255,255,255,0.12);">'
