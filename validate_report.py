@@ -6,6 +6,10 @@ Exit 0 = valid, Exit 1 = errors found.
 Adapts to multi-player reports built by report_builder.py. Player count,
 scorecard structure, send-sections, and tabindex ranges are all inferred
 from the HTML rather than hardcoded.
+
+Scoring flow: every player ENTERS their own 18 scores (interactive rows).
+Sending is separate — Nick & Brett email their scores to Ollie, who is the
+recipient/aggregator and therefore has no send-scores block of his own.
 """
 import re, sys
 
@@ -19,8 +23,8 @@ def validate_report(path):
     if html.count('<body>') != 1:
         errors.append("Body tag count off")
     sc_count = html.count('<script>')
-    if sc_count != 1:
-        errors.append(f"Script tags: {sc_count} (should be 1)")
+    if sc_count != 4:
+        errors.append(f"Script tags: {sc_count} (should be 4)")
 
     # Div balance (whole doc)
     opens  = len(re.findall(r'<div[\s>]', html))
@@ -49,20 +53,22 @@ def validate_report(path):
     actual_inputs = re.findall(r'<input[^>]+data-player="([^"]+)"', html)
     from collections import Counter
     input_counts = Counter(actual_inputs)
-    submitters = [p for p in players if p != 'Ollie']
-    expected_total = 18 * len(submitters)
+    # New flow: every player ENTERS their own 18 scores (all rows interactive).
+    # SENDING is separate — Ollie is the recipient/aggregator, so he has no
+    # send block, but he still enters his own scores like everyone else.
+    enterers = players
+    senders  = [p for p in players if p != 'Ollie']
+    expected_total = 18 * len(enterers)
     if sum(input_counts.values()) != expected_total:
         errors.append(f"Score inputs: {sum(input_counts.values())} "
-                      f"(expected {expected_total} = 18 x {len(submitters)} submitter{'s' if len(submitters)!=1 else ''})")
-    for p in submitters:
+                      f"(expected {expected_total} = 18 x {len(enterers)} player{'s' if len(enterers)!=1 else ''})")
+    for p in enterers:
         if input_counts.get(p) != 18:
             errors.append(f"Player '{p}': {input_counts.get(p, 0)} inputs (should be 18)")
-    if input_counts.get('Ollie', 0) != 0:
-        errors.append(f"Ollie has {input_counts['Ollie']} inputs (should be 0 - display-only row)")
 
-    # Tabindex sequence — should be contiguous 1..18*len(submitters), no -1
+    # Tabindex sequence — should be contiguous 1..18*len(enterers), no -1
     tabs = sorted(set(int(x) for x in re.findall(r'tabindex="(-?\d+)"', html)))
-    expected_tabs = list(range(1, 18 * len(submitters) + 1))
+    expected_tabs = list(range(1, 18 * len(enterers) + 1))
     if tabs != expected_tabs:
         if len(expected_tabs) < 10:
             errors.append(f"Tabindexes: {tabs} (expected {expected_tabs})")
@@ -75,32 +81,24 @@ def validate_report(path):
         if f'id="{a}"' not in html:
             errors.append(f"Missing: #{a}")
 
-    # Send-scores sections — one per submitter, indexed p0..pN
-    for i, p in enumerate(players):
-        sid = f'send-scores-section-p{i}'
-        is_submitter = p != 'Ollie'
-        present = f'id="{sid}"' in html
-        if is_submitter and not present:
-            errors.append(f"Missing send section for {p} (#{sid})")
-        if not is_submitter and present:
-            errors.append(f"Unexpected send section for Ollie (#{sid})")
-
-    # Each submitter's send section should be wired to its JS functions
-    for i, p in enumerate(players):
-        if p == 'Ollie':
-            continue
-        if f'sendScores({i})' not in html:
-            errors.append(f"No sendScores({i}) onclick for {p}")
-        if f"selectFeeling({i},'good')" not in html:
-            errors.append(f"No selectFeeling({i},'good') for {p}")
+    # Email send-scores flow is RETIRED — scores write to Supabase via Beast
+    # Mode. No per-player send blocks (or their send buttons) should be RENDERED.
+    # (A template string for the old button may still sit in inert, never-called
+    # JS; that's harmless, so we check for rendered elements, not raw text.)
+    stray = [i for i in range(len(players)) if f'id="send-scores-section-p{i}"' in html]
+    if stray:
+        errors.append(f"Email send section(s) still rendered (retired flow): {stray}")
+    stray_btns = [i for i in range(len(players)) if f'id="send-btn-p{i}"' in html]
+    if stray_btns:
+        errors.append(f"Email send button(s) still rendered (retired flow): {stray_btns}")
 
     # ── JS sanity ──────────────────────────────────────────────────────
     # Note: BACK_PAR may be chain-declared (e.g. "var FRONT_PAR=[...], BACK_PAR=[...]")
-    # so we don't require its own `var` keyword.
+    # so we don't require its own `var` keyword. Email-flow JS (sendScores,
+    # selectFeeling, etc.) is no longer required — that path is retired.
     js_required = ['var PLAYERS=', 'FRONT_PAR=', 'BACK_PAR=',
-                   'window.sendScores=', 'window.selectFeeling=',
-                   'window.refreshWeather=', 'function checkReadyToSend',
-                   'function showSentConfirmation']
+                   'window.refreshWeather=',
+                   'var SUPABASE_URL=', 'var SUPABASE_KEY=']
     for snippet in js_required:
         if snippet not in html:
             errors.append(f"Missing JS: {snippet}")
@@ -130,7 +128,7 @@ def validate_report(path):
     print(f"{'='*60}")
     print(f"  Size: {len(html):,}  |  Divs: {opens}/{closes}  |  "
           f"Scripts: {sc_count}  |  SC tables: {sct}")
-    print(f"  Players: {players}  |  Submitters: {submitters}")
+    print(f"  Players: {players}  |  Enter scores: {enterers}  |  Send: {senders}")
     print(f"  Inputs: {dict(input_counts)}")
     if errors:
         print(f"\n  ERRORS ({len(errors)}):")

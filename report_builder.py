@@ -1009,8 +1009,16 @@ def build_hcp_legend():
 
 
 def build_send_scores_sections(players):
-    """One send-scores block per player. Each shows when that player's 18 holes are filled.
-    Ollie is the recipient, not a submitter — skip generating one for that name."""
+    """RETIRED. Scores now write to Supabase via the Beast Mode per-hole entry
+    overlay, so the old per-player "Send Scores to Ollie" email blocks are no
+    longer rendered. Returns an empty string. The associated JS (sendScores,
+    selectFeeling, checkReadyToSend, showSentConfirmation) remains defined but
+    inert — every reference is guarded by an `if(sect)` lookup that now finds
+    nothing, so nothing fires. Kept here (rather than deleted from the minified
+    JS block) to avoid disturbing the scorecard's input/tab handlers."""
+    return ''
+
+    # --- legacy email flow (no longer reached) ---
     blocks = []
     for i, name in enumerate(players):
         if name == 'Ollie':

@@ -1,105 +1,30 @@
 {
   "reports": [
     {
-      "file": "2026-06-15_0900_anderson-se.html",
-      "course": "Anderson Links (S/E)",
-      "short": "Anderson Links (S/E)",
-      "date": "2026-06-15",
-      "time_24": "09:00",
-      "time_display": "9:00 AM",
-      "date_display": "June 15, 2026",
-      "day_name": "Monday",
+      "file": "2026-06-13_0646_pineview.html",
+      "course": "PineView Golf Course (Championship)",
+      "short": "PineView GC (Championship)",
+      "date": "2026-06-13",
+      "time_24": "06:46",
+      "time_display": "6:46 AM",
+      "date_display": "June 13, 2026",
+      "day_name": "Saturday",
       "players": [
         "Nick",
         "Brett",
         "Ollie"
       ],
-      "address": "4175 Anderson Road, Ottawa, ON, K0A 1K0",
-      "tee": "White (Blue/Red)",
-      "yards": 6073,
+      "address": "1471 Blair Road, Ottawa, ON",
+      "tee": "White",
+      "yards": 5700,
       "par": 72,
       "wx": {
-        "temp": "--°C",
-        "icon": "&#9925;&#65039;",
-        "condition": "Forecast pending",
-        "rain": "0%"
-      }
-    },
-    {
-      "file": "2026-04-26_0758_irish-hills.html",
-      "course": "Irish Hills Golf & Country Club",
-      "short": "Irish Hills G&CC",
-      "date": "2026-04-26",
-      "time_24": "07:58",
-      "time_display": "7:58 AM",
-      "date_display": "April 26, 2026",
-      "day_name": "Sunday",
-      "players": [
-        "Nick",
-        "Brett",
-        "Ollie"
-      ],
-      "address": "3860 Carp Rd, Carp, ON",
-      "tee": "White (Red/Blue)",
-      "yards": 6137,
-      "par": 70,
-      "wx": {
-        "temp": "2°C",
+        "temp": "14°C",
         "icon": "&#9728;&#65039;",
         "condition": "Clear Sky",
-        "rain": "0%"
-      }
-    },
-    {
-      "file": "2026-05-02_0805_oaks-of-cobden.html",
-      "course": "Oaks of Cobden Golf Club",
-      "short": "Oaks of Cobden GC",
-      "date": "2026-05-02",
-      "time_24": "08:05",
-      "time_display": "8:05 AM",
-      "date_display": "May 2, 2026",
-      "day_name": "Saturday",
-      "players": [
-        "Nick",
-        "Brett",
-        "Ollie"
-      ],
-      "address": "1725 Kohlsmith Rd, Cobden, ON K0J 1K0, Canada",
-      "tee": "White",
-      "yards": 6085,
-      "par": 71,
-      "wx": {
-        "temp": "2°C",
-        "icon": "&#9729;&#65039;",
-        "condition": "Overcast",
-        "rain": "17%"
-      }
-    },
-    {
-      "file": "2026-05-02_0805_edelweiss.html",
-      "course": "Edelweiss Golf & Country Club",
-      "short": "Edelweiss G&CC",
-      "date": "2026-05-02",
-      "time_24": "08:05",
-      "time_display": "8:05 AM",
-      "date_display": "May 2, 2026",
-      "day_name": "Saturday",
-      "players": [
-        "Nick",
-        "Brett",
-        "Ollie"
-      ],
-      "address": "465 Ch Edelweiss, Wakefield, QC J0X 3G0, Canada",
-      "tee": "Bleu",
-      "yards": 6383,
-      "par": 72,
-      "wx": {
-        "temp": "1°C",
-        "icon": "&#9729;&#65039;",
-        "condition": "Overcast",
-        "rain": "17%"
+        "rain": "5%"
       }
     }
   ],
-  "updated": "2026-04-26T19:36:58"
+  "updated": "2026-06-07T18:08:48"
 }
