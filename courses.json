@@ -4076,7 +4076,57 @@
       373,
       359,
       161
-    ]
+    ],
+    "meta": {
+      "address": "955 Opeongo Rd, Renfrew, ON K7V 3Z5",
+      "lat": 45.4519,
+      "lng": -76.7178,
+      "google_rating": 4.7,
+      "google_reviews": 227,
+      "booking": "Direct (dragonflygolflinks.com)",
+      "stops": [
+        {
+          "icon": "🥐",
+          "name": "Bonnechere Bakery & Bistro",
+          "addr": "258 Raglan St S, Renfrew",
+          "dist": "5 min from the course",
+          "desc": "The all-rounder — bakery counter for the road, full bistro for the eat-in crowd. Bright open space, strong coffee, sandwiches that show up at lunch. Closes at 3 on Saturdays so don't dawdle.",
+          "rating": 4.7,
+          "badge": "Bakery/Bistro",
+          "hours": "Tue–Sat 7am–3pm · closed Sun/Mon"
+        },
+        {
+          "icon": "🥞",
+          "name": "Stacked Pancake & Breakfast House",
+          "addr": "640 O'Brien Rd, Renfrew",
+          "dist": "6 min from the course",
+          "desc": "Exactly what you want after a 6am tee — fluffy pancakes, fast service, big portions. Reliable chain energy in a town that doesn't have many full-service breakfast spots open weekend mornings.",
+          "rating": 4.7,
+          "badge": "Breakfast",
+          "hours": "Daily 7am–3pm"
+        },
+        {
+          "icon": "🍳",
+          "name": "Step'N Back Diner",
+          "addr": "240 Hall Ave E, Renfrew",
+          "dist": "5 min from the course",
+          "desc": "Down-home diner with the locals. Memorabilia-on-the-walls energy, hearty plates, gluten-free toast on request, and friendly servers who know everyone. Cash-friendly and fast.",
+          "rating": 4.4,
+          "badge": "Diner",
+          "hours": "Daily 7am–7pm"
+        },
+        {
+          "icon": "🍔",
+          "name": "Odi's Kingburger Drive-In",
+          "addr": "546 Stewart St, Renfrew",
+          "dist": "7 min from the course",
+          "desc": "Renfrew institution. The Kingburger sauce is famous, curly fries are a 10, and locals defend it like a religion. Opens at 11 — line up the round so you walk in right at opening for a late-morning lunch.",
+          "rating": 4.5,
+          "badge": "Burgers",
+          "hours": "Daily 11am–8pm"
+        }
+      ]
+    }
   },
   "Cloverdale Links Golf & Country Club": {
     "par": 71,
@@ -7016,7 +7066,57 @@
       173,
       432,
       208
-    ]
+    ],
+    "meta": {
+      "address": "154 Caldwell St, Lanark, ON K0G 1K0",
+      "lat": 45.0125,
+      "lng": -76.3606,
+      "google_rating": 4.6,
+      "google_reviews": 188,
+      "booking": "Direct (timberrungolfclub.com)",
+      "stops": [
+        {
+          "icon": "🥞",
+          "name": "Penny's Place",
+          "addr": "23 Dufferin St, Perth",
+          "dist": "18 min from the course",
+          "desc": "The post-round play. Big-portion homemade breakfast — Supreme Hash bowls, the Keto bowl, generous coffee top-ups. Hits exactly when you walk off at 11am. Closes at 3pm, so don't dawdle.",
+          "rating": 4.5,
+          "badge": "Breakfast",
+          "hours": "Tue–Sun 7am–3pm · closed Mon"
+        },
+        {
+          "icon": "🥐",
+          "name": "The Fieldhouse Bakery",
+          "addr": "43 Herriott St, Perth",
+          "dist": "18 min from the course",
+          "desc": "Cruffins, flaky chocolate croissants warmed on request, sandwiches sized like a meal. Patio out back, mochas worth the stop. Quieter alternative to Penny's if you just want pastry and coffee.",
+          "rating": 4.8,
+          "badge": "Bakery",
+          "hours": "Daily 10am–3pm"
+        },
+        {
+          "icon": "🍞",
+          "name": "Basic Kneads Bakery",
+          "addr": "98 Gore St E, Perth",
+          "dist": "18 min from the course",
+          "desc": "European-quality bread baked that morning — chili-oil focaccia, sourdough rye, cobbler loaves. Grab one to bring home; they go fast. Order ahead if you want guaranteed pickup.",
+          "rating": 4.9,
+          "badge": "Bakery",
+          "hours": "Daily 7:30am–5pm"
+        },
+        {
+          "icon": "🍨",
+          "name": "The Rideau Candy Shoppe",
+          "addr": "73 Foster St, Perth",
+          "dist": "18 min from the course",
+          "desc": "Tiny downtown shop, outsized selection. Kawartha ice cream by the scoop plus a wall of candy older than most of us. The kind of stop that turns into a 20-minute browse.",
+          "rating": 4.9,
+          "badge": "Ice Cream",
+          "hours": "Daily 10am–9pm"
+        }
+      ]
+    }
   },
   "Château Cartier": {
     "par": 70,

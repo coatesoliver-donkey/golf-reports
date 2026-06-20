@@ -50,7 +50,32 @@
         "rain": "0%"
       },
       "past_override": true
+    },
+    {
+      "file": "2026-06-27_0600_dragonfly.html",
+      "course": "Dragonfly Golf Links",
+      "short": "Dragonfly Golf Links",
+      "date": "2026-06-27",
+      "time_24": "06:00",
+      "time_display": "6:00 AM",
+      "date_display": "June 27, 2026",
+      "day_name": "Saturday",
+      "players": [
+        "Nick",
+        "Brett",
+        "Ollie"
+      ],
+      "address": "955 Opeongo Rd, Renfrew, ON K7V 3Z5",
+      "tee": "Middle",
+      "yards": 6042,
+      "par": 72,
+      "wx": {
+        "temp": "12°C",
+        "icon": "&#9925;&#65039;",
+        "condition": "Mainly Clear",
+        "rain": "9%"
+      }
     }
   ],
-  "updated": "2026-06-20T18:48:54"
+  "updated": "2026-06-20T18:52:38"
 }
