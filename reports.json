@@ -19,10 +19,10 @@
       "yards": 5700,
       "par": 72,
       "wx": {
-        "temp": "14°C",
-        "icon": "&#9728;&#65039;",
-        "condition": "Clear Sky",
-        "rain": "5%"
+        "temp": "--°C",
+        "icon": "&#9925;&#65039;",
+        "condition": "Forecast pending",
+        "rain": "0%"
       },
       "past_override": true
     },
@@ -70,12 +70,12 @@
       "yards": 6042,
       "par": 72,
       "wx": {
-        "temp": "12°C",
-        "icon": "&#9925;&#65039;",
-        "condition": "Mainly Clear",
+        "temp": "14°C",
+        "icon": "&#9729;&#65039;",
+        "condition": "Overcast",
         "rain": "9%"
       }
     }
   ],
-  "updated": "2026-06-20T18:52:38"
+  "updated": "2026-06-20T19:44:37"
 }
