@@ -1787,7 +1787,8 @@ def build_lcd(time_str='3:41'):
     SEGS = {'0':(1,1,1,1,1,1,0),'1':(0,1,1,0,0,0,0),'2':(1,1,0,1,1,0,1),
             '3':(1,1,1,1,0,0,1),'4':(0,1,1,0,0,1,1),'5':(1,0,1,1,0,1,1),
             '6':(1,0,1,1,1,1,1),'7':(1,1,1,0,0,0,0),'8':(1,1,1,1,1,1,1),
-            '9':(1,1,1,1,0,1,1)}
+            '9':(1,1,1,1,0,1,1),
+            '\u2014':(0,0,0,0,0,0,1)}  # em-dash → middle bar only (placeholder/no-data state)
 
     def seg(ch, ox, oy, w=24, h=40, t=4):
         if ch == ':':
@@ -5270,30 +5271,31 @@ def build_report(course_name, date_str, time_str, players, output_path):
         f'<div class="stat-grid" style="gap:8px;">{stat_boxes}</div>',
         f'</div>',
 
-        # Intel + (walk + elevation/clock — only if we have any FIT-tracked roundData)
+        # Intel + walk/elevation/round-time block.
+        # Each sub-box handles its own no-data state (walk shows "—km", elevation
+        # uses a placeholder sweep, round-time renders "—:—"), so the block always
+        # renders. Previously this was suppressed wholesale when roundData was empty,
+        # which removed the section entirely even though the individual boxes are
+        # designed to show placeholders.
         intel,
-        # The walk/elevation/round-time block all reads from roundData. If the
-        # course hasn't been played and tracked yet, hide the entire block
-        # rather than show three empty placeholder boxes.
-        ((f'<div style="margin-top:5px;">{_build_walk_box(course_name, c)}</div>'
-          f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;">'
-          f'<div class="stat clickable" style="margin-top:5px;" onclick="toggleEx(\'elev-ex\')">'
-          f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
-          f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Elevation</div>'
-          f'</div>'
-          f'{elev_svg}'
-          f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:3px;">{elev_caption}</div>'
-          f'</div>'
-          f'<div class="stat clickable" style="margin-top:5px;text-align:center;" onclick="toggleEx(\'round-time-ex\')">'
-          f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
-          f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Avg. Round Time</div>'
-          f'</div>'
-          f'{lcd_svg}'
-          f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:6px;">{round_time_caption}</div>'
-          f'</div></div>'
-          f'{round_time_ex}'
-          f'{_build_elev_ex(course_name, c)}')
-         if c.get('roundData') else ''),
+        (f'<div style="margin-top:5px;">{_build_walk_box(course_name, c)}</div>'
+         f'<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px;">'
+         f'<div class="stat clickable" style="margin-top:5px;" onclick="toggleEx(\'elev-ex\')">'
+         f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
+         f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Elevation</div>'
+         f'</div>'
+         f'{elev_svg}'
+         f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:3px;">{elev_caption}</div>'
+         f'</div>'
+         f'<div class="stat clickable" style="margin-top:5px;text-align:center;" onclick="toggleEx(\'round-time-ex\')">'
+         f'<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;">'
+         f'<div class="stat-label" style="color:#c4621a;font-weight:600;letter-spacing:.04em;margin-bottom:0;padding:0;border:none;">Avg. Round Time</div>'
+         f'</div>'
+         f'{lcd_svg}'
+         f'<div style="font-size:10px;color:#aaa;text-align:center;margin-top:6px;">{round_time_caption}</div>'
+         f'</div></div>'
+         f'{round_time_ex}'
+         f'{_build_elev_ex(course_name, c)}'),
 
         # Post-round stops (sweet/snack stops near the course) — hidden if no
         # post_stops data in courses.json (run enrich_courses.py to populate).
