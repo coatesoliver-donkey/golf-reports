@@ -19,12 +19,38 @@
       "yards": 5700,
       "par": 72,
       "wx": {
-        "temp": "14�C",
+        "temp": "14°C",
         "icon": "&#9728;&#65039;",
         "condition": "Clear Sky",
         "rain": "5%"
-      }
+      },
+      "past_override": true
+    },
+    {
+      "file": "2026-06-20_0640_timber-run.html",
+      "course": "Timber Run Golf Club & Event Lodge",
+      "short": "Timber Run GC & Event Lodge",
+      "date": "2026-06-20",
+      "time_24": "06:40",
+      "time_display": "6:40 AM",
+      "date_display": "June 20, 2026",
+      "day_name": "Saturday",
+      "players": [
+        "Brett",
+        "Ollie"
+      ],
+      "address": "154 Caldwell St, Lanark, ON K0G 1K0",
+      "tee": "Blue",
+      "yards": 5450,
+      "par": 69,
+      "wx": {
+        "temp": "15°C",
+        "icon": "&#9925;&#65039;",
+        "condition": "Mainly Clear",
+        "rain": "0%"
+      },
+      "past_override": true
     }
   ],
-  "updated": "2026-06-07T18:08:48"
+  "updated": "2026-06-20T18:48:54"
 }

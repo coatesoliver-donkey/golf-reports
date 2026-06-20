@@ -5424,10 +5424,15 @@ def update_manifest_and_index(output_path, course_name, date_str, time_str,
     manifest_path = os.path.join(out_dir, 'reports.json')
     index_path    = os.path.join(out_dir, 'index.html')
 
-    # Load existing manifest
+    # Load existing manifest. Explicit UTF-8 on the write below; tolerant read
+    # so an existing file written by an older (cp1252) version of this script
+    # can still be loaded — and self-heals on the next write.
     if os.path.exists(manifest_path):
-        with open(manifest_path) as f:
-            manifest = json.load(f)
+        raw = open(manifest_path, 'rb').read()
+        try:
+            manifest = json.loads(raw.decode('utf-8'))
+        except UnicodeDecodeError:
+            manifest = json.loads(raw.decode('cp1252'))
     else:
         manifest = {'reports': []}
 
@@ -5454,6 +5459,13 @@ def update_manifest_and_index(output_path, course_name, date_str, time_str,
             'rain':      wx0.get('rain'),
         }
     }
+    # Preserve manually-set fields (e.g. past_override) from any existing entry
+    existing = next((r for r in manifest['reports']
+                     if r['date']==date_str and r.get('time_24')==time_str and r['course']==course_name), None)
+    if existing:
+        for field in ('past_override',):
+            if field in existing:
+                entry[field] = existing[field]
     # Replace if (date, time, course) already exists; else append
     keep = [r for r in manifest['reports']
             if not (r['date']==date_str and r.get('time_24')==time_str and r['course']==course_name)]
@@ -5461,7 +5473,7 @@ def update_manifest_and_index(output_path, course_name, date_str, time_str,
     manifest['reports'] = keep
     manifest['updated'] = datetime.now().isoformat(timespec='seconds')
 
-    with open(manifest_path, 'w') as f:
+    with open(manifest_path, 'w', encoding='utf-8') as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
     # Regenerate index
@@ -5485,11 +5497,12 @@ def write_index(index_path, reports):
 
     today = _date.today().isoformat()
 
-    # Sort + bucket
+    # Sort + bucket. A report with past_override=True is always 'past', regardless
+    # of date — used to demote rounds you want to archive even before their date.
     sorted_reports = sorted(reports, key=lambda r: (r['date'], r.get('time_24', '')))
-    future = [r for r in sorted_reports if r['date'] >= today]
+    future = [r for r in sorted_reports if r['date'] >= today and not r.get('past_override')]
     past   = [r for r in sorted(sorted_reports, key=lambda r: (r['date'], r.get('time_24','')), reverse=True)
-              if r['date'] < today]
+              if r['date'] < today or r.get('past_override')]
     next_round = future[0] if future else None
     other_future = future[1:] if len(future) > 1 else []
 
@@ -5855,17 +5868,66 @@ def write_index(index_path, reports):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Build a golf prep report')
-    parser.add_argument('--course',   required=True, help='Exact course name from courses.json')
-    parser.add_argument('--date',     required=True, help='Date YYYY-MM-DD')
-    parser.add_argument('--time',     required=True, help='Tee time HH:MM (24h)')
-    parser.add_argument('--players',  required=True, nargs='+', help='Player names (Ollie last)')
-    parser.add_argument('--output',   required=True, help='Output HTML path')
+    parser.add_argument('--course',    help='Exact course name from courses.json')
+    parser.add_argument('--date',      help='Date YYYY-MM-DD')
+    parser.add_argument('--time',      help='Tee time HH:MM (24h)')
+    parser.add_argument('--players',   nargs='+', help='Player names (Ollie last)')
+    parser.add_argument('--output',    help='Output HTML path')
+    parser.add_argument('--mark-past', nargs='+', dest='mark_past', metavar='FILE',
+                        help='Set past_override=True on these report files in reports.json and '
+                             'regenerate index.html (demotes them out of the Next Round slot)')
+    parser.add_argument('--unmark-past', nargs='+', dest='unmark_past', metavar='FILE',
+                        help='Clear past_override on these report files (returns them to date-based bucketing)')
     args = parser.parse_args()
 
-    build_report(
-        course_name = args.course,
-        date_str    = args.date,
-        time_str    = args.time,
-        players     = args.players,
-        output_path = args.output
-    )
+    if args.mark_past or args.unmark_past:
+        # Mark/unmark mode — no build, just toggle the flag on existing entries
+        manifest_path = os.path.join(os.path.dirname(args.output) if args.output else '.', 'reports.json')
+        if not os.path.exists(manifest_path):
+            manifest_path = 'reports.json'
+        if not os.path.exists(manifest_path):
+            raise SystemExit(f"reports.json not found at {manifest_path}")
+
+        # Tolerant read — survives legacy cp1252-corrupted files
+        raw = open(manifest_path, 'rb').read()
+        try:
+            manifest = json.loads(raw.decode('utf-8'))
+        except UnicodeDecodeError:
+            manifest = json.loads(raw.decode('cp1252'))
+
+        touched = []
+        for r in manifest.get('reports', []):
+            if args.mark_past and r['file'] in args.mark_past:
+                r['past_override'] = True; touched.append((r['file'], 'past'))
+            if args.unmark_past and r['file'] in args.unmark_past:
+                r.pop('past_override', None); touched.append((r['file'], 'cleared'))
+
+        if not touched:
+            wanted = (args.mark_past or []) + (args.unmark_past or [])
+            raise SystemExit(f"None of {wanted} found in reports.json. "
+                             f"Available: {[r['file'] for r in manifest.get('reports', [])]}")
+
+        from datetime import datetime
+        manifest['updated'] = datetime.now().isoformat(timespec='seconds')
+        with open(manifest_path, 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, indent=2, ensure_ascii=False)
+
+        # Regenerate index.html so the change appears on the home page immediately
+        index_path = os.path.join(os.path.dirname(manifest_path), 'index.html')
+        write_index(index_path, manifest['reports'])
+        for fn, action in touched:
+            print(f"  [{action}] {fn}")
+        print(f"  [index] {index_path} ({len(manifest['reports'])} report{'s' if len(manifest['reports'])!=1 else ''})")
+    else:
+        # Regular build mode — require the build args
+        missing = [name for name in ('course','date','time','players','output')
+                   if not getattr(args, name)]
+        if missing:
+            parser.error(f"the following arguments are required for a build: --{', --'.join(missing)}")
+        build_report(
+            course_name = args.course,
+            date_str    = args.date,
+            time_str    = args.time,
+            players     = args.players,
+            output_path = args.output
+        )
