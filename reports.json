@@ -1,32 +1,6 @@
 {
   "reports": [
     {
-      "file": "2026-06-13_0646_pineview.html",
-      "course": "PineView Golf Course (Championship)",
-      "short": "PineView GC (Championship)",
-      "date": "2026-06-13",
-      "time_24": "06:46",
-      "time_display": "6:46 AM",
-      "date_display": "June 13, 2026",
-      "day_name": "Saturday",
-      "players": [
-        "Nick",
-        "Brett",
-        "Ollie"
-      ],
-      "address": "1471 Blair Road, Ottawa, ON",
-      "tee": "White",
-      "yards": 5700,
-      "par": 72,
-      "wx": {
-        "temp": "--°C",
-        "icon": "&#9925;&#65039;",
-        "condition": "Forecast pending",
-        "rain": "0%"
-      },
-      "past_override": true
-    },
-    {
       "file": "2026-06-20_0640_timber-run.html",
       "course": "Timber Run Golf Club & Event Lodge",
       "short": "Timber Run GC & Event Lodge",
@@ -75,7 +49,33 @@
         "condition": "Overcast",
         "rain": "4%"
       }
+    },
+    {
+      "file": "2026-06-13_0646_pineview.html",
+      "course": "PineView Golf Course (Championship)",
+      "short": "PineView GC (Championship)",
+      "date": "2026-06-13",
+      "time_24": "06:46",
+      "time_display": "6:46 AM",
+      "date_display": "June 13, 2026",
+      "day_name": "Saturday",
+      "players": [
+        "Nick",
+        "Brett",
+        "Ollie"
+      ],
+      "address": "1471 Blair Road, Ottawa, ON",
+      "tee": "White",
+      "yards": 5700,
+      "par": 72,
+      "wx": {
+        "temp": "--°C",
+        "icon": "&#9925;&#65039;",
+        "condition": "Forecast pending",
+        "rain": "0%"
+      },
+      "past_override": true
     }
   ],
-  "updated": "2026-06-21T14:17:31"
+  "updated": "2026-06-21T14:29:29"
 }

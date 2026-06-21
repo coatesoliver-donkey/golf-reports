@@ -134,6 +134,10 @@ def main():
     ap.add_argument('--courses', default='courses.json', help='Path to courses.json (default: ./courses.json)')
     ap.add_argument('--apply', action='store_true', help='Write changes (default: dry-run preview)')
     ap.add_argument('--only', nargs='*', metavar='COURSE', help='Substring-match: only process matching courses')
+    ap.add_argument('--map', nargs='*', dest='map_entries', metavar='DATE=COURSE',
+                    help='Manually map a round date to a course name (use when the course has no '
+                         'scorecards in courses.json to anchor the date). Format: 2026-06-13="PineView Golf Course (Championship)". '
+                         'Multiple --map values can be passed.')
     args = ap.parse_args()
 
     if not os.path.isdir(args.fit_dir):
@@ -187,6 +191,29 @@ def main():
                 for fp, m in by_date[date_str]:
                     course_rounds[cname].append(m)
                     matched_dates_per_course[cname].append(date_str)
+
+    # 3b. Apply manual --map overrides — handles courses with no scorecards yet.
+    if args.map_entries:
+        for entry in args.map_entries:
+            if '=' not in entry:
+                print(f"  [warn] --map ignored (need DATE=COURSE format): {entry!r}")
+                continue
+            date_str, target_course = entry.split('=', 1)
+            date_str = date_str.strip(); target_course = target_course.strip().strip('"\'')
+            if target_course not in courses:
+                # Fuzzy hint
+                matches = [k for k in courses if target_course.lower() in k.lower()]
+                hint = f" (close matches: {matches})" if matches else ""
+                print(f"  [warn] --map course not in courses.json: {target_course!r}{hint}")
+                continue
+            if date_str not in by_date:
+                print(f"  [warn] --map date {date_str} has no parsed golf round in --fit-dir")
+                continue
+            if not selected(target_course): continue
+            for fp, m in by_date[date_str]:
+                course_rounds[target_course].append(m)
+                matched_dates_per_course[target_course].append(date_str + ' (via --map)')
+                print(f"  [map]  {date_str} \u2192 {target_course}")
 
     # 4. Aggregate + diff
     print(f"\n  {'Course':<40} {'Rounds':>7} {'Walk':>8} {'Time':>7} {'Ascent':>8}")
