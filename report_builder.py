@@ -5780,11 +5780,13 @@ def write_index(index_path, reports):
     css = (
         'html{scroll-behavior:smooth;}'
         '*{box-sizing:border-box;margin:0;padding:0;}'
-        # Roboto Mono ships with a slashed zero by default; at 10px with heavy
-        # letter-spacing the slash can read as an 8 ("June 20, 2026" looks like
-        # "June 28, 2826"). Turn the OpenType `zero` feature off globally so
-        # every Roboto Mono date/time renders with a normal round 0.
-        '[style*="Roboto Mono"]{font-feature-settings:"zero" off;font-variant-numeric:normal;}'
+        # Roboto Mono ships with a slashed zero as its default glyph (not a
+        # toggleable OpenType `zero` feature), so at 10px with heavy letter-
+        # spacing "June 20, 2026" reads as "June 28, 2826". Override to the
+        # platform's native mono font, which uses a round zero on every OS:
+        # Windows → Consolas, macOS → SF Mono/Menlo, Linux → ui-monospace.
+        '[style*="Roboto Mono"]{font-family:ui-monospace,"SF Mono","Menlo",'
+        '"Consolas","Courier New",monospace !important;}'
         'body{font-family:-apple-system,BlinkMacSystemFont,\'Segoe UI\',sans-serif;'
         'background:#f4f1eb;color:#1a1a16;padding:0;margin:0;padding-bottom:3rem;}'
         'main{max-width:680px;margin:0 auto;padding:0 14px;}'
