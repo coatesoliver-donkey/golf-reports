@@ -1527,7 +1527,14 @@ def build_course_intel(course_name, c, short_name):
         elif slope_rank >= total - 2:
             bullets.append(('&#127948;', f'<strong>One of your toughest slopes</strong> at {c["slope"]} &mdash; {ordinal(slope_rank)} hardest in your rotation'))
         else:
-            bullets.append(('&#127948;', f'<strong>Slope {c["slope"]}</strong> &mdash; {ordinal(slope_rank)} easiest in your rotation (standard is 113)'))
+            # Middle ranks: flip to whichever framing (easiest/hardest) has the
+            # smaller ordinal — "17th easiest of 20" is awkward; "4th hardest" lands.
+            from_easy = slope_rank
+            from_hard = total - slope_rank + 1
+            if from_hard < from_easy:
+                bullets.append(('&#127948;', f'<strong>Slope {c["slope"]}</strong> &mdash; {ordinal(from_hard)} hardest of {total} in your rotation (standard is 113)'))
+            else:
+                bullets.append(('&#127948;', f'<strong>Slope {c["slope"]}</strong> &mdash; {ordinal(from_easy)} easiest of {total} in your rotation (standard is 113)'))
 
         # Yardage — fires for top/bottom 3
         if yards_rank == 1:
