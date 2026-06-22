@@ -134,9 +134,11 @@ def main():
     ap.add_argument('--courses', default='courses.json', help='Path to courses.json (default: ./courses.json)')
     ap.add_argument('--apply', action='store_true', help='Write changes (default: dry-run preview)')
     ap.add_argument('--only', nargs='*', metavar='COURSE', help='Substring-match: only process matching courses')
-    ap.add_argument('--map', nargs='*', dest='map_entries', metavar='DATE=COURSE',
-                    help='Manually map a round date to a course name (use when the course has no '
-                         'scorecards in courses.json to anchor the date). Format: 2026-06-13="PineView Golf Course (Championship)". '
+    ap.add_argument('--map', nargs='*', dest='map_entries', metavar='KEY=COURSE',
+                    help='Manually map a round to a course. KEY can be either YYYY-MM-DD (applies '
+                         'to all FITs on that date) or a specific .fit filename (when a date has '
+                         'multiple rounds going to different courses). '
+                         'Example: 2023-08-28-07-39-00.fit="Iroquois Golf Club". '
                          'Multiple --map values can be passed.')
     args = ap.parse_args()
 
@@ -182,6 +184,9 @@ def main():
     selected = lambda cname: (not args.only) or any(s.lower() in cname.lower() for s in args.only)
     course_rounds = defaultdict(list)
     matched_dates_per_course = defaultdict(list)
+    matched_dates = set()  # track every date we attribute somewhere, for orphan reporting
+
+    # 3a. courses.json scorecard dates (historical anchor)
     for cname, c in courses.items():
         if not (isinstance(c, dict) and 'par' in c): continue
         if not selected(cname): continue
@@ -191,29 +196,69 @@ def main():
                 for fp, m in by_date[date_str]:
                     course_rounds[cname].append(m)
                     matched_dates_per_course[cname].append(date_str)
+                    matched_dates.add(date_str)
 
-    # 3b. Apply manual --map overrides — handles courses with no scorecards yet.
+    # 3b. reports.json entries (covers Supabase-era rounds whose scorecards live elsewhere)
+    reports_path = os.path.join(os.path.dirname(os.path.abspath(args.courses)), 'reports.json')
+    if os.path.exists(reports_path):
+        raw = open(reports_path, 'rb').read()
+        try: manifest = json.loads(raw.decode('utf-8'))
+        except UnicodeDecodeError: manifest = json.loads(raw.decode('cp1252'))
+        for r in manifest.get('reports', []):
+            cname = r.get('course'); date_str = r.get('date')
+            if not (cname and date_str): continue
+            if cname not in courses: continue
+            if not selected(cname): continue
+            if date_str not in by_date: continue
+            # Skip if this exact (date, course) was already captured via scorecards
+            if date_str in matched_dates_per_course.get(cname, []): continue
+            for fp, m in by_date[date_str]:
+                # Avoid double-counting if multiple report entries share a date
+                if m in course_rounds[cname]: continue
+                course_rounds[cname].append(m)
+                matched_dates_per_course[cname].append(date_str + ' (via reports.json)')
+                matched_dates.add(date_str)
+
+    # 3c. Apply manual --map overrides — final fallback for orphans neither source covers
+    # Map keys can be either YYYY-MM-DD (applies to all FITs on that date) or a
+    # specific .fit filename (for days with multiple rounds that go to different courses).
     if args.map_entries:
         for entry in args.map_entries:
             if '=' not in entry:
-                print(f"  [warn] --map ignored (need DATE=COURSE format): {entry!r}")
+                print(f"  [warn] --map ignored (need DATE=COURSE or FILENAME=COURSE format): {entry!r}")
                 continue
-            date_str, target_course = entry.split('=', 1)
-            date_str = date_str.strip(); target_course = target_course.strip().strip('"\'')
+            key, target_course = entry.split('=', 1)
+            key = key.strip(); target_course = target_course.strip().strip('"\'')
             if target_course not in courses:
-                # Fuzzy hint
                 matches = [k for k in courses if target_course.lower() in k.lower()]
                 hint = f" (close matches: {matches})" if matches else ""
                 print(f"  [warn] --map course not in courses.json: {target_course!r}{hint}")
                 continue
-            if date_str not in by_date:
-                print(f"  [warn] --map date {date_str} has no parsed golf round in --fit-dir")
-                continue
             if not selected(target_course): continue
-            for fp, m in by_date[date_str]:
+
+            # Resolve key → list of (date_str, fp, metrics) to attribute
+            hits = []
+            if key.lower().endswith('.fit'):
+                target_basename = key.lower()
+                for date_str, fits in by_date.items():
+                    for fp, m in fits:
+                        if os.path.basename(fp).lower() == target_basename:
+                            hits.append((date_str, fp, m))
+            else:
+                date_str = key
+                if date_str in by_date:
+                    for fp, m in by_date[date_str]:
+                        hits.append((date_str, fp, m))
+
+            if not hits:
+                print(f"  [warn] --map key {key!r} matched no parsed golf round in --fit-dir")
+                continue
+
+            for date_str, fp, m in hits:
                 course_rounds[target_course].append(m)
                 matched_dates_per_course[target_course].append(date_str + ' (via --map)')
-                print(f"  [map]  {date_str} \u2192 {target_course}")
+                matched_dates.add(date_str)
+                print(f"  [map]  {date_str}  {os.path.basename(fp)}  \u2192 {target_course}")
 
     # 4. Aggregate + diff
     print(f"\n  {'Course':<40} {'Rounds':>7} {'Walk':>8} {'Time':>7} {'Ascent':>8}")
@@ -230,6 +275,18 @@ def main():
         print(f"  {cname[:40]:<40} {len(rounds):>5}    {rd['avgDistKm']:>5.2f}km {rd['avgTimeMin']:>5.0f}min "
               f"{(rd['avgSmoothAscentM'] or 0):>5.0f}m{delta}")
         updates[cname] = rd
+
+    # 4b. Orphan report — valid golf rounds whose dates we couldn't attribute anywhere.
+    # Without this, courses played but never logged as a scorecard or report were dropped silently.
+    orphan_dates = sorted(set(by_date.keys()) - matched_dates)
+    if orphan_dates:
+        print(f"\n  Orphaned rounds (no scorecard, no report entry, no --map): {len(orphan_dates)}")
+        for date_str in orphan_dates:
+            for fp, m in by_date[date_str]:
+                print(f"    {date_str}  {m['distKm']:>5.2f}km  {m['timeMin']:>4.0f}min  "
+                      f"{os.path.basename(fp)}")
+        print(f"  To attribute these, add a scorecard for that date to courses.json, build a "
+              f"report (so they show up in reports.json), or use --map DATE=COURSE.")
 
     if not updates:
         print("\n  No matches. Either the FIT directory is empty of dated golf rounds, or none "
