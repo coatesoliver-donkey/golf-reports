@@ -1,31 +1,6 @@
 {
   "reports": [
     {
-      "file": "2026-06-20_0640_timber-run.html",
-      "course": "Timber Run Golf Club & Event Lodge",
-      "short": "Timber Run GC & Event Lodge",
-      "date": "2026-06-20",
-      "time_24": "06:40",
-      "time_display": "6:40 AM",
-      "date_display": "June 20, 2026",
-      "day_name": "Saturday",
-      "players": [
-        "Brett",
-        "Ollie"
-      ],
-      "address": "154 Caldwell St, Lanark, ON K0G 1K0",
-      "tee": "Blue",
-      "yards": 5450,
-      "par": 69,
-      "wx": {
-        "temp": "15°C",
-        "icon": "&#9925;&#65039;",
-        "condition": "Mainly Clear",
-        "rain": "0%"
-      },
-      "past_override": true
-    },
-    {
       "file": "2026-06-27_0600_dragonfly.html",
       "course": "Dragonfly Golf Links",
       "short": "Dragonfly Golf Links",
@@ -44,9 +19,9 @@
       "yards": 6042,
       "par": 72,
       "wx": {
-        "temp": "13°C",
-        "icon": "&#9729;&#65039;",
-        "condition": "Overcast",
+        "temp": "14°C",
+        "icon": "&#9925;&#65039;",
+        "condition": "Mainly Clear",
         "rain": "4%"
       }
     },
@@ -75,7 +50,32 @@
         "rain": "0%"
       },
       "past_override": true
+    },
+    {
+      "file": "2026-06-20_0640_timber-run.htm",
+      "course": "Timber Run Golf Club & Event Lodge",
+      "short": "Timber Run GC & Event Lodge",
+      "date": "2026-06-20",
+      "time_24": "06:40",
+      "time_display": "6:40 AM",
+      "date_display": "June 20, 2026",
+      "day_name": "Saturday",
+      "players": [
+        "Brett",
+        "Ollie"
+      ],
+      "address": "154 Caldwell St, Lanark, ON K0G 1K0",
+      "tee": "Blue",
+      "yards": 5450,
+      "par": 69,
+      "wx": {
+        "temp": "--°C",
+        "icon": "&#9925;&#65039;",
+        "condition": "Forecast pending",
+        "rain": "0%"
+      },
+      "past_override": true
     }
   ],
-  "updated": "2026-06-21T14:29:29"
+  "updated": "2026-06-21T21:14:12"
 }

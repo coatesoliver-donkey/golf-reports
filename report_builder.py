@@ -1100,9 +1100,9 @@ def build_stat_boxes(course_name, c):
     # Comparisons run only against courses the group has actually played.
     # Unplayed courses (rounds == 0) are excluded from rankings.
     played = _played_courses()
-    all_yards   = sorted((v['yards'],  k) for k, v in played.items() if 'yards'  in v)
-    all_ratings = sorted((v['rating'], k) for k, v in played.items() if 'rating' in v)
-    all_slopes  = sorted((v['slope'],  k) for k, v in played.items() if 'slope'  in v)
+    all_yards   = sorted(((v['yards'],  k) for k, v in played.items() if 'yards'  in v), reverse=True)
+    all_ratings = sorted(((v['rating'], k) for k, v in played.items() if 'rating' in v), reverse=True)
+    all_slopes  = sorted(((v['slope'],  k) for k, v in played.items() if 'slope'  in v), reverse=True)
     total = len(all_yards)
 
     def pct(val, lst):
@@ -1154,7 +1154,8 @@ def _build_walk_box(course_name, c):
     all_walks = sorted(
         ((v['roundData']['avgDistKm'], k)
          for k, v in played.items()
-         if (v.get('roundData') or {}).get('avgDistKm') is not None)
+         if (v.get('roundData') or {}).get('avgDistKm') is not None),
+        reverse=True
     )
     total = len(all_walks)
 
@@ -1215,7 +1216,8 @@ def _build_round_time_ex(course_name, c):
     all_times = sorted(
         ((v['roundData']['avgTimeMin'], k)
          for k, v in played.items()
-         if (v.get('roundData') or {}).get('avgTimeMin') is not None)
+         if (v.get('roundData') or {}).get('avgTimeMin') is not None),
+        reverse=True
     )
     time_rows = [(fmt_hm(m), cn) for m, cn in all_times]
 
@@ -1373,7 +1375,8 @@ def _build_elev_ex(course_name, c):
     all_asc = sorted(
         ((v['roundData']['avgSmoothAscentM'], k)
          for k, v in played.items()
-         if (v.get('roundData') or {}).get('avgSmoothAscentM') is not None)
+         if (v.get('roundData') or {}).get('avgSmoothAscentM') is not None),
+        reverse=True
     )
     asc_rows = [(f'{m:.0f} m', k) for m, k in all_asc]
 
